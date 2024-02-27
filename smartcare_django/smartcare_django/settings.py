@@ -38,6 +38,9 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "smartcare_appointments.apps.SmartcareAppointmentsConfig",
+    "smartcare_auth.apps.SmartcareAuthConfig",
+    "smartcare_finance.apps.SmartcareFinanceConfig",
 ]
 
 MIDDLEWARE = [
