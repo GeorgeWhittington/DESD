@@ -1,8 +1,9 @@
 version: '3.8'
 
 services:
-  web:
+  web-rest:
     build: ./smartcare_django
+    container_name: smartcare-web-rest
     command: python manage.py runserver 0.0.0.0:8000
     volumes:
       - ./smartcare_django/:/usr/src/smartcare_django/
@@ -13,8 +14,9 @@ services:
     depends_on:
       - db
   db:
+    container_name: smartcare-db
     image: mysql
-    command: mysqld --default-authentication-plugin=mysql_native_password --port=8080
+    command: mysqld --default-authentication-plugin=mysql_native_password --port 8080
     restart: always
     volumes:
       - mysql_data:/var/lib/mysql/
@@ -25,6 +27,13 @@ services:
       - MYSQL_USER=smartcare
       - MYSQL_PASSWORD=smartcare
       - MYSQL_DATABASE=smartcare
+  web-svelte:
+    build: ./smartcare_svelte
+    container_name: smartcare-web-svelte
+    env_file:
+      - ./.env.dev
+    ports:
+      - 3000:3000
 
 volumes:
   mysql_data:
