@@ -10,7 +10,7 @@ services:
     ports:
       - 8000:8000
     env_file:
-      - ./.env.dev
+      - ./smartcare_django/.env.dev
     depends_on:
       - db
   db:
@@ -29,11 +29,19 @@ services:
       - MYSQL_DATABASE=smartcare
   web-svelte:
     build: ./smartcare_svelte
-    container_name: smartcare-web-svelte
-    env_file:
-      - ./.env.dev
     ports:
-      - 3000:3000
+      - 5173:5173
+    expose:
+      - 5173
+    volumes:
+      - ./smartcare_svelte/src:/smartcare_svelte/src
+      - ./smartcare_svelte/static:/smartcare_svelte/static
+      - ./smartcare_svelte/vite.config.js:/smartcare_svelte/vite.config.js
+      - ./smartcare_svelte/jsconfig.json:/smartcare_svelte/jsconfig.json
+      - ./smartcare_svelte/svelte.config.js:/smartcare_svelte/svelte.config.js
+      - ./smartcare_svelte/.svelte-kit:/smartcare_svelte/.svelte-kit
+    container_name: smartcare-web-svelte
+    command: npm run dev
 
 volumes:
   mysql_data:

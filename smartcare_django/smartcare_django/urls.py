@@ -15,8 +15,24 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
+from rest_framework import routers
+from knox import views as knox_views
+
+from smartcare_auth import views
+
+router = routers.DefaultRouter()
+router.register(r"users", views.UserViewSet)
+router.register(r"auth/register", views.CreateUserView, basename="create")
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path("api/", include(router.urls)),
+# TODO: Being able to log in via the drf frontend should only really be possible in DEBUG, remove or make this conditional on that setting!!!
+    path("api-auth/", include("rest_framework.urls", namespace="rest_framework")),
+    path("api/auth/login/", views.LoginView.as_view(), name="knox_login"),
+    path("api/auth/logout/", knox_views.LogoutView.as_view(), name="knox_logout"),
+    path("api/auth/logoutall/", knox_views.LogoutAllView.as_view(), name="knox_logoutall"),
 ]
+
+urlpatterns += router.urls
