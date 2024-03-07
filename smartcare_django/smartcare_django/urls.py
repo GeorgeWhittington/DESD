@@ -22,7 +22,6 @@ from knox import views as knox_views
 from smartcare_auth import views
 
 router = routers.DefaultRouter()
-router.register(r"users", views.UserViewSet)
 router.register(r"auth/register", views.CreateUserView, basename="create")
 
 urlpatterns = [

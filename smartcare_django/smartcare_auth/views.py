@@ -35,4 +35,3 @@ class CreateUserView(CreateModelMixin, viewsets.GenericViewSet):
     model = get_user_model()
     permission_classes = [permissions.AllowAny]
     serializer_class = UserSerializer
-
