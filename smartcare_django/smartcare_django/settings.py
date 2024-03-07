@@ -28,7 +28,6 @@ DEBUG = bool(os.environ.get("DEBUG", default=0))
 
 ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS", "").split(" ")
 
-
 # Application definition
 
 INSTALLED_APPS = [
@@ -40,6 +39,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "rest_framework",
     "knox",
+    "corsheaders",
     "smartcare_appointments.apps.SmartcareAppointmentsConfig",
     "smartcare_auth.apps.SmartcareAuthConfig",
     "smartcare_finance.apps.SmartcareFinanceConfig",
@@ -48,6 +48,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -140,3 +141,16 @@ REST_FRAMEWORK = {
         ),
     "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticated",),
 }
+
+AUTHENTICATION_BACKENDS = ["smartcare_auth.authentication.UsernameOrEmailBackend"]
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:8000",
+    "https://localhost:8000",
+    "http://0.0.0.0:8000",
+    "https://0.0.0.0:8000",
+    "http://localhost:5173",
+    "https://localhost:5173",
+    "http://0.0.0.0:5173",
+    "https://0.0.0.0:5173"
+]

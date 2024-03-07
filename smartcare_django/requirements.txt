@@ -3,3 +3,4 @@ mysql-connector-python==8.3.0
 django-mysql
 djangorestframework
 django-rest-knox
+django-cors-headers

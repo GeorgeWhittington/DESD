@@ -26,7 +26,7 @@ router.register(r"users", views.UserViewSet)
 router.register(r"auth/register", views.CreateUserView, basename="create")
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path("admin/", admin.site.urls),
     path("api/", include(router.urls)),
 # TODO: Being able to log in via the drf frontend should only really be possible in DEBUG, remove or make this conditional on that setting!!!
     path("api-auth/", include("rest_framework.urls", namespace="rest_framework")),

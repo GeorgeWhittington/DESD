@@ -1,3 +1,5 @@
+from random import randint
+
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
@@ -9,9 +11,24 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
 
     def create(self, validated_data):
         user_type = validated_data["user_type"]
+        first_name = validated_data["first_name"]
+        last_name = validated_data["last_name"]
+
+        fullname = f"{first_name}{last_name}"
+        username = fullname
+
+        # ensure un is unique
+        while True:
+            if UserModel.objects.filter(username=username).exists():
+                rand_num = ''.join(["{}".format(randint(0, 9)) for num in range(0, 8)])
+                username = f"{fullname}-{rand_num}"
+            else:
+                break
 
         user = UserModel.objects.create_user(
-            username=validated_data["username"],
+            username=username,
+            first_name=first_name,
+            last_name=last_name,
             email=validated_data["email"],
             password=validated_data["password"],
             is_active=user_type == 4  # Only patients are automatically activated!
@@ -23,4 +40,11 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = UserModel
-        fields = ["url", "username", "email", "password", "user_type"]
+        fields = ["url", "username", "first_name", "last_name", "email", "password", "user_type"]
+        # Username is constructed from first+last name programatically, no validation needed
+        extra_kwargs = {
+            "username": {
+                "validators": [],
+                "read_only": True
+            }
+        }
