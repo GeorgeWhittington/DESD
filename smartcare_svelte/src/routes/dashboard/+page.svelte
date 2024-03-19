@@ -2,6 +2,7 @@
     import { getContext } from "svelte";
     import { goto } from '$app/navigation';
     import { API_ENDPOINT } from "$lib/constants";
+    import PatientDashboard from "$lib/components/PatientDashboard.svelte";
 
     const session = getContext("session");
 
@@ -36,7 +37,7 @@
     }
 </script>
 
-<div class="container">
+<!-- <div class="container">
     <h1>Dashboard</h1>
     {#if alert !== ""}
     <div class="alert alert-danger" role="alert">{alert}</div>
@@ -44,4 +45,7 @@
     <button type="button" class="btn btn-primary" on:click={logout}>
         Logout
     </button>
+</div> -->
+<div class="container-fluid">
+    <PatientDashboard />
 </div>

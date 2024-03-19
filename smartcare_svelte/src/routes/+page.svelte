@@ -23,7 +23,7 @@
             </li>
             {/each}
             </ul>
-          </div>
+        </div>
     </div>
 </div>
 

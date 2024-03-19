@@ -16,8 +16,7 @@ class LoginView(KnoxLoginView):
 
     """Tokens are revoked after different periods for different users:
     * superusers and admins have tokens revoked after the default Knox ttl
-    * doctors, nurses and external api users have tokens revoked after 10 minutes
-    * patients have tokens revoked after 5 minutes"""
+    * all other users have tokens revoked after 1 hour"""
     def get_token_ttl(self):
         context = self.get_context()
         request = context["request"]
@@ -25,10 +24,8 @@ class LoginView(KnoxLoginView):
         user_type = request.user.user_type
         if user_type in [0, 1]:
             return super().get_token_ttl()
-        elif user_type in [2, 3, 5]:
-            return timedelta(minutes=10)
         else:
-            return timedelta(minutes=5)
+            return timedelta(hour=1)
 
 
 class CreateUserView(CreateModelMixin, viewsets.GenericViewSet):
