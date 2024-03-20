@@ -10,8 +10,8 @@ class User(AbstractUser):
         (1, "admin"),
         (2, "doctor"),
         (3, "nurse"),
-        (4, "patient"),
-        (5, "external")
+        (4, "external"),
+        (5, "patient")
     )
 
     username_validator = UnicodeNoEmailUsernameValidator()
@@ -30,6 +30,9 @@ class User(AbstractUser):
     )
     email = models.EmailField(_("email address"), blank=True, unique=True)
     user_type = models.PositiveSmallIntegerField(choices=USER_TYPE_CHOICES, null=True)
+
+    def is_clinic_staff(self):
+        return self.is_staff or (self.user_type is not None and self.user_type <= 3)
 
 
 # class Patient(models.Model):

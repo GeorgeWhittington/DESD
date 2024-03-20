@@ -26,5 +26,3 @@
         </div>
     </div>
 </div>
-
-<!-- should either show logout options or redirect to dashboard if user is logged in! -->

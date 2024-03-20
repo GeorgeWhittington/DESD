@@ -31,7 +31,7 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
             last_name=last_name,
             email=validated_data["email"],
             password=validated_data["password"],
-            is_active=user_type == 4  # Only patients are automatically activated!
+            is_active=user_type == 5  # Only patients are automatically activated!
         )
         user.user_type = user_type
         user.save(update_fields=["user_type"])

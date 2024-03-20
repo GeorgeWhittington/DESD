@@ -9,11 +9,12 @@
     import { API_ENDPOINT } from "$lib/constants.js";
     export let data;
 
+    // TODO: can you register as a patient??? I don't think you can
     let user_types = [
         {id: "2", text: "Doctor"},
         {id: "3", text: "Nurse"},
         {id: "1", text: "Admin"},
-        {id: "5", text: "External"},
+        {id: "4", text: "External"},
     ];
     let user_type_changed = false;
 
@@ -74,7 +75,7 @@
         let response_json;
 
         try {
-            response = await fetch(`${API_ENDPOINT}/auth/register/`, {
+            response = await fetch(`${API_ENDPOINT}/auth/user/`, {
                 method: "POST",
                 body: JSON.stringify(registrationFinal),
                 headers: {

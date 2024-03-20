@@ -1,6 +1,20 @@
 export const SSR_API_ENDPOINT = "http://web-rest:8000/api"
 export const API_ENDPOINT = "http://localhost:8000/api"
 
+export const BLANK_SESSION = {
+    token: "",
+    userType: null
+}
+
+export const USER_TYPES = {
+    0: "Superuser",
+    1: "Admin",
+    2: "Doctor",
+    3: "Nurse",
+    4: "External",
+    5: "Patient"
+}
+
 export const bootstrapThemes = {
     "default": "https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css",
     "zephyr": "https://cdn.jsdelivr.net/npm/bootswatch@5.3.3/dist/zephyr/bootstrap.min.css",

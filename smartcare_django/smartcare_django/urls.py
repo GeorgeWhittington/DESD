@@ -22,7 +22,7 @@ from knox import views as knox_views
 from smartcare_auth import views
 
 router = routers.DefaultRouter()
-router.register(r"auth/register", views.CreateUserView, basename="create")
+router.register(r"auth/user", views.UserView, basename="user")
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -31,7 +31,7 @@ urlpatterns = [
     path("api-auth/", include("rest_framework.urls", namespace="rest_framework")),
     path("api/auth/login/", views.LoginView.as_view(), name="knox_login"),
     path("api/auth/logout/", knox_views.LogoutView.as_view(), name="knox_logout"),
-    path("api/auth/logoutall/", knox_views.LogoutAllView.as_view(), name="knox_logoutall"),
+    path("api/auth/logoutall/", knox_views.LogoutAllView.as_view(), name="knox_logoutall")
 ]
 
 urlpatterns += router.urls

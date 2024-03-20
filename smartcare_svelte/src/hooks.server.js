@@ -4,7 +4,6 @@ import { bootstrapThemes } from "$lib/constants.js";
 /** @type {import("@sveltejs/kit").Handle} */
 export async function handle({ event, resolve }) {
     const cookies = cookie.parse(event.request.headers.get("cookie") || "");
-    event.locals.token = cookies.token;
     event.locals.theme = cookies.theme || "default";
 
     let theme = bootstrapThemes[event.locals.theme];

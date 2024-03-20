@@ -1,12 +1,13 @@
 <script>
-    import { goto } from '$app/navigation';
+    import { goto } from "$app/navigation";
+    import { getContext } from "svelte";
+    import { API_ENDPOINT, BLANK_SESSION } from "$lib/constants.js";
+
+    const session = getContext("session");
 
     let username = "";
     let password = "";
     let error = "";
-
-    // TODO: check if already logged in (make a /api/me/ endpoint to check token is valid?)
-    // redirect straight to dashboard if so
 
     async function login() {
         let userpass = `${username}:${password}`;
@@ -16,21 +17,40 @@
 
         try {
             // Access django api via svelte proxy (in order to set auth cookie securely)
-            response = await fetch(`/api/login/`, {
-                method: "POST",
-                body: JSON.stringify({ credentials: btoa(userpass) }),
-                headers: {
-                    "content-type": "application/json"
-                }
+            response = await fetch(`${API_ENDPOINT}/auth/login/`, {
+                method: "POST", headers: {"Authorization": `Basic ${btoa(userpass)}`}
             });
             response_json = await response.json();
         } catch (error) {
+            error = "Error, please try again later!";
             return;
         }
 
         if (response.ok) {
             if (error) error = "";
-            goto("/dashboard/");
+            let newSession = structuredClone(BLANK_SESSION);
+            newSession.token = response_json.token;
+
+            try {
+                response = await fetch(`${API_ENDPOINT}/auth/user/me/`, {
+                    method: "GET", headers: {"Authorization": `Token ${response_json.token}`}
+                });
+                response_json = await response.json();
+            } catch (error) {
+                error = "Error, please try again later!";
+                return;
+            }
+
+            if (response.ok) {
+                newSession.userType = response_json.user_type
+                session.set(newSession);
+                goto("/dashboard/");
+            } else if (response.status < 500) {
+                error = response_json.detail;
+            } else {
+                error = "Server Error, please try again later!";
+            }
+
         } else if (response.status < 500) {
             error = response_json.detail;
         } else {
