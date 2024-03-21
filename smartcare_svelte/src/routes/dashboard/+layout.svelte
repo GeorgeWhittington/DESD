@@ -53,12 +53,12 @@
 
 <svelte:window bind:innerWidth={innerWidth} />
 
-<div class="row">
-    <div class="col-lg-3 sticky-top dashboard-nav-wrapper py-2">
+<div class="row container-fluid">
+    <div class="col-lg-3 sticky-top dashboard-nav-wrapper py-2 bg-secondary">
         <nav class="navbar dashboard-nav-controls">
-            <div class="container-fluid">
+            <div class="d-flex flex-row-reverse">
                 <button
-                    class="navbar-toggler ms-auto" type="button"
+                    class="navbar-toggler mx-3" type="button"
                     data-bs-toggle="collapse" data-bs-target="#dashboard-nav"
                     aria-controls="dashboard-nav" aria-expanded="false"
                     aria-label="Toggle navigation"
@@ -68,16 +68,24 @@
             </div>
         </nav>
         <div class="dashboard-nav collapse {alwaysShowNav}" id="dashboard-nav">
+            <div class="d-flex flex-row justify-content-between align-items-center px-3 py-3 text-white">
+                <!-- should actually be username, but I'm not storing that yet -->
+                <span>{$session.firstName} {$session.lastName}</span>
+                <div class="btn-group">
+                    <a href="/" class="btn btn-light"><i class="bi bi-house"></i></a>
+                    <a href="/dashboard/settings/" class="btn btn-light"><i class="bi bi-gear"></i></a>
+                  </div>
+            </div>
             <nav class="nav nav-pills flex-column align-items-stretch">
                 <!-- superuser/admin -->
                 {#if [0, 1].includes($session["userType"])}
-                <NavLink link="#" iconClass="bi-house" title="Home" />
+                <NavLink link="#" iconClass="bi-activity" title="Overview" />
                 <NavLink link="#" iconClass="bi-calendar" title="Schedules" />
                 <NavLink link="#" iconClass="bi-bank" title="Turnover" />
 
                 <!-- doctor/nurse -->
                 {:else if [2, 3].includes($session["userType"])}
-                <NavLink link="#" iconClass="bi-house" title="Home" />
+                <NavLink link="#" iconClass="bi-activity" title="Overview" />
                 <NavLink link="#" iconClass="bi-calendar" title="Schedule" />
                 <NavLink link="#" iconClass="bi-capsule" title="Prescriptions" />
 
@@ -87,14 +95,14 @@
                 <NavLink link="#prescriptions" iconClass="bi-capsule" title="My Prescriptions" />
                 {/if}
                 <!-- svelte-ignore a11y-invalid-attribute -->
-                <a class="nav-link" href="#" role="button" on:click|preventDefault={logout}>
+                <a class="nav-link text-white" href="#" role="button" on:click|preventDefault={logout}>
                     <i class="bi bi-box-arrow-right"></i>
                     Log Out
                 </a>
             </nav>
         </div>
     </div>
-    <div class="col-lg-9">
+    <div class="col-lg-9 py-2">
         <div class="dashboard-body container-fluid">
             <!-- TODO: Alert/Flash component would fit well here -->
 
@@ -128,14 +136,23 @@
         display: none;
     }
 
+    .dashboard-nav-wrapper {
+        height: 100vh;
+    }
+
     @media only screen and (max-width: 992px) {
         .dashboard-body {
             height: initial;
             overflow-y: initial;
+            margin-top: 60px;
         }
 
         .dashboard-nav-wrapper {
-            background-color: var(--bs-body-bg);
+            height: initial;
+            width: 100vw;
+            position: fixed;
+            top: 0;
+            left: 0;
         }
 
         .dashboard-nav-controls {

@@ -43,6 +43,8 @@
 
             if (response.ok) {
                 newSession.userType = response_json.user_type
+                newSession.firstName = response_json.first_name
+                newSession.lastName = response_json.last_name
                 session.set(newSession);
                 goto("/dashboard/");
             } else if (response.status < 500) {

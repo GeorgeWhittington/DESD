@@ -4,7 +4,7 @@
     export let title;
 </script>
 
-<a class="nav-link" href="{link}">
+<a class="nav-link text-white" href="{link}">
     <i class="bi {iconClass}"></i>
     {title}
 </a>
