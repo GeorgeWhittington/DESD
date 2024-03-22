@@ -55,28 +55,25 @@
 
 <div class="row container-fluid">
     <div class="col-lg-3 sticky-top dashboard-nav-wrapper py-2 bg-secondary">
-        <nav class="navbar dashboard-nav-controls">
-            <div class="d-flex flex-row-reverse">
+        <nav class="navbar d-flex flex-row justify-content-between align-items-center flex-nowrap text-white px-3">
+            <span><i class="bi bi-person"></i> {$session.firstName} {$session.lastName}</span>
+            <div>
+                <div class="btn-group">
+                    <a href="/" class="btn btn-light"><i class="bi bi-house"></i></a>
+                    <a href="/dashboard/settings/" class="btn btn-light"><i class="bi bi-gear"></i></a>
+                </div>
                 <button
-                    class="navbar-toggler mx-3" type="button"
+                    class="navbar-toggler bg-light border-0 mx-3 dashboard-nav-controls" type="button"
                     data-bs-toggle="collapse" data-bs-target="#dashboard-nav"
                     aria-controls="dashboard-nav" aria-expanded="false"
                     aria-label="Toggle navigation"
                 >
-                    <span class="navbar-toggler-icon"></span>
+                    <span class="navbar-toggler-icon text-white"></span>
                 </button>
             </div>
         </nav>
         <div class="dashboard-nav collapse {alwaysShowNav}" id="dashboard-nav">
-            <div class="d-flex flex-row justify-content-between align-items-center px-3 py-3 text-white">
-                <!-- should actually be username, but I'm not storing that yet -->
-                <span>{$session.firstName} {$session.lastName}</span>
-                <div class="btn-group">
-                    <a href="/" class="btn btn-light"><i class="bi bi-house"></i></a>
-                    <a href="/dashboard/settings/" class="btn btn-light"><i class="bi bi-gear"></i></a>
-                  </div>
-            </div>
-            <nav class="nav nav-pills flex-column align-items-stretch">
+            <nav class="nav  flex-column align-items-stretch">
                 <!-- superuser/admin -->
                 {#if [0, 1].includes($session["userType"])}
                 <NavLink link="#" iconClass="bi-activity" title="Overview" />
@@ -119,6 +116,8 @@
                 <h4>My Prescriptions</h4>
                 <p>Duis hendrerit pharetra ligula eget interdum. Fusce porttitor lacinia tristique. Curabitur nec nibh a ex cursus consectetur eget id turpis. Nulla nec pretium dolor. Pellentesque ex urna, commodo nec accumsan id, ultrices non sapien. Mauris fringilla pulvinar purus. Integer eu dapibus justo. Morbi eu vehicula lacus. Nam tristique enim est, cursus facilisis nisi finibus ac. Ut vestibulum tincidunt tellus, eu sagittis nisl vulputate et. Sed sagittis lectus eu eros suscipit sodales. Duis imperdiet eget ipsum vitae luctus. Suspendisse potenti. Suspendisse imperdiet diam at ex efficitur, sed eleifend velit viverra.</p>
                 <p>In varius dignissim risus. Mauris vitae egestas diam. Maecenas vitae risus vel diam egestas lacinia eu in metus. Vivamus eleifend aliquam sem, ut mollis quam dignissim quis. Curabitur viverra turpis non eleifend sagittis. Mauris sed urna vehicula, sodales quam vel, rhoncus augue. Duis in sem sed nunc vestibulum tempor vel non orci. Curabitur sem purus, pellentesque iaculis nisi et, posuere accumsan mauris. Quisque libero turpis, ullamcorper vitae sem sed, porta blandit lectus. Integer aliquet id nisl ut interdum.</p>
+                <p>Duis hendrerit pharetra ligula eget interdum. Fusce porttitor lacinia tristique. Curabitur nec nibh a ex cursus consectetur eget id turpis. Nulla nec pretium dolor. Pellentesque ex urna, commodo nec accumsan id, ultrices non sapien. Mauris fringilla pulvinar purus. Integer eu dapibus justo. Morbi eu vehicula lacus. Nam tristique enim est, cursus facilisis nisi finibus ac. Ut vestibulum tincidunt tellus, eu sagittis nisl vulputate et. Sed sagittis lectus eu eros suscipit sodales. Duis imperdiet eget ipsum vitae luctus. Suspendisse potenti. Suspendisse imperdiet diam at ex efficitur, sed eleifend velit viverra.</p>
+                <p>In varius dignissim risus. Mauris vitae egestas diam. Maecenas vitae risus vel diam egestas lacinia eu in metus. Vivamus eleifend aliquam sem, ut mollis quam dignissim quis. Curabitur viverra turpis non eleifend sagittis. Mauris sed urna vehicula, sodales quam vel, rhoncus augue. Duis in sem sed nunc vestibulum tempor vel non orci. Curabitur sem purus, pellentesque iaculis nisi et, posuere accumsan mauris. Quisque libero turpis, ullamcorper vitae sem sed, porta blandit lectus. Integer aliquet id nisl ut interdum.</p>
             </div>
 
             <slot />
@@ -127,6 +126,14 @@
 </div>
 
 <style>
+    .nav-link {
+        border-bottom: 1px solid transparent;
+    }
+
+    .nav-link:hover {
+        border-bottom: 1px solid;
+    }
+
     .dashboard-body {
         height: 100vh;
         overflow-y: scroll;
@@ -144,7 +151,7 @@
         .dashboard-body {
             height: initial;
             overflow-y: initial;
-            margin-top: 60px;
+            margin-top: 70px;
         }
 
         .dashboard-nav-wrapper {

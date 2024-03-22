@@ -8,3 +8,13 @@
     <i class="bi {iconClass}"></i>
     {title}
 </a>
+
+<style>
+    .nav-link {
+        border-bottom: 1px solid transparent;
+    }
+
+    .nav-link:hover {
+        border-bottom: 1px solid;
+    }
+</style>
