@@ -53,9 +53,9 @@
 
 <svelte:window bind:innerWidth={innerWidth} />
 
-<div class="row container-fluid">
-    <div class="col-lg-3 sticky-top dashboard-nav-wrapper py-2 bg-secondary">
-        <nav class="navbar d-flex flex-row justify-content-between align-items-center flex-nowrap text-white px-3">
+<div class="row">
+    <div class="col-lg-3 sticky-top dashboard-nav-wrapper bg-secondary">
+        <nav class="navbar d-flex flex-row justify-content-between align-items-center flex-nowrap text-white pt-2 px-3">
             <span><i class="bi bi-person"></i> {$session.firstName} {$session.lastName}</span>
             <div>
                 <div class="btn-group">
@@ -72,7 +72,7 @@
                 </button>
             </div>
         </nav>
-        <div class="dashboard-nav collapse {alwaysShowNav}" id="dashboard-nav">
+        <div class="dashboard-nav collapse {alwaysShowNav} pb-2" id="dashboard-nav">
             <nav class="nav  flex-column align-items-stretch">
                 <!-- superuser/admin -->
                 {#if [0, 1].includes($session["userType"])}
@@ -99,8 +99,8 @@
             </nav>
         </div>
     </div>
-    <div class="col-lg-9 py-2">
-        <div class="dashboard-body container-fluid">
+    <div class="col-lg-9">
+        <div class="dashboard-body container-fluid py-2">
             <!-- TODO: Alert/Flash component would fit well here -->
 
             <!-- TODO: dummy data, remove -->
