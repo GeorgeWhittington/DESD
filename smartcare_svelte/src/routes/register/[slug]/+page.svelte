@@ -9,7 +9,6 @@
     import { API_ENDPOINT } from "$lib/constants.js";
     export let data;
 
-    // TODO: can you register as a patient??? I don't think you can
     let user_types = [
         {id: "2", text: "Doctor"},
         {id: "3", text: "Nurse"},
@@ -26,6 +25,7 @@
         password_confirm: yup.string().required("Please confirm your password").oneOf([yup.ref("password")], "Passwords must match"),
         user_type: yup.string().required("Please select a user type").oneOf(user_types.map(ut => ut.id), "Please select a user type")
     })
+    let patientRegistrationSchema = registrationSchema.pick(["first_name", "last_name", "email", "password", "password_confirm"]);
 
     let first_name = "";
     let last_name = "";
@@ -33,14 +33,6 @@
     let password = "";
     let password_confirm = "";
     let user_type = "none";
-    $: regData = {
-        first_name: first_name,
-        last_name: last_name,
-        email: email,
-        password: password,
-        password_confirm: password_confirm,
-        user_type: user_type
-    }
 
     let errors = {};
 
@@ -55,8 +47,21 @@
     let serverError = "";
 
     async function register() {
+        let regData = {
+            first_name: first_name,
+            last_name: last_name,
+            email: email,
+            password: password,
+            password_confirm: password_confirm,
+            user_type: data.slug == "patient" ? "5" : user_type
+        }
+
         try {
-            await registrationSchema.validate(regData, { abortEarly: false });
+            if (data.slug == "staff") {
+                await registrationSchema.validate(regData, { abortEarly: false });
+            } else {
+                await patientRegistrationSchema.validate(regData, { abortEarly: false });
+            }
         } catch (outerErr) {
             errors = {};
             for (let err of outerErr.inner) {
