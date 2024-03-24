@@ -2,8 +2,9 @@
     import { getContext } from "svelte";
     import { browser } from '$app/environment';
     import { goto } from "$app/navigation";
-    import { API_ENDPOINT, BLANK_SESSION } from "$lib/constants";
+    import { BLANK_SESSION } from "$lib/constants";
     import NavLink from "$lib/components/NavLink.svelte";
+    import { logout } from "$lib/logout.js";
 
     let innerWidth;
     $: alwaysShowNav = innerWidth >= 992 ? "show" : "";
@@ -27,43 +28,24 @@
 
     let alert = "";
 
-    async function logout() {
-        let response;
-        try {
-            response = await fetch(`${API_ENDPOINT}/auth/logout/`, {
-                method: "POST",
-                headers: {
-                    "Authorization": `Token ${$session.token}`
-                }
-            });
-        } catch (error) {
-            // TODO: helpful error msg
-            return;
-        }
-
-        if (response.status < 500) {
-            session.set(BLANK_SESSION);
-            goto("/");
-        } else {
-            // TODO: replace with flash system implementation
-            alert = "Server error, please try again later!";
-        }
+    async function logoutWrapper() {
+        alert = await logout($session.token, session);
     }
 </script>
 
 <svelte:window bind:innerWidth={innerWidth} />
 
-<div class="row">
+<div class="row g-0">
     <div class="col-lg-3 sticky-top dashboard-nav-wrapper bg-secondary">
-        <nav class="navbar d-flex flex-row justify-content-between align-items-center flex-nowrap text-white pt-2 px-3">
+        <nav class="navbar d-flex flex-row justify-content-between align-items-center text-center flex-nowrap text-white pt-2 px-3">
             <span><i class="bi bi-person"></i> {$session.firstName} {$session.lastName}</span>
             <div>
-                <div class="btn-group">
+                <div class="btn-group ms-1">
                     <a href="/" class="btn btn-light"><i class="bi bi-house"></i></a>
                     <a href="/dashboard/settings/" class="btn btn-light"><i class="bi bi-gear"></i></a>
                 </div>
                 <button
-                    class="navbar-toggler bg-light border-0 mx-3 dashboard-nav-controls" type="button"
+                    class="navbar-toggler bg-light ms-1 border-0 dashboard-nav-controls" type="button"
                     data-bs-toggle="collapse" data-bs-target="#dashboard-nav"
                     aria-controls="dashboard-nav" aria-expanded="false"
                     aria-label="Toggle navigation"
@@ -92,7 +74,7 @@
                 <NavLink link="#prescriptions" iconClass="bi-capsule" title="My Prescriptions" />
                 {/if}
                 <!-- svelte-ignore a11y-invalid-attribute -->
-                <a class="nav-link text-white" href="#" role="button" on:click|preventDefault={logout}>
+                <a class="nav-link text-white" href="#" role="button" on:click|preventDefault={logoutWrapper}>
                     <i class="bi bi-box-arrow-right"></i>
                     Log Out
                 </a>
