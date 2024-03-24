@@ -31,7 +31,8 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
             last_name=last_name,
             email=validated_data["email"],
             password=validated_data["password"],
-            is_active=user_type == 5  # Only patients are automatically activated!
+            is_active=user_type == 5,  # Only patients are automatically activated!
+            is_staff=user_type >= 1  # Admin and Superuser accounts can access the admin site
         )
         user.user_type = user_type
         user.save(update_fields=["user_type"])

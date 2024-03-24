@@ -34,6 +34,9 @@ class User(AbstractUser):
     def is_clinic_staff(self):
         return self.is_staff or (self.user_type is not None and self.user_type <= 3)
 
+    def full_name(self):
+        return f"{self.first_name} {self.last_name}"
+
 
 # class Patient(models.Model):
 #     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
