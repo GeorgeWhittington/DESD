@@ -16,6 +16,11 @@ export const USER_TYPES = {
     5: "Patient"
 }
 
+export const QUICK_SYMPTOMS = {
+    "Mental" : [ "Head Pain" ],
+    "Physical" : [ "Pain in the dick" ]
+}
+
 export const bootstrapThemes = {
     "default": "https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css",
     "vapor": "https://cdn.jsdelivr.net/npm/bootswatch@5.3.3/dist/vapor/bootstrap.min.css",
