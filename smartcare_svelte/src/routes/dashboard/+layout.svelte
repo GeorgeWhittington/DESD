@@ -84,24 +84,6 @@
     <div class="col-lg-9">
         <div class="dashboard-body container-fluid py-2">
             <!-- TODO: Alert/Flash component would fit well here -->
-
-            <!-- TODO: dummy data, remove -->
-            <div id="appointments">
-                <h4>My Appointments</h4>
-                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc velit nibh, eleifend ac ligula eget, efficitur auctor magna. Sed maximus semper suscipit. Aenean ultrices turpis eget diam sagittis, vel interdum elit dignissim. Cras in dolor in arcu placerat commodo. Duis sed laoreet elit, et euismod nisl. Mauris varius ligula vitae porttitor porta. Phasellus aliquam, urna in convallis gravida, mauris est rutrum arcu, a mattis nibh orci sed sapien. Phasellus luctus facilisis dui eu rutrum. Integer velit quam, maximus quis semper quis, commodo pulvinar leo.</p>
-                <p>Suspendisse pharetra elit in dui faucibus faucibus. Vivamus placerat rhoncus nisl, non scelerisque enim pulvinar vitae. Donec fringilla sapien sit amet leo scelerisque ullamcorper. Sed interdum nibh sed ultricies dapibus. Quisque quis tincidunt diam, id faucibus arcu. Duis volutpat in massa at interdum. Sed quam lacus, dictum tristique ex quis, feugiat ornare turpis. Quisque malesuada diam ut sapien tempor tempor.</p>
-                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc velit nibh, eleifend ac ligula eget, efficitur auctor magna. Sed maximus semper suscipit. Aenean ultrices turpis eget diam sagittis, vel interdum elit dignissim. Cras in dolor in arcu placerat commodo. Duis sed laoreet elit, et euismod nisl. Mauris varius ligula vitae porttitor porta. Phasellus aliquam, urna in convallis gravida, mauris est rutrum arcu, a mattis nibh orci sed sapien. Phasellus luctus facilisis dui eu rutrum. Integer velit quam, maximus quis semper quis, commodo pulvinar leo.</p>
-                <p>Suspendisse pharetra elit in dui faucibus faucibus. Vivamus placerat rhoncus nisl, non scelerisque enim pulvinar vitae. Donec fringilla sapien sit amet leo scelerisque ullamcorper. Sed interdum nibh sed ultricies dapibus. Quisque quis tincidunt diam, id faucibus arcu. Duis volutpat in massa at interdum. Sed quam lacus, dictum tristique ex quis, feugiat ornare turpis. Quisque malesuada diam ut sapien tempor tempor.</p>
-            </div>
-
-            <div id="prescriptions">
-                <h4>My Prescriptions</h4>
-                <p>Duis hendrerit pharetra ligula eget interdum. Fusce porttitor lacinia tristique. Curabitur nec nibh a ex cursus consectetur eget id turpis. Nulla nec pretium dolor. Pellentesque ex urna, commodo nec accumsan id, ultrices non sapien. Mauris fringilla pulvinar purus. Integer eu dapibus justo. Morbi eu vehicula lacus. Nam tristique enim est, cursus facilisis nisi finibus ac. Ut vestibulum tincidunt tellus, eu sagittis nisl vulputate et. Sed sagittis lectus eu eros suscipit sodales. Duis imperdiet eget ipsum vitae luctus. Suspendisse potenti. Suspendisse imperdiet diam at ex efficitur, sed eleifend velit viverra.</p>
-                <p>In varius dignissim risus. Mauris vitae egestas diam. Maecenas vitae risus vel diam egestas lacinia eu in metus. Vivamus eleifend aliquam sem, ut mollis quam dignissim quis. Curabitur viverra turpis non eleifend sagittis. Mauris sed urna vehicula, sodales quam vel, rhoncus augue. Duis in sem sed nunc vestibulum tempor vel non orci. Curabitur sem purus, pellentesque iaculis nisi et, posuere accumsan mauris. Quisque libero turpis, ullamcorper vitae sem sed, porta blandit lectus. Integer aliquet id nisl ut interdum.</p>
-                <p>Duis hendrerit pharetra ligula eget interdum. Fusce porttitor lacinia tristique. Curabitur nec nibh a ex cursus consectetur eget id turpis. Nulla nec pretium dolor. Pellentesque ex urna, commodo nec accumsan id, ultrices non sapien. Mauris fringilla pulvinar purus. Integer eu dapibus justo. Morbi eu vehicula lacus. Nam tristique enim est, cursus facilisis nisi finibus ac. Ut vestibulum tincidunt tellus, eu sagittis nisl vulputate et. Sed sagittis lectus eu eros suscipit sodales. Duis imperdiet eget ipsum vitae luctus. Suspendisse potenti. Suspendisse imperdiet diam at ex efficitur, sed eleifend velit viverra.</p>
-                <p>In varius dignissim risus. Mauris vitae egestas diam. Maecenas vitae risus vel diam egestas lacinia eu in metus. Vivamus eleifend aliquam sem, ut mollis quam dignissim quis. Curabitur viverra turpis non eleifend sagittis. Mauris sed urna vehicula, sodales quam vel, rhoncus augue. Duis in sem sed nunc vestibulum tempor vel non orci. Curabitur sem purus, pellentesque iaculis nisi et, posuere accumsan mauris. Quisque libero turpis, ullamcorper vitae sem sed, porta blandit lectus. Integer aliquet id nisl ut interdum.</p>
-            </div>
-
             <slot />
         </div>
     </div>

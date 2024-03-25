@@ -16,11 +16,22 @@ class TimeSlot(IntEnum):
     def choices(cls):
         return [(key.value, key.name) for key in cls]
 
+class AppointmentStage(IntEnum):
+    REQUESTED = 0
+    OPEN = 1
+    COMPLETED = 2
 
+    @classmethod
+    def choices(cls):
+        return [(key.value, key.name) for key in cls]
+    
 class Appointment(models.Model):
     patient = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.CASCADE, related_name='appointment_patient')
     staff = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.CASCADE, related_name='appointment_staff')
     notes = models.TextField(blank=True, null=True)
+
+    # time slot that the patient has selected
+    stage = models.IntegerField(choices=AppointmentStage.choices(), null=False, default=AppointmentStage.REQUESTED)
 
     # time slot that the patient has selected
     time_slot = models.IntegerField(choices=TimeSlot.choices(), null=False)
