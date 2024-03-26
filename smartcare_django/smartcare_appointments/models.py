@@ -24,7 +24,7 @@ class AppointmentStage(IntEnum):
     @classmethod
     def choices(cls):
         return [(key.value, key.name) for key in cls]
-    
+
 class Appointment(models.Model):
     patient = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.CASCADE, related_name='appointment_patient')
     staff = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.CASCADE, related_name='appointment_staff')
