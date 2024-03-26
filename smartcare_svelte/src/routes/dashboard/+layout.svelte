@@ -65,7 +65,7 @@
                 <!-- doctor/nurse -->
                 {:else if [2, 3].includes($session["userType"])}
                 <NavLink link="#" iconClass="bi-activity" title="Overview" />
-                <NavLink link="#" iconClass="bi-calendar" title="Schedule" />
+                <NavLink link="dashboard/schedule" iconClass="bi-calendar" title="Schedule" />
                 <NavLink link="#" iconClass="bi-capsule" title="Prescriptions" />
 
                 <!-- patient -->
