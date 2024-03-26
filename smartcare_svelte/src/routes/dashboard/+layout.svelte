@@ -2,6 +2,7 @@
     import { getContext } from "svelte";
     import { browser } from '$app/environment';
     import { goto } from "$app/navigation";
+    import { page } from '$app/stores';
     import { BLANK_SESSION } from "$lib/constants";
     import NavLink from "$lib/components/NavLink.svelte";
     import { logout } from "$lib/logout.js";
@@ -65,7 +66,17 @@
                 <!-- doctor/nurse -->
                 {:else if [2, 3].includes($session["userType"])}
                 <NavLink link="#" iconClass="bi-activity" title="Overview" />
-                <NavLink link="#" iconClass="bi-calendar" title="Schedule" />
+                <NavLink link="/dashboard/schedule" iconClass="bi-calendar" title="Schedule" />
+                    {#if $page.url.pathname === "/dashboard/schedule"}
+                    <ul>
+                        <li><NavLink link="#" title="Schedule" /></li>
+                        <li><NavLink link="#" title="Appointments" /></li>
+                        <li><NavLink link="#" title="Working Hours" /></li>
+                        <li><NavLink link="#" title="Unplanned Leave" /></li>
+                    </ul>
+                    {/if}
+                <!-- schedule,appointments,working hours and unplanned leave -->
+
                 <NavLink link="#" iconClass="bi-capsule" title="Prescriptions" />
 
                 <!-- patient -->
@@ -109,6 +120,10 @@
 
     .dashboard-nav-wrapper {
         height: 100vh;
+    }
+
+    ul {
+        list-style: none;
     }
 
     @media only screen and (max-width: 992px) {
