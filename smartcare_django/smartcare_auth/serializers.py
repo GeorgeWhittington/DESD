@@ -13,6 +13,7 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
         user_type = validated_data["user_type"]
         first_name = validated_data["first_name"]
         last_name = validated_data["last_name"]
+        employment_type = validated_data.get("employment_type", None)
 
         fullname = f"{first_name}{last_name}"
         username = fullname
@@ -32,16 +33,23 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
             email=validated_data["email"],
             password=validated_data["password"],
             is_active=user_type == 5,  # Only patients are automatically activated!
-            is_staff=user_type >= 1  # Admin and Superuser accounts can access the admin site
+            is_staff=user_type <= 1  # Admin and Superuser accounts can access the admin site
         )
         user.user_type = user_type
-        user.save(update_fields=["user_type"])
+
+        
+        if employment_type:
+            user.employment_type = employment_type
+
+            user.save(update_fields=["user_type","employment_type"])
+        else: 
+            user.save(update_fields=["user_type"])
 
         return user
 
     class Meta:
         model = UserModel
-        fields = ["url", "username", "first_name", "last_name", "email", "password", "user_type"]
+        fields = ["url", "username", "first_name", "last_name", "email", "password", "user_type","employment_type"]
         # Username is constructed from first+last name programatically, no validation needed
         extra_kwargs = {
             "username": {

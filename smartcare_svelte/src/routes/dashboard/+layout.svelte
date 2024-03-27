@@ -66,21 +66,17 @@
                 <!-- doctor/nurse -->
                 {:else if [2, 3].includes($session["userType"])}
                 <NavLink link="#" iconClass="bi-activity" title="Overview" />
-<<<<<<< HEAD
-                <NavLink link="dashboard/schedule" iconClass="bi-calendar" title="Schedule" />
-=======
                 <NavLink link="/dashboard/schedule" iconClass="bi-calendar" title="Schedule" />
                     {#if $page.url.pathname === "/dashboard/schedule"}
                     <ul>
-                        <li><NavLink link="#" title="Schedule" /></li>
-                        <li><NavLink link="#" title="Appointments" /></li>
-                        <li><NavLink link="#" title="Working Hours" /></li>
-                        <li><NavLink link="#" title="Unplanned Leave" /></li>
+                        <li><NavLink link="/dashboard/schedule#ScheduleHeader" title="Schedule" /></li>
+                        <li><NavLink link="/dashboard/schedule#appointmentHeader" title="Appointments" /></li>
+                        <li><NavLink link="/dashboard/schedule#workingDaysHeader" title="Working Days" /></li>
+                        <li><NavLink link="/dashboard/schedule#unplannedLeaverHeader" title="Unplanned Leave" /></li>
                     </ul>
                     {/if}
                 <!-- schedule,appointments,working hours and unplanned leave -->
 
->>>>>>> main
                 <NavLink link="#" iconClass="bi-capsule" title="Prescriptions" />
 
                 <!-- patient -->
