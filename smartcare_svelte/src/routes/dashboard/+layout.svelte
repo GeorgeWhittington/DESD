@@ -70,14 +70,11 @@
                     {#if $page.url.pathname === "/dashboard/schedule"}
                     <ul>
                         <li><NavLink link="/dashboard/schedule#ScheduleHeader" title="Schedule" /></li>
-                        <li><NavLink link="/dashboard/schedule#appointmentHeader" title="Appointments" /></li>
                         <li><NavLink link="/dashboard/schedule#holidaysHeader" title="Holiday" /></li>
                         <li><NavLink link="/dashboard/schedule#unplannedLeaverHeader" title="Unplanned Leave" /></li>
                     </ul>
                     {/if}
-                <!-- schedule,appointments,working hours and unplanned leave -->
-
-                <NavLink link="#" iconClass="bi-capsule" title="Prescriptions" />
+                <NavLink link="/dashboard/prescriptions" iconClass="bi-capsule" title="Prescriptions" />
 
                 <!-- patient -->
                 {:else if $session["userType"] === 5}
