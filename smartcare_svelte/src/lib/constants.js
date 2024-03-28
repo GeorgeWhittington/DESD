@@ -16,6 +16,36 @@ export const USER_TYPES = {
     5: "Patient"
 }
 
+export const QUICK_SYMPTOMS = {
+
+    "Physical": ["Bite or sting",
+        "Bleeding",
+        "Bruise(s)",
+        "Injury or burn",
+        "Itching",
+        "Lump(s)",
+        "Paralysis",
+        "Weight Loss",
+        "Weight gain",
+        "Blue lips",
+        "Croaky voice or hoarseness",
+        "Difficulty hearing",
+        "Difficulty seeing",
+        "Difficulty speaking",
+        "Difficulty swallowing",
+        "Dizziness",
+        "Loss or change to sense of smell or taste "],
+
+    "Mental": ["Changed Behaviour",
+        "Concentration Difficulty",
+        "Depression or anxiety",
+        "Memory problem",
+        "Nausea",
+        "Difficulty sleeping",
+        "Irritable or restless",
+        "Loss of appetite"],    
+}
+
 export const bootstrapThemes = {
     "default": "https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css",
     "vapor": "https://cdn.jsdelivr.net/npm/bootswatch@5.3.3/dist/vapor/bootstrap.min.css",

@@ -81,7 +81,7 @@
 
                 <!-- patient -->
                 {:else if $session["userType"] === 5}
-                <NavLink link="#appointments" iconClass="bi-calendar" title="My Appointments" />
+                <NavLink link="/dashboard/appointments" iconClass="bi-calendar" title="My Appointments" />
                 <NavLink link="#prescriptions" iconClass="bi-capsule" title="My Prescriptions" />
                 {/if}
                 <!-- svelte-ignore a11y-invalid-attribute -->
