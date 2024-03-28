@@ -71,7 +71,7 @@
                     <ul>
                         <li><NavLink link="/dashboard/schedule#ScheduleHeader" title="Schedule" /></li>
                         <li><NavLink link="/dashboard/schedule#appointmentHeader" title="Appointments" /></li>
-                        <li><NavLink link="/dashboard/schedule#workingDaysHeader" title="Working Days" /></li>
+                        <li><NavLink link="/dashboard/schedule#holidaysHeader" title="Holiday" /></li>
                         <li><NavLink link="/dashboard/schedule#unplannedLeaverHeader" title="Unplanned Leave" /></li>
                     </ul>
                     {/if}
