@@ -17,8 +17,33 @@ export const USER_TYPES = {
 }
 
 export const QUICK_SYMPTOMS = {
-    "Mental" : [ "Head Pain" ],
-    "Physical" : [ "Pain in the dick" ]
+
+    "Physical": ["Bite or sting",
+        "Bleeding",
+        "Bruise(s)",
+        "Injury or burn",
+        "Itching",
+        "Lump(s)",
+        "Paralysis",
+        "Weight Loss",
+        "Weight gain",
+        "Blue lips",
+        "Croaky voice or hoarseness",
+        "Difficulty hearing",
+        "Difficulty seeing",
+        "Difficulty speaking",
+        "Difficulty swallowing",
+        "Dizziness",
+        "Loss or change to sense of smell or taste "],
+
+    "Mental": ["Changed Behaviour",
+        "Concentration Difficulty",
+        "Depression or anxiety",
+        "Memory problem",
+        "Nausea",
+        "Difficulty sleeping",
+        "Irritable or restless",
+        "Loss of appetite"],    
 }
 
 export const bootstrapThemes = {

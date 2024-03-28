@@ -20,6 +20,7 @@ class AppointmentStage(IntEnum):
     REQUESTED = 0
     OPEN = 1
     COMPLETED = 2
+    CANCELLED = 3
 
     @classmethod
     def choices(cls):
@@ -33,8 +34,13 @@ class Appointment(models.Model):
     # time slot that the patient has selected
     stage = models.IntegerField(choices=AppointmentStage.choices(), null=False, default=AppointmentStage.REQUESTED)
 
+    slot_number = models.IntegerField(default=-1)
+
     # time slot that the patient has selected
     time_slot = models.IntegerField(choices=TimeSlot.choices(), null=False)
+
+    # symptom duration (measured in days)
+    symptom_duration = models.IntegerField(null=False, default=1)
 
     # time that the staff has assigned based on time slot
     assigned_start_time = models.DateTimeField(null=True)

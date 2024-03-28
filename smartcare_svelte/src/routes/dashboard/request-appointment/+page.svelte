@@ -1,16 +1,32 @@
 <script>
     import { API_ENDPOINT, BLANK_SESSION, QUICK_SYMPTOMS } from "$lib/constants";
     import { getContext } from "svelte";
+    import QuickSymptomSelect from "$lib/components/QuickSymptomSelect.svelte";
+    import { goto } from '$app/navigation';
 
     const session = getContext("session");
 
-    let reason;
+    let reason = "";
+    let reasonElement;
     let time_slot;
+    let symptom_duration = 1;
+
+    const scrollToBottom = async (node) => {
+        node.scroll({ top: node.scrollHeight, behavior: 'smooth' });
+     }; 
+  
+    function quickSymptomClicked(event) {
+        if (reason.length > 0) {
+            reason += "\n";
+        }
+        reason += event.detail.text;
+        scrollToBottom(reasonElement);
+    }
 
     export async function requestAppointment() {
         let response;
 
-        let req_body = { reason: reason, time_slot: time_slot };
+        let req_body = { reason: reason, time_slot: time_slot, symptom_duration : symptom_duration };
 
         try {
             response = await fetch(`${API_ENDPOINT}/appointments/`, {
@@ -21,6 +37,9 @@
                 },
                 body: JSON.stringify(req_body),
             });
+
+            goto('/dashboard/appointments');
+            
         } catch (error) {
             return "Server error, please try again later!";
         }
@@ -47,57 +66,47 @@
             </div>
         </div>
 
-        <div class="card mb-2">
-            <div class="card-body">
-                <label class="card-title">Quick-Add Symptoms</label>
-
-                <ul class="nav nav-tabs" id="myTab" role="tablist">
-                {#each Object.entries(QUICK_SYMPTOMS) as [qs]}
-                <li class="nav-item" role="presentation">
-                    <button
-                        class="nav-link active"
-                        id={qs+"-tab"}
-                        data-bs-toggle="tab"
-                        data-bs-target={"#" + qs}
-                        type="button"
-                        role="tab"
-                        aria-controls={qs}
-                        aria-selected="true">{qs}</button
-                    >
-                </li>
-                {/each}
-                </ul>
-                <div class="tab-content" id="myTabContent">
-                    {#each Object.entries(QUICK_SYMPTOMS) as [qs]}
-
-                    <div
-                        class="tab-pane fade"
-                        id={qs}
-                        role="tabpanel"
-                        aria-labelledby={qs+"-tab"}
-                    >
-                        hi
-                        {#each Object.entries(qs) as [symptom]}
-                            <p>{symptom}</p>
-                            hi
-                        {/each}
-                    </div>
-                    {/each}
-                </div>
-            </div>
-        </div>
+        
+        <QuickSymptomSelect on:symptomClicked={quickSymptomClicked}></QuickSymptomSelect>
 
         <!-- Reason -->
         <div class="mb-3">
             <label for="txtNotes" class="form-label"
-                >Reason for appointment</label
+                >Describe Symptoms</label
             >
-            <textarea
+            <textarea bind:this={reasonElement}
                 class="form-control"
                 id="txtNotes"
-                rows="3"
+                rows="6"
                 bind:value={reason}
             ></textarea>
+        </div>
+
+        <!-- Symptom Duration -->
+        <div class="mb-3">
+
+            <label for="txtSymptomDuration" class="form-label"
+                >Duration of symptoms</label>
+
+            <div class="input-group mb-3">
+                
+            
+            <input type="number" class="form-control" id="txtSymptomDuration" bind:value={symptom_duration}>
+
+            <select
+                    class="form-select"
+                    id="selSymptomDuration"
+                >
+                    <option value="0" selected>Hours</option>
+                    <option value="1" selected>Days</option>
+                    <option value="2">Months</option>
+                </select>
+
+              </div>
+
+            
+
+            
         </div>
 
         <!-- Submit Button -->
