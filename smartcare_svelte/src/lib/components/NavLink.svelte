@@ -1,6 +1,6 @@
 <script>
     export let link;
-    export let iconClass;
+    export let iconClass = "";
     export let title;
 </script>
 
