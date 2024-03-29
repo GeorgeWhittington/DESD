@@ -4,6 +4,9 @@
     import interactionPlugin from '@fullcalendar/interaction'
     import daygridPlugin from '@fullcalendar/daygrid';
 
+    let selectedStart = null;
+    let selectedEnd = null;
+
     let appointmentEvents = [
       {
         title: 'Appointment',
@@ -27,7 +30,7 @@
     ]
 
 
-    let options1 = {
+    let options2 = {
         initialView: 'dayGridMonth',
         plugins: [daygridPlugin, interactionPlugin],
         editable: false,
@@ -37,7 +40,7 @@
         events: [...appointmentEvents, ...holidayEvents]
     }
 
-    let options2 = {
+    let options1 = {
         initialView: 'dayGridMonth',
         plugins: [daygridPlugin, interactionPlugin],
         editable: true,
@@ -45,7 +48,7 @@
         aspectRatio: 1.5,
         height: 660,
         select: handleDateSelect,
-        events: holidayEvents
+        events: [...appointmentEvents, ...holidayEvents]
     }
 
     // @ts-ignore
@@ -53,16 +56,29 @@
         const today = new Date();
         const twoWeeksFromToday = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 14);
         const startDate = new Date(selectInfo.startStr);
+        selectedStart = selectInfo.startStr
+        selectedEnd = selectInfo.endStr
 
+        console.log("range1: ",selectedEnd-selectedStart)
 
         if (startDate >= twoWeeksFromToday){
-            let confirmed = confirm(`Do you want to book off from ${selectInfo.startStr} to ${selectInfo.endStr}?`);
-            if (confirmed) {
-                console.log(selectInfo.startStr)
-            }
+            document.getElementById('bookTimeOffButton').disabled = false;
+            
         }
-        
+  
     }
+
+    function bookTimeOff() {
+
+        document.getElementById('bookTimeOffButton').disabled = true;
+        let confirmed = confirm(`Book the selected date/days off?`);
+        if(confirmed){
+            console.log("range: ",selectedEnd-selectedStart)
+        }
+        selectedStart = null;
+        selectedEnd = null;
+        
+}
 
     function updateWorkingDays(){
         
@@ -76,84 +92,16 @@
     <div class="card">
         <div class="card-body">
             <div class="schedule-calendar">
+                
                 <FullCalendar options={options1} />
+                <p>To book time off, click or drag the desired dates. Please note, holiday must be booked at least 2 weeks in advance.</p>
+                <button class="btn btn-primary mt-2" id="bookTimeOffButton" on:click="{bookTimeOff}" disabled> Book Time Off</button>
             </div>
         </div>
     </div>
 </div>
 
-
-
-<div class="container mt-4">
-    <div class="row">
-        <div class="col">
-
-            <h2 id="appointmentHeader">Appointments</h2>
-    
-            <div class="card">
-                <div class="card-body">
-    
-                    <!-- <button class="btn btn-primary" on:click={createAppointment}>
-                        Create Appointment
-                    </button> -->
-    
-                    <!-- <form on:submit|preventDefault={updateWorkingHours}> -->
-                        
-                        <div class="card mt-3">
-                            <div class="card-body">
-            
-                                <p>Appointment details</p>
-                                <p>Appointment status</p>
-    
-                                <!-- <button class="btn btn-primary mt-2" on:click={ammendAppointment}>
-                                Ammend Appointment
-                                </button> -->
-                                
-                            </div> 
-                        </div>
-    
-                        <div class="card mt-3">
-                            <div class="card-body">
-    
-                                <p>Appointment details</p>
-                                <p>Appointment status</p>
-    
-                                <!-- <button class="btn btn-primary mt-2" on:click={ammendAppointment}>
-                                Ammend Appointment
-                                </button> -->
-                                
-                            </div> 
-                        </div>
-                    <!-- </form> -->
-                </div>
-            </div>
-
-        </div>
-    </div>
-</div>
-
-<div class="container mt-4">
-    <div class="row">
-        <div class="col">
-            <h2 id="holidaysHeader">Holiday</h2>
-            <div class="card">
-                <div class="card-body">
-
-                    <div class="form-group">
-                        <p>To book time off, click or drag the desired dates. Please note, holiday must be booked at least 2 weeks in advance.</p>
-                        <FullCalendar options={options2} />
-                    </div>
-
-                </div>
-            </div>
-        </div>
-    </div>
-</div>        
-            
-        
-
-    
-
+  
 
 <div class="container mt-4">
     <div class="row">
@@ -161,16 +109,15 @@
             <h2 id="unplannedLeaverHeader">Unplanned leave</h2>
             <div class="card">
                 <div class="card-body">
-                    <!-- <form on:submit|preventDefault={updateWorkingDays}> -->
+
 
                     <div class="form-group">
                         <p>Please enter the dates and time you will not be available within the next two weeks. Any appointments must be appointed to another member of staff else </p>
-                        <!-- <input type="time" bind:value={workingHours.start} />
-                        <input type="time" bind:value={workingHours.end} /> -->
+
                     </div>
 
                     <button type="submit" class="btn btn-primary mt-3">Report</button>
-                    <!-- </form> -->
+
                 </div>
             </div>
         </div>

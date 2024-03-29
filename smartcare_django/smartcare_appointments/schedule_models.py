@@ -11,7 +11,7 @@ class NonWorkingDays(models.Model):
     
 
 def update_working_days(user):
-    pass
+    print("TEST")
 
 def report_unavailability(start_date, end_date=None):
     pass

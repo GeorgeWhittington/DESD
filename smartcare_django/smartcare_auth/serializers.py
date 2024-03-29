@@ -1,19 +1,28 @@
 from random import randint
 
 from django.contrib.auth import get_user_model
+from smartcare_auth.models import Staff
 from rest_framework import serializers
 
 UserModel = get_user_model()
 
+class StaffSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Staff
+        fields = ['employment_type']
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
     password = serializers.CharField(write_only=True)
 
+    #not all users will need the staff serializer 
+    staff_info = StaffSerializer(required=False)
+
     def create(self, validated_data):
+        staff_info = validated_data.pop('staff_info', {})
         user_type = validated_data["user_type"]
         first_name = validated_data["first_name"]
         last_name = validated_data["last_name"]
-        employment_type = validated_data.get("employment_type", None)
+
 
         fullname = f"{first_name}{last_name}"
         username = fullname
@@ -37,19 +46,17 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
         )
         user.user_type = user_type
 
+        user.save(update_fields=["user_type"])
+
+
+        if user_type in [2, 3]:
+            Staff.objects.create(user=user, employment_type=staff_info.get('employment_type') if staff_info else None)
         
-        if employment_type:
-            user.employment_type = employment_type
-
-            user.save(update_fields=["user_type","employment_type"])
-        else: 
-            user.save(update_fields=["user_type"])
-
         return user
 
     class Meta:
         model = UserModel
-        fields = ["url", "username", "first_name", "last_name", "email", "password", "user_type","employment_type"]
+        fields = ["url", "username", "first_name", "last_name", "email", "password", "user_type", "staff_info"]
         # Username is constructed from first+last name programatically, no validation needed
         extra_kwargs = {
             "username": {
@@ -57,3 +64,4 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
                 "read_only": True
             }
         }
+
