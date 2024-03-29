@@ -189,3 +189,15 @@ SLOTS = {
 }
 
 
+DAY_CHOICES = [
+    ('Monday', 'Monday'), 
+    ('Tuesday', 'Tuesday'), 
+    ('Wednesday', 'Wednesday'), 
+    ('Thursday', 'Thursday'), 
+    ('Friday', 'Friday'), 
+    ('Saturday', 'Saturday'), 
+    ('Sunday', 'Sunday'),
+]
+
+FULL_TIME_WORKING_DAYS = ['Tuesday', 'Wednesday', 'Thursday', 'Saturday', 'Sunday']
+PART_TIME_WORKING_DAYS = ['Monday', 'Friday']

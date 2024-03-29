@@ -2,12 +2,35 @@ from django.contrib import admin, messages
 from django.contrib.auth.admin import UserAdmin
 from django.utils.translation import ngettext
 from django.db import transaction
-from smartcare_appointments.schedule_models import update_working_days
+from smartcare_appointments.schedule_models import update_working_days, Holiday, WorkingDay
 from .models import User, EmploymentType, Staff
 
+class WorkingDayInline(admin.TabularInline):
+    model = WorkingDay
+    extra = 0 
+    can_delete = False
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        # If there is an object being edited (i.e., we're not creating a new one)
+        if hasattr(self, 'instance') and self.instance is not None:
+            assigned_days = qs.values_list('day', flat=True)
+            self.form.base_fields['day'].queryset = self.form.base_fields['day'].queryset.exclude(name__in=assigned_days)
+        return qs
+
+
+class HolidayInline(admin.TabularInline):
+    model = Holiday
+    extra = 1  
+
+@admin.register(Staff)
+class StaffAdmin(admin.ModelAdmin):
+    inlines = (WorkingDayInline, HolidayInline,)
+
+
+
+
 class StaffInline(admin.StackedInline):
-    model = Staff
-    can_delete = False  
+    model = Staff 
     verbose_name_plural = 'staff'
     fk_name = 'user'
     extra = 0
