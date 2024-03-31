@@ -2,13 +2,14 @@ from django.contrib import admin, messages
 from django.contrib.auth.admin import UserAdmin
 from django.utils.translation import ngettext
 from django.db import transaction
-from smartcare_appointments.schedule_models import update_working_days, Holiday, WorkingDay
+from smartcare_appointments.schedule_models import TimeOff, WorkingDay
+from smartcare_appointments.schedule_logic import update_working_days
 from .models import User, EmploymentType, Staff
 
 class WorkingDayInline(admin.TabularInline):
     model = WorkingDay
     extra = 0 
-    can_delete = False
+    can_delete = True
     def get_queryset(self, request):
         qs = super().get_queryset(request)
         # If there is an object being edited (i.e., we're not creating a new one)
@@ -18,13 +19,13 @@ class WorkingDayInline(admin.TabularInline):
         return qs
 
 
-class HolidayInline(admin.TabularInline):
-    model = Holiday
+class TimeOffInline(admin.TabularInline):
+    model = TimeOff
     extra = 1  
 
 @admin.register(Staff)
 class StaffAdmin(admin.ModelAdmin):
-    inlines = (WorkingDayInline, HolidayInline,)
+    inlines = (WorkingDayInline, TimeOffInline,)
 
 
 

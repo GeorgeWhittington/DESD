@@ -6,8 +6,9 @@ from rest_framework.authentication import BasicAuthentication
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from knox.views import LoginView as KnoxLoginView
-
-from .serializers import UserSerializer
+from .models import Staff
+from .serializers import UserSerializer, StaffSerializer
+from smartcare_appointments.schedule_serializers import WorkingDaySerializer, TimeOffSerializer
 
 
 # Default auth is token auth, but this can't be used when *obtaining* the token originally
@@ -52,3 +53,8 @@ class UserView(mixins.CreateModelMixin, mixins.ListModelMixin, mixins.RetrieveMo
     def me(self, request):
         user = UserSerializer(request.user, context={"request": request})
         return Response(user.data)
+    
+class StaffView(viewsets.ModelViewSet):
+    serializer_class = StaffSerializer
+    queryset = Staff.objects.all().prefetch_related('timeOff')
+    

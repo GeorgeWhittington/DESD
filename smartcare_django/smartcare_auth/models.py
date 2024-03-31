@@ -58,7 +58,7 @@ class Staff(models.Model):
     employment_type = models.CharField(max_length=2, choices=EmploymentType.choices, blank=True, null=True)
 
     def __str__(self):
-        return f"{self.user.full_name()} - {self.get_employment_type_display()}"
+        return f"{self.user.full_name()}"
 
     def is_full_time(self):
         return self.employment_type == EmploymentType.FULL_TIME.value

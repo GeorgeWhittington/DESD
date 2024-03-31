@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.db import models
-from smartcare_auth.models import User, Staff,EmploymentType
-from enum import IntEnum
+from smartcare_auth.models import Staff
+
 
 
 class WorkingDay(models.Model):
@@ -14,30 +14,16 @@ class WorkingDay(models.Model):
     class Meta:
         unique_together = ('staff', 'day')
 
-class Holiday(models.Model):
-    staff = models.ForeignKey(Staff, on_delete=models.CASCADE, related_name='holidays')
-    date = models.DateField()
+
+class TimeOff(models.Model):
+    staff = models.ForeignKey(Staff, on_delete=models.CASCADE, related_name='timeOff')
+    start_date = models.DateField(blank= False, null= True)
+    end_date = models.DateField(blank= False, null= True)
+    reason = models.CharField(max_length=100, blank=True, default= 'Holiday')
 
     def __str__(self):
-        return f"{self.staff.user.full_name()} - {self.date}"
+        return f"{self.staff.user.full_name()} - from {self.start_date} to {self.end_date}"
     
-
-def update_working_days(staff):
-    # Define which days are target days based on employment type
-    if staff.employment_type == EmploymentType.FULL_TIME:
-        target_days = settings.FULL_TIME_WORKING_DAYS
-    elif staff.employment_type == EmploymentType.PART_TIME:
-        target_days = settings.PART_TIME_WORKING_DAYS
-    else:
-        target_days = []
-
-    staff.working_days.exclude(day__in=target_days).delete()
+    class Meta:
+        unique_together = ('staff', 'start_date','end_date')
     
-    for day in target_days:
-        WorkingDay.objects.get_or_create(staff=staff, day=day)
-
-def report_unavailability(start_date, end_date=None):
-    pass
-
-def calculate_available_slots(user, date):
-    pass

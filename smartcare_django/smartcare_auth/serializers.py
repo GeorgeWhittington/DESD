@@ -1,21 +1,30 @@
 from random import randint
-
+from smartcare_appointments.schedule_serializers import WorkingDaySerializer, TimeOffSerializer
 from django.contrib.auth import get_user_model
-from smartcare_auth.models import Staff
+from .models import Staff
 from rest_framework import serializers
 
 UserModel = get_user_model()
 
+
+
 class StaffSerializer(serializers.ModelSerializer):
+    working_days = WorkingDaySerializer(many=True, read_only=True)
+    time_off = TimeOffSerializer(many=True, read_only=True,source='timeOff')
     class Meta:
         model = Staff
-        fields = ['employment_type']
+        fields = ['user','employment_type','working_days', 'time_off']
+
+class StaffBasicSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Staff
+        fields = ['user','employment_type']
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
     password = serializers.CharField(write_only=True)
 
     #not all users will need the staff serializer 
-    staff_info = StaffSerializer(required=False)
+    staff_info = StaffBasicSerializer(required=False)
 
     def create(self, validated_data):
         staff_info = validated_data.pop('staff_info', {})
@@ -56,7 +65,7 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = UserModel
-        fields = ["url", "username", "first_name", "last_name", "email", "password", "user_type", "staff_info"]
+        fields = ["url", "id","username", "first_name", "last_name", "email", "password", "user_type", "staff_info"]
         # Username is constructed from first+last name programatically, no validation needed
         extra_kwargs = {
             "username": {

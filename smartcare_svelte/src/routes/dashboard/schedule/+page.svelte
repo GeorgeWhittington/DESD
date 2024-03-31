@@ -1,55 +1,53 @@
 <script>
     import { onMount } from 'svelte';
+    import { API_ENDPOINT,USER_ID} from "$lib/constants";
+    import { getContext } from "svelte";
     import FullCalendar from 'svelte-fullcalendar';
     import interactionPlugin from '@fullcalendar/interaction'
     import daygridPlugin from '@fullcalendar/daygrid';
+    const session = getContext("session");
+    
 
     let selectedStart = null;
     let selectedEnd = null;
 
-    let appointmentEvents = [
-      {
-        title: 'Appointment',
-        start: '2024-03-26',
-        color: '#ff9f89'
-      },
-      {
-        title: 'Appointment',
-        start: '2024-03-26',
-        color: '#ff9f89'
-      }
-    ]
+    let timeOffEvents = []
+    let options = {
+        initialView: 'dayGridMonth',
+        plugins: [daygridPlugin, interactionPlugin],
+        
+    };
 
-    let holidayEvents = [
-      {
-        title: 'Holiday',
-        start: '2024-03-28',
-        end: '2024-03-30',
-        color: '#a4bdfc'
-      }
-    ]
+    onMount(async () => {
+        const response = await fetch(`${API_ENDPOINT}/timeoff/`,{
+            headers: {
+                Authorization: `Token ${$session.token}`,
+                "content-type": "application/json",
+            }
+        });
+        const data = await response.json();
+        timeOffEvents = data
+        .filter(item => item.staff === $session.userId)
+        .map(item => ({
+        title: item.reason,
+        start: item.start_date,
+        end: item.end_date
+        }));
 
+        
 
-    let options2 = {
+        options = {
         initialView: 'dayGridMonth',
         plugins: [daygridPlugin, interactionPlugin],
         editable: false,
-        selectable: false,
-        aspectRatio: 1.5,
-        height: 660,
-        events: [...appointmentEvents, ...holidayEvents]
-    }
-
-    let options1 = {
-        initialView: 'dayGridMonth',
-        plugins: [daygridPlugin, interactionPlugin],
-        editable: true,
         selectable: true,
         aspectRatio: 1.5,
         height: 660,
         select: handleDateSelect,
-        events: [...appointmentEvents, ...holidayEvents]
-    }
+        events: timeOffEvents //events: [...timeOffEvents]
+        };
+    });
+
 
     // @ts-ignore
     function handleDateSelect(selectInfo) {
@@ -93,7 +91,7 @@
         <div class="card-body">
             <div class="schedule-calendar">
                 
-                <FullCalendar options={options1} />
+                <FullCalendar options={options} />
                 <p>To book time off, click or drag the desired dates. Please note, holiday must be booked at least 2 weeks in advance.</p>
                 <button class="btn btn-primary mt-2" id="bookTimeOffButton" on:click="{bookTimeOff}" disabled> Book Time Off</button>
             </div>

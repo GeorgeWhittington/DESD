@@ -25,6 +25,8 @@ from smartcare_appointments import views as appointment_views
 router = routers.DefaultRouter()
 router.register(r"auth/user", views.UserView, basename="user")
 router.register(r"appointments", appointment_views.AppointmentView)
+router.register(r"staff", views.StaffView, basename="staff")
+router.register(r'timeoff', appointment_views.TimeOffView)
 
 urlpatterns = [
     path("admin/", admin.site.urls),

@@ -1,7 +1,8 @@
 from rest_framework import serializers
-
+from smartcare_appointments.schedule_models import TimeOff
 from smartcare_appointments.models import AppointmentStage, Appointment
 from smartcare_auth.serializers import UserSerializer
+
 
 class AppointmentSerializer(serializers.ModelSerializer):
     patient = UserSerializer(read_only=True)
@@ -31,3 +32,5 @@ class AppointmentSerializer(serializers.ModelSerializer):
                 "required": False
             }
         }
+
+
