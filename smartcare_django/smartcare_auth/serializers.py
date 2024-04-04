@@ -1,8 +1,11 @@
 from random import randint
-from smartcare_appointments.schedule_serializers import WorkingDaySerializer, TimeOffSerializer
+
+from django.db.models import Q
 from django.contrib.auth import get_user_model
-from .models import Staff
 from rest_framework import serializers
+
+from .models import Staff, PayRate, UserType
+from smartcare_appointments.schedule_serializers import WorkingDaySerializer, TimeOffSerializer
 
 UserModel = get_user_model()
 
@@ -50,15 +53,23 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
             last_name=last_name,
             email=validated_data["email"],
             password=validated_data["password"],
-            is_active=user_type == 5,  # Only patients are automatically activated!
-            is_staff=user_type <= 1  # Admin and Superuser accounts can access the admin site
+            is_active=user_type == UserType.PATIENT,  # Only patients are automatically activated!
+            is_staff=user_type <= UserType.ADMIN  # Admin and Superuser accounts can access the admin site
         )
         user.user_type = user_type
 
         user.save(update_fields=["user_type"])
 
-        if user_type in [2, 3]:
-            Staff.objects.create(user=user, employment_type=staff_info.get('employment_type') if staff_info else None)
+        if user_type in [UserType.DOCTOR, UserType.NURSE]:
+            if user_type == UserType.DOCTOR:
+                payrate = PayRate.objects.get(Q(title="doctor"))
+            else:
+                payrate = PayRate.objects.get(Q(title="nurse"))
+
+            Staff(
+                user=user,
+                employment_type=staff_info.get('employment_type') if staff_info else None,
+                payrate=payrate)
 
         return user
 

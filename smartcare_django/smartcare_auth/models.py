@@ -42,8 +42,11 @@ class User(AbstractUser):
     email = models.EmailField(_("email address"), blank=True, unique=True)
     user_type = models.PositiveSmallIntegerField(choices=UserType.choices(), null=False, default=0)
 
+    def is_clinic_admin(self):
+        return self.is_staff or (self.user_type is not None and self.user_type == UserType.ADMIN)
+
     def is_clinic_staff(self):
-        return self.is_staff or (self.user_type is not None and self.user_type <= 3)
+        return self.is_staff or (self.user_type is not None and self.user_type <= UserType.NURSE)
 
     def full_name(self):
         return f"{self.first_name} {self.last_name}"
@@ -55,12 +58,14 @@ class User(AbstractUser):
 
 
 class PayRate(models.Model):
+    title = models.CharField(max_length=150, unique=True, null=False)
     rate = models.FloatField(null=False, validators=[MinValueValidator(0.01)])
 
 
 class Staff(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True, related_name='staff_info')
     employment_type = models.CharField(max_length=2, choices=EmploymentType.choices, blank=True, null=True)
+    payrate = models.ForeignKey(PayRate, null=True, on_delete=models.CASCADE, related_name="staff_payrate")
 
     def __str__(self):
         return f"{self.user.full_name()}"

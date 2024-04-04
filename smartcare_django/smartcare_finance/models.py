@@ -26,16 +26,11 @@ class Invoice(models.Model):
 
         duration = self.appointment.actual_end_time - self.appointment.actual_start_time
 
-        # TODO: fetch this from the database, properly
-        if self.appointment.staff.user_type == UserType.NURSE:
-            rate = NURSE_RATE
-        elif self.appointment.staff.user_type == UserType.DOCTOR:
-            rate = DOCTOR_RATE
-        else:
-            raise ValidationError("An invoice cannot be created for an appointment not carried out by a doctor or nurse")
+        if not hasattr(self.appointment.staff, "staff_info") or not hasattr(self.appointment.staff.staff_info, "payrate"):
+            raise ValidationError("Cannot create an invoice for a staff member without a payrate")
 
         self.duration = duration
-        self.amount = float(f"{duration.seconds / 3600 * rate:.2f}")
+        self.amount = float(f"{duration.seconds / 3600 * self.appointment.staff.staff_info.payrate.rate:.2f}")
 
     def save(self, *args, **kwargs):
         if self.pk is None:
