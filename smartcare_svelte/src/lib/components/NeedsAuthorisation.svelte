@@ -4,13 +4,13 @@
 
     import { goto } from "$app/navigation";
     import { page } from '$app/stores';
+    import { browser } from '$app/environment';
 
     $: pathname = $page.url.pathname;
-    $: pathUp = pathname.substring(0, pathname.lastIndexOf('/'));
+    $: pathUp = pathname.substring(0, pathname.lastIndexOf('/')) || "/";
 
     $: {
-        if (userType !== null && userType !== undefined) {
-            $page.url.pathname
+        if (browser && userType !== undefined) {
             if (!userTypesPermitted.includes(userType)) {
                 goto(pathUp);
             }

@@ -11,22 +11,6 @@
     $: alwaysShowNav = innerWidth >= 992 ? "show" : "";
 
     const session = getContext("session");
-
-    // need to be logged in as valid user to access dashboard (external users only have api access)
-    $: {
-        if (browser) {
-            if ($session.token === BLANK_SESSION.token ||
-                $session.userType === BLANK_SESSION.userType ||
-                $session.userType === 4
-            ) {
-                // TODO: set up flash message system using localStorage
-                // and here notify the user that they are not logged in
-                session.set(BLANK_SESSION);  // clear all incase of only one being set
-                goto("/");
-            }
-        }
-    }
-
     let alert = "";
 
     async function logoutWrapper() {
@@ -90,7 +74,6 @@
     </div>
     <div class="col-lg-9">
         <div class="dashboard-body container-fluid py-2">
-            <!-- TODO: Alert/Flash component would fit well here -->
             <slot />
         </div>
     </div>
