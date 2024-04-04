@@ -55,6 +55,10 @@ class User(AbstractUser):
         return f"{self.first_name} {self.last_name}"
 
 
-# class Patient(models.Model):
-#     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
-#     # additional fields specifically for patient data
+'''class Patient(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True, related_name='patient_info')
+    first_name = models.TextField(blank=True, null=True)
+    last_name = models.TextField(blank=True, null=True)
+'''
+    
+    # additional fields specifically for patient data
