@@ -1,14 +1,15 @@
 from django.contrib import admin, messages
 from django.contrib.auth.admin import UserAdmin
 from django.utils.translation import ngettext
-from django.db import transaction
-from smartcare_appointments.schedule_models import TimeOff, WorkingDay
+from smartcare_appointments.models import TimeOff, WorkingDay
 from smartcare_appointments.schedule_logic import update_working_days
-from .models import User, EmploymentType, Staff
+
+from smartcare_auth.models import User, EmploymentType, Staff, PayRate
+
 
 class WorkingDayInline(admin.TabularInline):
     model = WorkingDay
-    extra = 0 
+    extra = 0
     can_delete = True
     def get_queryset(self, request):
         qs = super().get_queryset(request)
@@ -21,13 +22,12 @@ class WorkingDayInline(admin.TabularInline):
 
 class TimeOffInline(admin.TabularInline):
     model = TimeOff
-    extra = 1  
+    extra = 1
+
 
 @admin.register(Staff)
 class StaffAdmin(admin.ModelAdmin):
     inlines = (WorkingDayInline, TimeOffInline,)
-
-
 
 
 class StaffInline(admin.StackedInline):
@@ -35,6 +35,7 @@ class StaffInline(admin.StackedInline):
     verbose_name_plural = 'staff'
     fk_name = 'user'
     extra = 0
+
 
 @admin.register(User)
 class CustomUserAdmin(UserAdmin):
@@ -79,7 +80,7 @@ class CustomUserAdmin(UserAdmin):
             ) % updated,
             messages.SUCCESS
         )
-    
+
     @admin.action(description="Set selected users as Full Time")
     def set_full_time(self, request, queryset):
         for user in queryset:
@@ -105,3 +106,8 @@ class CustomUserAdmin(UserAdmin):
                 user.staff_info.employment_type = None
                 user.staff_info.save()
         self.message_user(request, "Employment Type for selected users was successfully cleared.", messages.SUCCESS)
+
+
+@admin.register(PayRate)
+class PayRateAdmin(admin.ModelAdmin):
+    list_display = ["title", "rate"]
