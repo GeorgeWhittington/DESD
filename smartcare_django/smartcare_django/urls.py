@@ -20,13 +20,14 @@ from rest_framework import routers
 from knox import views as knox_views
 
 from smartcare_auth import views
-from smartcare_appointments import views as appointment_views
+from smartcare_appointments import appointment_views
+from smartcare_appointments.views import TimeOffView
 
 router = routers.DefaultRouter()
 router.register(r"auth/user", views.UserView, basename="user")
-router.register(r"appointments", appointment_views.AppointmentView)
+router.register(r"appointments", appointment_views.AppointmentView, basename="appointment")
 router.register(r"staff", views.StaffView, basename="staff")
-router.register(r'timeoff', appointment_views.TimeOffView)
+router.register(r'timeoff', TimeOffView)
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -35,7 +36,7 @@ urlpatterns = [
     path("api-auth/", include("rest_framework.urls", namespace="rest_framework")),
     path("api/auth/login/", views.LoginView.as_view(), name="knox_login"),
     path("api/auth/logout/", knox_views.LogoutView.as_view(), name="knox_logout"),
-    path("api/auth/logoutall/", knox_views.LogoutAllView.as_view(), name="knox_logoutall")
+    path("api/auth/logoutall/", knox_views.LogoutAllView.as_view(), name="knox_logoutall"),
 ]
 
 urlpatterns += router.urls

@@ -6,7 +6,8 @@
     const session = getContext("session");
 
     let openAppointments = []
-
+    
+    //apiGet(session, "/appointments/").then(response => openAppointments = response.json())
     export async function loadOpenAppointments() {
         let response;
         try {
@@ -18,8 +19,8 @@
                 },
             });
 
-        openAppointments = await response.json();
-        console.log(openAppointments);
+            openAppointments = await response.json();
+            console.log(openAppointments);
 
 
         } catch (error) {
@@ -38,7 +39,7 @@
     <b>Appointments that need to be approved</b>
 
     {#each openAppointments as a, i }
-        <AppointmentCard appointment=a></AppointmentCard>                    
+        <AppointmentCard appointment={a}></AppointmentCard>                    
     {/each}
     
 </div>
