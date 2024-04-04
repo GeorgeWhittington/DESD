@@ -155,6 +155,11 @@ CORS_ALLOWED_ORIGINS = [
     "https://0.0.0.0:5173"
 ]
 
+EMAIL_HOST = os.environ.get("EMAIL_HOST")
+EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD")
+EMAIL_PORT = os.environ.get("EMAIL_PORT")
+
 SLOTS = {
     0: {"start": "08:00", "end": "08:15", "label": "Early Morning"},
     1: {"start": "08:20", "end": "08:35", "label": "Early Morning"},
