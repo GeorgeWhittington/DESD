@@ -73,9 +73,7 @@
                         <li><NavLink link="/dashboard/schedule#unplannedLeaverHeader" title="Unplanned Leave" /></li>
                     </ul>
                     {/if}
-                <!-- schedule,appointments,working hours and unplanned leave -->
-
-                <NavLink link="#" iconClass="bi-capsule" title="Prescriptions" />
+                <NavLink link="/dashboard/prescriptions" iconClass="bi-capsule" title="Prescriptions" />
 
                 <!-- patient -->
                 {:else if $session["userType"] === 5}
