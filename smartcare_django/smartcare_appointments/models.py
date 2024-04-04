@@ -1,6 +1,9 @@
 from django.conf import settings
 from django.db import models
+from django.utils import timezone
+
 from enum import IntEnum
+import datetime
 
 class TimeSlot(IntEnum):
     # 8:00 - 9:59
@@ -33,8 +36,10 @@ class Appointment(models.Model):
      # stage of the appointment
     stage = models.IntegerField(choices=AppointmentStage.choices(), null=False, default=AppointmentStage.REQUESTED)
 
+    date_requested = models.DateField(null=False, default=timezone.now)
+
     # symptoms - reason for appointment, filled out by patient
-    symptoms = models.TextField(blank=True, null=True)
+    symptoms = models.TextField(blank=True, null=False, default='')
 
     # symptom duration (measured in days) - filled out by patient
     symptom_duration = models.IntegerField(null=False, default=1)

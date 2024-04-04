@@ -12,13 +12,15 @@ class AppointmentSerializer(serializers.ModelSerializer):
         symptoms = validated_data["symptoms"]
         time_preference = validated_data["time_preference"]
         symptom_duration = validated_data["symptom_duration"]
+        date_requested = validated_data["date_requested"]
 
         appointment = Appointment.objects.create(
             patient=self.context['request'].user,
             symptoms=symptoms,
             stage=AppointmentStage.REQUESTED,
             time_preference=time_preference,
-            symptom_duration=symptom_duration
+            symptom_duration=symptom_duration,
+            date_requested=date_requested
         )
         appointment.save()
 
@@ -28,7 +30,7 @@ class AppointmentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Appointment
-        fields = ['id', 'patient', 'staff', 'symptoms', 'stage', 'symptom_duration', 'time_preference', 'assigned_start_time', 'actual_start_time', 'actual_end_time']
+        fields = ['id', 'patient', 'staff', 'symptoms', 'stage', 'symptom_duration', 'time_preference', 'assigned_start_time', 'actual_start_time', 'actual_end_time', 'date_requested']
         extra_kwargs = {
             "staff": {
                 "required": False
