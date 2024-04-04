@@ -193,6 +193,7 @@ SLOTS = {
     29: {"start": "17:40", "end": "17:55", "label": "Late Afternoon"},
 }
 
+SLOT_INVALID =-1
 
 DAY_CHOICES = [
     ('Monday', 'Monday'), 

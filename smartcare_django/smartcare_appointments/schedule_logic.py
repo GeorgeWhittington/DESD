@@ -41,12 +41,11 @@ def report_unavailability(staff, start_date, end_date=None):
     )
     
     if affected_appointments.exists():
-        # Logic to handle affected appointments, e.g., notifying involved parties or rescheduling
+        # Logic to handle affected appointments
         handle_affected_appointments(affected_appointments)
 
 def handle_affected_appointments(affected_appointments):
     for appointment in affected_appointments:
-        # Implement your logic here. This could be sending an email to the patient,
-        # creating a task to reschedule the appointment, logging the conflict, etc.
+        
         print(f"Appointment {appointment.id} is affected and needs rescheduling.")
 

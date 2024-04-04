@@ -15,6 +15,7 @@ class StaffSerializer(serializers.ModelSerializer):
         model = Staff
         fields = ['user','employment_type','working_days', 'time_off']
 
+#to display basic information within the user api
 class StaffBasicSerializer(serializers.ModelSerializer):
     class Meta:
         model = Staff

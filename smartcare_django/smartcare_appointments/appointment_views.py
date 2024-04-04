@@ -6,6 +6,7 @@ from smartcare_appointments.serializers import AppointmentSerializer
 from django.contrib.auth.models import User
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from smartcare_appointments.slot_logic import schedule_appointment
 
 class AppointmentView(viewsets.ModelViewSet):
     queryset = Appointment.objects.all()
@@ -14,6 +15,7 @@ class AppointmentView(viewsets.ModelViewSet):
     @action(detail=True, methods=['post'])
     def approve(self, request, pk=None):
         appointment = self.get_object()
+        schedule_appointment(appointment)
         return Response({"result" : f"request to approve {appointment.id}"})
 
     @action(detail=True, methods=['post'])
