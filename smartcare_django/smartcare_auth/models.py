@@ -2,6 +2,7 @@ from enum import IntEnum
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.utils.translation import gettext_lazy as _
+from django.core.validators import MinValueValidator
 
 from .validators import UnicodeNoEmailUsernameValidator
 
@@ -22,7 +23,7 @@ class EmploymentType(models.TextChoices):
     FULL_TIME = 'FT', _('Full Time')
     PART_TIME = 'PT', _('Part Time')
 
-    
+
 class User(AbstractUser):
     username_validator = UnicodeNoEmailUsernameValidator()
 
@@ -51,7 +52,11 @@ class User(AbstractUser):
 # class Patient(models.Model):
 #     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
 #     # additional fields specifically for patient data
-    
+
+
+class PayRate(models.Model):
+    rate = models.FloatField(null=False, validators=[MinValueValidator(0.01)])
+
 
 class Staff(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True, related_name='staff_info')

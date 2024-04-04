@@ -23,7 +23,7 @@ class StaffBasicSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.HyperlinkedModelSerializer):
     password = serializers.CharField(write_only=True)
 
-    #not all users will need the staff serializer 
+    # not all users will need the staff serializer
     staff_info = StaffBasicSerializer(required=False)
 
     def create(self, validated_data):
@@ -57,10 +57,9 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
 
         user.save(update_fields=["user_type"])
 
-
         if user_type in [2, 3]:
             Staff.objects.create(user=user, employment_type=staff_info.get('employment_type') if staff_info else None)
-        
+
         return user
 
     class Meta:

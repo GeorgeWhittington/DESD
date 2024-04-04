@@ -53,8 +53,7 @@ class UserView(mixins.CreateModelMixin, mixins.ListModelMixin, mixins.RetrieveMo
     def me(self, request):
         user = UserSerializer(request.user, context={"request": request})
         return Response(user.data)
-    
+
 class StaffView(viewsets.ModelViewSet):
     serializer_class = StaffSerializer
     queryset = Staff.objects.all().prefetch_related('timeOff')
-    
