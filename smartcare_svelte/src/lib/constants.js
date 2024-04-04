@@ -51,6 +51,19 @@ export const QUICK_SYMPTOMS = {
         "Loss of appetite"],    
 }
 
+export const TIME_PREFERENCE = {
+    0: "Morning",
+    1: "Afternoon",
+}
+
+
+export const APPOINTMENT_STAGE = {
+    0: "REQUESTED",
+    1: "SCHEDULED",
+    2: "COMPLETED",
+    3: "CANCELLED",
+}
+
 export const bootstrapThemes = {
     "default": "https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css",
     "vapor": "https://cdn.jsdelivr.net/npm/bootswatch@5.3.3/dist/vapor/bootstrap.min.css",
