@@ -1,21 +1,7 @@
 from rest_framework import serializers
-from smartcare_appointments.models import AppointmentStage, Appointment, Prescription, PrescriptionRequest
+from smartcare_appointments.models import AppointmentStage, Appointment, TimeOff
 from smartcare_auth.serializers import UserSerializer
 
-
-class PrescriptionsSerializer(serializers.HyperlinkedModelSerializer):
-    patient = UserSerializer(read_only=True)
-    staff = UserSerializer(read_only=True)
-    #first_name = serializers.Field(source='smartcare_auth_user.first_name')
-    #last_name = serializers.Field(source='smartcare_auth_user.last_name')
-    class Meta:
-        model = Prescription
-        fields = ['id', 'appointment', 'medicine', 'notes', 'is_repeating', 'patient', 'staff']
-        extra_kwargs = {
-            "staff": {
-                "required": False
-            }
-        }
 
 class AppointmentSerializer(serializers.ModelSerializer):
     patient = UserSerializer(read_only=True)
@@ -39,6 +25,8 @@ class AppointmentSerializer(serializers.ModelSerializer):
 
         return appointment
 
+    
+
     class Meta:
         model = Appointment
         fields = ['id', 'patient', 'staff', 'symptoms', 'stage', 'symptom_duration', 'time_preference', 'assigned_start_time', 'actual_start_time', 'actual_end_time', 'date_requested']
@@ -47,3 +35,5 @@ class AppointmentSerializer(serializers.ModelSerializer):
                 "required": False
             }
         }
+
+

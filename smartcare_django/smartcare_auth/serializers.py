@@ -4,21 +4,12 @@ from django.db.models import Q
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
-from smartcare_auth.models import Staff, PayRate, UserType
-from smartcare_appointments.models import TimeOff, WorkingDay
+from .models import Staff, PayRate, UserType
+from smartcare_appointments.schedule_serializers import WorkingDaySerializer, TimeOffSerializer
 
 UserModel = get_user_model()
 
-class TimeOffSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = TimeOff
-        fields = ['staff', 'start_date', 'end_date', 'reason']
 
-
-class WorkingDaySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = WorkingDay
-        fields = ['day']
 
 class StaffSerializer(serializers.ModelSerializer):
     working_days = WorkingDaySerializer(many=True, read_only=True)

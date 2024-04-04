@@ -10,6 +10,7 @@ from knox.views import LoginView as KnoxLoginView
 from .rest_permissions import IsStaff
 from .models import Staff
 from .serializers import UserSerializer, StaffSerializer
+from smartcare_appointments.schedule_serializers import WorkingDaySerializer, TimeOffSerializer
 
 
 # Default auth is token auth, but this can't be used when *obtaining* the token originally
