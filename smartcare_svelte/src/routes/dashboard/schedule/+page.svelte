@@ -63,6 +63,10 @@
             document.getElementById('bookTimeOffButton').disabled = false;
             
         }
+        else{
+            document.getElementById('bookTimeOffButton').disabled = true;
+        }
+        
   
     }
 
