@@ -18,7 +18,7 @@ class TimeSlot(IntEnum):
 
 class AppointmentStage(IntEnum):
     REQUESTED = 0
-    OPEN = 1
+    SCHEDULED = 1
     COMPLETED = 2
     CANCELLED = 3
 
@@ -29,18 +29,21 @@ class AppointmentStage(IntEnum):
 class Appointment(models.Model):
     patient = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.CASCADE, related_name='appointment_patient')
     staff = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.CASCADE, related_name='appointment_staff')
-    reason = models.TextField(blank=True, null=True)
 
-    # time slot that the patient has selected
+     # stage of the appointment
     stage = models.IntegerField(choices=AppointmentStage.choices(), null=False, default=AppointmentStage.REQUESTED)
 
-    slot_number = models.IntegerField(default=-1)
+    # symptoms - reason for appointment, filled out by patient
+    symptoms = models.TextField(blank=True, null=True)
 
-    # time slot that the patient has selected
-    time_slot = models.IntegerField(choices=TimeSlot.choices(), null=False)
-
-    # symptom duration (measured in days)
+    # symptom duration (measured in days) - filled out by patient
     symptom_duration = models.IntegerField(null=False, default=1)
+
+    # preferred time that the patient would like this appointment e.g morning / afternoon
+    time_preference = models.IntegerField(choices=TimeSlot.choices(), null=False)
+
+    # actual appointment slot
+    slot_number = models.IntegerField(default=-1)
 
     # time that the staff has assigned based on time slot
     assigned_start_time = models.DateTimeField(null=True)
