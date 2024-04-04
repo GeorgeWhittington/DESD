@@ -61,7 +61,7 @@
                 {#if [0, 1].includes($session["userType"])}
                 <NavLink link="#" iconClass="bi-activity" title="Overview" />
                 <NavLink link="#" iconClass="bi-calendar" title="Schedules" />
-                <NavLink link="#" iconClass="bi-bank" title="Turnover" />
+                <NavLink link="/dashboard/turnover" iconClass="bi-bank" title="Turnover" />
 
                 <!-- doctor/nurse -->
                 {:else if [2, 3].includes($session["userType"])}
