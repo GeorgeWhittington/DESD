@@ -1,11 +1,10 @@
 from django.contrib import admin, messages
 from django.contrib.auth.admin import UserAdmin
 from django.utils.translation import ngettext
-from django.db import transaction
-from smartcare_appointments.schedule_models import TimeOff, WorkingDay
+from smartcare_appointments.models import TimeOff, WorkingDay
 from smartcare_appointments.schedule_logic import update_working_days
 
-from .models import User, EmploymentType, Staff, PayRate
+from smartcare_auth.models import User, EmploymentType, Staff, PayRate
 
 
 class WorkingDayInline(admin.TabularInline):

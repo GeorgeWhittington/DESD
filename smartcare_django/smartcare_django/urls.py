@@ -20,7 +20,7 @@ from rest_framework import routers
 from knox import views as knox_views
 
 from smartcare_auth.views import UserView, StaffView, LoginView
-from smartcare_appointments.views import AppointmentView, TimeOffView
+from smartcare_appointments.views import AppointmentView, TimeOffView, PrescriptionsView
 from smartcare_finance.views import InvoiceView
 
 router = routers.DefaultRouter()
@@ -29,6 +29,7 @@ router.register(r"appointments", AppointmentView, basename="appointment")
 router.register(r"staff", StaffView, basename="staff")
 router.register(r'timeoff', TimeOffView)
 router.register(f"invoice", InvoiceView, basename="invoice")
+router.register(r"prescriptions", PrescriptionsView)
 
 urlpatterns = [
     path("admin/", admin.site.urls),

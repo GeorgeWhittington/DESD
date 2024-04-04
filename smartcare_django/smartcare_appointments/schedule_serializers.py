@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from smartcare_appointments.schedule_models import TimeOff, WorkingDay
+from smartcare_appointments.models import TimeOff, WorkingDay
 
 
 class TimeOffSerializer(serializers.ModelSerializer):
