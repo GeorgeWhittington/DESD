@@ -2,8 +2,7 @@ from django.shortcuts import render
 from rest_framework import routers, serializers, viewsets
 
 from smartcare_appointments.models import Appointment, TimeOff
-from smartcare_appointments.schedule_serializers import TimeOffSerializer
-from smartcare_appointments.serializers import AppointmentSerializer
+from smartcare_auth.serializers import TimeOffSerializer
 
 
 class TimeOffView(viewsets.ModelViewSet):
