@@ -6,9 +6,6 @@ from smartcare_appointments.schedule_models import TimeOff
 from smartcare_appointments.schedule_serializers import TimeOffSerializer
 from smartcare_appointments.serializers import AppointmentSerializer
 
-class AppointmentView(viewsets.ModelViewSet):
-    queryset = Appointment.objects.all()
-    serializer_class = AppointmentSerializer
 
 class TimeOffView(viewsets.ModelViewSet):
     queryset = TimeOff.objects.all()

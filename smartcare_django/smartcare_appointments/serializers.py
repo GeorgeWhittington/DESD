@@ -24,6 +24,8 @@ class AppointmentSerializer(serializers.ModelSerializer):
 
         return appointment
 
+    
+
     class Meta:
         model = Appointment
         fields = ['id', 'patient', 'staff', 'symptoms', 'stage', 'symptom_duration', 'time_preference', 'assigned_start_time', 'actual_start_time', 'actual_end_time']
