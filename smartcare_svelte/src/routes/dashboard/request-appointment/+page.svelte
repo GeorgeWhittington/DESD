@@ -6,27 +6,28 @@
 
     const session = getContext("session");
 
-    let reason = "";
-    let reasonElement;
-    let time_slot;
+    let symptoms = "";
+    let symptomsElement;
+    let time_preference;
     let symptom_duration = 1;
+    let date_requested = new Date().toISOString().slice(0, 10);
 
     const scrollToBottom = async (node) => {
         node.scroll({ top: node.scrollHeight, behavior: 'smooth' });
      }; 
   
     function quickSymptomClicked(event) {
-        if (reason.length > 0) {
-            reason += "\n";
+        if (symptoms.length > 0) {
+            symptoms += "\n";
         }
-        reason += event.detail.text;
-        scrollToBottom(reasonElement);
+        symptoms += event.detail.text;
+        scrollToBottom(symptomsElement);
     }
 
     export async function requestAppointment() {
         let response;
 
-        let req_body = { reason: reason, time_slot: time_slot, symptom_duration : symptom_duration };
+        let req_body = { symptoms: symptoms, time_preference: time_preference, symptom_duration : symptom_duration, date_requested : date_requested };
 
         try {
             response = await fetch(`${API_ENDPOINT}/appointments/`, {
@@ -51,6 +52,14 @@
 
     <form on:submit|preventDefault={requestAppointment}>
         <div class="mb-3">
+
+            <!-- Date -->
+
+            <div class="mb-3">
+                <label for="txtDate" class="form-label">Date</label>
+                <input type="date" id="txtDate" class="form-control" bind:value={date_requested}>
+            </div>
+
             <!-- Time Slot -->
             <div class="mb-3">
                 <label for="selTimeSlot" class="form-label">Time Slot</label>
@@ -58,7 +67,7 @@
                     class="form-select"
                     id="selTimeSlot"
                     aria-label="Default select example"
-                    bind:value={time_slot}
+                    bind:value={time_preference}
                 >
                     <option value="0" selected>Morning</option>
                     <option value="2">Afternoon</option>
@@ -74,11 +83,11 @@
             <label for="txtNotes" class="form-label"
                 >Describe Symptoms</label
             >
-            <textarea bind:this={reasonElement}
+            <textarea bind:this={symptomsElement}
                 class="form-control"
                 id="txtNotes"
                 rows="6"
-                bind:value={reason}
+                bind:value={symptoms}
             ></textarea>
         </div>
 
