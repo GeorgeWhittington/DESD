@@ -22,7 +22,7 @@ class EmploymentType(models.TextChoices):
     FULL_TIME = 'FT', _('Full Time')
     PART_TIME = 'PT', _('Part Time')
 
-
+    
 class User(AbstractUser):
     username_validator = UnicodeNoEmailUsernameValidator()
 
@@ -40,16 +40,9 @@ class User(AbstractUser):
     )
     email = models.EmailField(_("email address"), blank=True, unique=True)
     user_type = models.PositiveSmallIntegerField(choices=UserType.choices(), null=False, default=0)
-    employment_type = models.CharField(max_length=2, choices=EmploymentType.choices, null=True, blank=True)
 
     def is_clinic_staff(self):
         return self.is_staff or (self.user_type is not None and self.user_type <= 3)
-    
-    def is_full_time(self):
-        return self.employment_type == EmploymentType.FULL_TIME
-    
-    def is_part_time(self):
-        return self.employment_type == EmploymentType.PART_TIME
 
     def full_name(self):
         return f"{self.first_name} {self.last_name}"
@@ -58,3 +51,17 @@ class User(AbstractUser):
 # class Patient(models.Model):
 #     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
 #     # additional fields specifically for patient data
+    
+
+class Staff(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True, related_name='staff_info')
+    employment_type = models.CharField(max_length=2, choices=EmploymentType.choices, blank=True, null=True)
+
+    def __str__(self):
+        return f"{self.user.full_name()}"
+
+    def is_full_time(self):
+        return self.employment_type == EmploymentType.FULL_TIME.value
+
+    def is_part_time(self):
+        return self.employment_type == EmploymentType.PART_TIME.value

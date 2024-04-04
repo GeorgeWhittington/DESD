@@ -1,20 +1,29 @@
 from django.conf import settings
 from django.db import models
-from smartcare_auth.models import User
-from enum import IntEnum
+from smartcare_auth.models import Staff
 
 
 
-class NonWorkingDays(models.Model):
-    staff = models.ForeignKey(User, on_delete=models.CASCADE)
-    date = models.DateField()
+class WorkingDay(models.Model):
+    staff = models.ForeignKey(Staff, on_delete=models.CASCADE, related_name='working_days')
+    day = models.CharField(max_length=9, choices=settings.DAY_CHOICES)
+
+    def __str__(self):
+        return f"{self.get_day_display()}"
     
+    class Meta:
+        unique_together = ('staff', 'day')
 
-def update_working_days(user):
-    pass
 
-def report_unavailability(start_date, end_date=None):
-    pass
+class TimeOff(models.Model):
+    staff = models.ForeignKey(Staff, on_delete=models.CASCADE, related_name='timeOff')
+    start_date = models.DateField(blank= False, null= True)
+    end_date = models.DateField(blank= False, null= True)
+    reason = models.CharField(max_length=100, blank=True, default= 'Holiday')
 
-def calculate_available_slots(user, date):
-    pass
+    def __str__(self):
+        return f"{self.staff.user.full_name()} - from {self.start_date} to {self.end_date}"
+    
+    class Meta:
+        unique_together = ('staff', 'start_date','end_date')
+    

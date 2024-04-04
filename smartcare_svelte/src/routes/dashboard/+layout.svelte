@@ -70,7 +70,6 @@
                     {#if $page.url.pathname === "/dashboard/schedule"}
                     <ul>
                         <li><NavLink link="/dashboard/schedule#ScheduleHeader" title="Schedule" /></li>
-                        <li><NavLink link="/dashboard/schedule#holidaysHeader" title="Holiday" /></li>
                         <li><NavLink link="/dashboard/schedule#unplannedLeaverHeader" title="Unplanned Leave" /></li>
                     </ul>
                     {/if}

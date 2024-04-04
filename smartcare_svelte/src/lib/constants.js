@@ -1,10 +1,15 @@
 export const API_ENDPOINT = "http://localhost:8000/api"
 
+export const USER_ID ={
+    id: null
+}
+
 export const BLANK_SESSION = {
     token: "",
     userType: null,
     firstName: "",
-    lastName: ""
+    lastName: "",
+    userId: null
 }
 
 export const USER_TYPES = {

@@ -1,13 +1,14 @@
 <script>
     import { goto } from "$app/navigation";
     import { getContext } from "svelte";
-    import { API_ENDPOINT, BLANK_SESSION } from "$lib/constants.js";
+    import { API_ENDPOINT, BLANK_SESSION ,USER_ID} from "$lib/constants.js";
 
     const session = getContext("session");
 
     let username = "";
     let password = "";
     let error = "";
+    
 
     async function login() {
         let userpass = `${username}:${password}`;
@@ -29,6 +30,7 @@
         if (response.ok) {
             if (error) error = "";
             let newSession = structuredClone(BLANK_SESSION);
+            let storeID = structuredClone(USER_ID);
             newSession.token = response_json.token;
 
             try {
@@ -43,6 +45,7 @@
 
             if (response.ok) {
                 newSession.userType = response_json.user_type
+                newSession.userId = response_json.id
                 newSession.firstName = response_json.first_name
                 newSession.lastName = response_json.last_name
                 session.set(newSession);
@@ -59,6 +62,7 @@
             error = "Server error, please try again later!"
         }
     }
+
 </script>
 
 <div class="d-flex flex-column vh-100 align-items-center justify-content-center gap-2">
