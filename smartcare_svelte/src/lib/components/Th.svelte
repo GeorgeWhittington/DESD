@@ -4,7 +4,6 @@
 
     const identifier = orderBy?.toString()
     const sorted = handler.getSort()
-    $: {console.log($sorted)}
 </script>
 
 <th on:click={() => handler.sort(orderBy)} class:active={$sorted.identifier === identifier}>

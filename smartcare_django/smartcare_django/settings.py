@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "knox",
     "corsheaders",
+    "django_filters",
     "smartcare_appointments.apps.SmartcareAppointmentsConfig",
     "smartcare_auth.apps.SmartcareAuthConfig",
     "smartcare_finance.apps.SmartcareFinanceConfig",

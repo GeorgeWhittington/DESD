@@ -46,6 +46,12 @@
                 <NavLink link="#" iconClass="bi-activity" title="Overview" />
                 <NavLink link="#" iconClass="bi-calendar" title="Schedules" />
                 <NavLink link="/dashboard/turnover" iconClass="bi-bank" title="Turnover" />
+                    {#if $page.url.pathname === "/dashboard/turnover"}
+                    <ul>
+                        <li><NavLink link="/dashboard/turnover#generate-reports" title="Generate Reports" /></li>
+                        <li><NavLink link="/dashboard/turnover#invoices" title="Invoices" /></li>
+                    </ul>
+                    {/if}
 
                 <!-- doctor/nurse -->
                 {:else if [2, 3].includes($session["userType"])}

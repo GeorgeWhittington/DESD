@@ -4,3 +4,4 @@ django-mysql
 djangorestframework
 django-rest-knox
 django-cors-headers
+django-filter
