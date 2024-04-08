@@ -1,11 +1,11 @@
 from datetime import date, timedelta
-import json
+import uuid
 
 from rest_framework import viewsets, mixins, status
 from rest_framework.decorators import api_view, permission_classes, action
 from rest_framework.response import Response
 from django_filters import rest_framework as filters
-from weasyprint import HTML, CSS
+from weasyprint import HTML
 from django_weasyprint.utils import django_url_fetcher
 from django.core.files.storage import default_storage
 from django.template import loader
@@ -69,7 +69,7 @@ def generate_turnover_report(request):
         return Response({"detail": "Parameters missing"}, status=status.HTTP_400_BAD_REQUEST)
     except (TypeError, ValueError) as err:
         print(err)
-        return Response({"detail": "Invalid from or to date"}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"detail": "Please select two valid dates"}, status=status.HTTP_400_BAD_REQUEST)
 
     if type not in ["private", "nhs", "all"]:
         return Response(
@@ -85,6 +85,9 @@ def generate_turnover_report(request):
     }
 
     all_invoices = Invoice.objects.filter(created_at__gte=from_date, created_at__lte=to_date)
+
+    if all_invoices.count() < 1:
+        return Response({"detail": "No invoices found for the provided timespan"}, status=status.HTTP_404_NOT_FOUND)
 
     if to_date - from_date > timedelta(weeks=4):
         # TODO: aggregation will need to be modified once private/nhs distinctions are possible
@@ -110,7 +113,9 @@ def generate_turnover_report(request):
 
     html = load_pdf_html("smartcare_finance/turnover.html", context)
 
-    with default_storage.open(default_storage.location + "/reports/turnover.pdf", "wb") as file:
+    filename = f"/reports/turnover-{uuid.uuid4()}.pdf"
+
+    with default_storage.open(default_storage.location + filename, "wb") as file:
         html.write_pdf(file)
 
-    return Response({"pdf": default_storage.url("/reports/turnover.pdf")})
+    return Response({"pdf": default_storage.url(filename)})

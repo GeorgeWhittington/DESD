@@ -67,7 +67,7 @@
 
 <NeedsAuthorisation userType={$session.userType} userTypesPermitted={[0, 1]} />
 
-<GenerateTurnoverReportsCard />
+<GenerateTurnoverReportsCard token={$session.token} />
 
 <div class="card mt-3">
     <div class="card-body ">

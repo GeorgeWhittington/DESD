@@ -1,4 +1,5 @@
 export const API_ENDPOINT = "http://localhost:8000/api"
+export const MEDIA_ENDPOINT = "http://localhost:8000"
 
 export const USER_ID ={
     id: null

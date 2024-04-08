@@ -1,12 +1,15 @@
 <script>
+    import { API_ENDPOINT, MEDIA_ENDPOINT } from "$lib/constants";
+    export let token;
+
     const today = new Date().toISOString().split("T")[0];
     let from_date = today;
     let to_date = today;
 
     const invoice_types = [
-        { id: 0, text: "All"},
-        { id: 1, text: "NHS"},
-        { id: 2, text: "Private"}
+        { id: "all", text: "All"},
+        { id: "nhs", text: "NHS"},
+        { id: "private", text: "Private"}
     ];
 
     let selected_invoice_type = invoice_types[0].id;
@@ -21,14 +24,46 @@
         }
     }
 
-    function generate_report() {
-        // TODO: actually request generation of invoice pdf (then render a link to download it next to or below button?)
+    let report = "";
+    let error = "";
+
+    async function generate_report() {
+        error = "";
+        report = "";
+        let response;
+        let response_json;
+        try {
+            response = await fetch(`${API_ENDPOINT}/generate-turnover-report/`, {
+                method: "POST",
+                body: JSON.stringify({from: from_date, to: to_date, type: selected_invoice_type}),
+                headers: {
+                    "Authorization": `Token ${token}`,
+                    "Content-Type": "application/json"
+                }
+            });
+            response_json = await response.json();
+        } catch (err) {
+            return;
+        }
+
+        console.log(response_json);
+
+        if (response.ok) {
+            report = response_json.pdf;
+        } else if (response.status < 500) {
+            error = response_json.detail;
+        } else {
+            error = "Server Error, Please try again";
+        }
     }
 </script>
 
 <div class="card">
     <div class="card-body">
         <h2 class="card-title">Generate Reports</h2>
+        {#if error != ""}
+            <p class="text-danger">{error}</p>
+        {/if}
         <form on:submit={generate_report}>
             <div class="col input-group">
                 <span class="input-group-text">From</span>
@@ -47,6 +82,9 @@
                 </select>
             </div>
             <input type="submit" value="Generate turnover report" class="btn btn-primary mt-2" />
+            {#if report != ""}
+                <a href="{MEDIA_ENDPOINT}{report}">Download Report</a>
+            {/if}
         </form>
     </div>
 </div>
