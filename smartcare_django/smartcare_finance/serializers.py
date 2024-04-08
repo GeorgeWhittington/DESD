@@ -10,4 +10,4 @@ class InvoiceSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Invoice
-        fields = ["staff", "patient", "duration", "amount", "is_paid", "paid_at"]
+        fields = ["staff", "patient", "duration", "amount", "is_paid", "paid_at", "id"]

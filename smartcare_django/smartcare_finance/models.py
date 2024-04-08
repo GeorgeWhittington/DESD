@@ -30,6 +30,9 @@ class Invoice(models.Model):
     def is_paid(self):
         return self.paid_at is not None
 
+    def due_date(self):
+        return self.created_at + timedelta(weeks=4)
+
     def fill_extra_fields(self):
         if not hasattr(self, "appointment") or self.appointment.stage != AppointmentStage.COMPLETED:
             raise ValidationError("An completed appointment must be provided")

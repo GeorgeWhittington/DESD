@@ -71,7 +71,7 @@
 
 <div class="card mt-3">
     <div class="card-body ">
-        <h2 id="invoices" class="card-title">Invoices</h2>
+        <h2 class="card-title">Invoices</h2>
         <form on:submit={loadInvoices}>
             <div class="input-group">
                 <input type="date" class="form-control" max={today} bind:value={invoice_date} on:change={ console.log(invoice_date) } />

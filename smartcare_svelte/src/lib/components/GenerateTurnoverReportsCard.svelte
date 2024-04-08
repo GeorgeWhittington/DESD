@@ -28,7 +28,7 @@
 
 <div class="card">
     <div class="card-body">
-        <h2 id="generate-reports" class="card-title">Generate Reports</h2>
+        <h2 class="card-title">Generate Reports</h2>
         <form on:submit={generate_report}>
             <div class="col input-group">
                 <span class="input-group-text">From</span>
