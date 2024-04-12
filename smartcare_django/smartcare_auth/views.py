@@ -6,6 +6,8 @@ from rest_framework.authentication import BasicAuthentication
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from knox.views import LoginView as KnoxLoginView
+
+from .rest_permissions import IsStaff
 from .models import Staff
 from .serializers import UserSerializer, StaffSerializer
 from smartcare_appointments.schedule_serializers import WorkingDaySerializer, TimeOffSerializer
@@ -30,11 +32,6 @@ class LoginView(KnoxLoginView):
             return timedelta(hours=1)
 
 
-class IsStaff(permissions.BasePermission):
-    def has_permission(self, request, view):
-        return request.user and request.user.is_authenticated and request.user.is_clinic_staff()
-
-
 class UserView(mixins.CreateModelMixin, mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     serializer_class = UserSerializer
     model = get_user_model()
@@ -53,8 +50,7 @@ class UserView(mixins.CreateModelMixin, mixins.ListModelMixin, mixins.RetrieveMo
     def me(self, request):
         user = UserSerializer(request.user, context={"request": request})
         return Response(user.data)
-    
+
 class StaffView(viewsets.ModelViewSet):
     serializer_class = StaffSerializer
     queryset = Staff.objects.all().prefetch_related('timeOff')
-    

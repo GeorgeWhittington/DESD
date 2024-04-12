@@ -1,0 +1,69 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <link href="invoice.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'smartcare_finance/invoice.css' %}">
+  </head>
+  <body>
+	<header>
+        <img src="{% static 'smartcare_finance/logo.png' %}" alt="smartcare logo" />
+        <div>
+            <p><b>Turnover Report</b></p>
+            <p>{{ from_date|date:"d/m/Y" }} - {{ to_date|date:"d/m/Y" }}</p>
+            <p><b>Requested by:</b></p>
+            <p>#{{ requested_by.id }} - {{ requested_by.first_name }} {{ requested_by.last_name }}</p>
+        </div>
+    </header>
+    <hr/>
+    <div id="content">
+    {% if breakdown %}
+        <div id="breakdown">
+            <h3>Breakdown</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Month</th>
+                        <th>Income Source</th>
+                        <th>Total</th>
+                        <th>Settled</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for month in breakdown %}
+                    <tr>
+                        <td>{{ month.month|date:"F Y" }}</td>
+                        <td>All</td>
+                        <td>£{{ month.full_total }}</td>
+                        <td>£{{ month.settled_total }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% endif %}
+        <div id="grand-total">
+            <h3>Grand Total</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Income Source</th>
+                        <th>Total</th>
+                        <th>Settled</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for row, amounts in grand_total.items %}
+                    <tr>
+                        <td>{{ row }}</td>
+                        <td>£{{ amounts.total }}</td>
+                        <td>£{{ amounts.settled }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+  </body>
+</html>

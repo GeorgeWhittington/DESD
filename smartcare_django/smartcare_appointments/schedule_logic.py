@@ -1,5 +1,4 @@
-from smartcare_appointments.schedule_models import TimeOff, WorkingDay
-from .models import Appointment
+from smartcare_appointments.models import Appointment, TimeOff, WorkingDay
 from smartcare_auth.models import Staff, EmploymentType
 from django.conf import settings
 from datetime import timedelta

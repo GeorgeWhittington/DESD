@@ -1,9 +1,8 @@
 from smartcare_auth.models import Staff
-from smartcare_appointments.models import Appointment
+from smartcare_appointments.models import Appointment, TimeOff
 from django.conf import settings
 from datetime import datetime
 from django.db.models import Q
-from smartcare_appointments.schedule_models import TimeOff
 
 #Then test the appointments they already have for that date against the slots they are working: (test the appointment model for any appointments that match the staff)
 #import appointment model
