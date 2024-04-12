@@ -3,7 +3,6 @@ from django.db import models
 from django.utils import timezone
 
 from enum import IntEnum
-import datetime
 
 class TimeSlot(IntEnum):
     # 8:00 - 9:59
@@ -63,19 +62,3 @@ class AppointmentComment(models.Model):
     created_time = models.DateTimeField(auto_now=True)
     text = models.TextField(max_length=1024)
     appointment = models.ForeignKey(Appointment, null=False, on_delete=models.CASCADE, related_name='appointment_comments')
-
-class Prescription(models.Model):
-    appointment = models.ForeignKey(Appointment, null=True, on_delete=models.CASCADE)
-
-    medicine = models.CharField(max_length=255, blank=True, null=True)
-    notes = models.TextField(blank=True, null=True)
-
-    is_repeating = models.BooleanField(default=False)
-
-class PrescriptionRequest(models.Model):
-    prescription = models.ForeignKey(Prescription, null=True, on_delete=models.CASCADE)
-    requested_time = models.DateTimeField(null=True)
-    approved_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.CASCADE)
-    approved_time = models.DateTimeField(null=True)
-    collected = models.BooleanField(default=False) # will be changed by the API (external pharmacy site)
-

@@ -19,23 +19,25 @@ from django.urls import path, include
 from rest_framework import routers
 from knox import views as knox_views
 
-from smartcare_auth import views
-from smartcare_appointments import appointment_views
-from smartcare_appointments.views import TimeOffView
+from smartcare_auth.views import UserView, StaffView, LoginView
+from smartcare_appointments.views import AppointmentView, TimeOffView, PrescriptionsView, AppointmentCommentView
+from smartcare_finance.views import InvoiceView
 
 router = routers.DefaultRouter()
-router.register(r"auth/user", views.UserView, basename="user")
-router.register(r"appointments", appointment_views.AppointmentView, basename="appointment")
-router.register(r"appointment_comments", appointment_views.AppointmentCommentView, basename="appointment_comments")
-router.register(r"staff", views.StaffView, basename="staff")
-router.register(r'timeoff', TimeOffView)
+router.register(r"auth/user", UserView, basename="user")
+router.register(r"appointments", AppointmentView, basename="appointment")
+router.register(r"appointment_comments", AppointmentCommentView, basename="appointment_comments")
+router.register(r"staff", StaffView, basename="staff")
+router.register(r"timeoff", TimeOffView)
+router.register(f"invoice", InvoiceView, basename="invoice")
+router.register(r"prescriptions", PrescriptionsView)
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/", include(router.urls)),
 # TODO: Being able to log in via the drf frontend should only really be possible in DEBUG, remove or make this conditional on that setting!!!
     path("api-auth/", include("rest_framework.urls", namespace="rest_framework")),
-    path("api/auth/login/", views.LoginView.as_view(), name="knox_login"),
+    path("api/auth/login/", LoginView.as_view(), name="knox_login"),
     path("api/auth/logout/", knox_views.LogoutView.as_view(), name="knox_logout"),
     path("api/auth/logoutall/", knox_views.LogoutAllView.as_view(), name="knox_logoutall"),
 ]
