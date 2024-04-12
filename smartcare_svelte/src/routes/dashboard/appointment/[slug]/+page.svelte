@@ -4,12 +4,15 @@
 
     const session = getContext("session");
 
-    let appointments = []
+    export let data;
+    console.log(data.slug);
 
-    export async function loadAppointments() {
+    let appointment = {}
+
+    export async function loadAppointment() {
         let response;
         try {
-            response = await fetch(`${API_ENDPOINT}/appointments/`, {
+            response = await fetch(`${API_ENDPOINT}/appointments/${data.slug}`, {
                 method: "GET",
                 headers: {
                     Authorization: `Token ${$session.token}`,
@@ -17,9 +20,8 @@
                 },
             });
 
-        appointments = await response.json();
-        console.log(appointments);
-
+        appointment = await response.json();
+        console.log(appointment)
 
         } catch (error) {
             return "Server error, please try again later!";
@@ -28,23 +30,18 @@
         
     }
 
-    loadAppointments();
-
+    loadAppointment();
 </script>
 
 <div>
-    <h2>My Appointments</h2>
-
-    {#each appointments as a, i}
-    <div class="card" style="width: 18rem;">
+    <h2>View Appointment</h2>
+    <div class="card">
+       
         <div class="card-body">
-          <h5 class="card-title">Appointment {i+1}</h5>
-          <h6 class="card-subtitle mb-2 text-muted">{a.time_slot <= 1 ? 'Morning' : 'Aftenoon'}</h6>
-          <p class="card-text">{a.reason}</p>
+            <h5 class="card-title">
+                This is some text within a card body.
+            </h5>
+          This is some text within a card body.
         </div>
-    </div>
-    <br>
-    {/each}
-    
-
+      </div>
 </div>
