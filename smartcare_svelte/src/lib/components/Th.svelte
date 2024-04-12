@@ -24,4 +24,7 @@
     th.active i {
         visibility: initial;
     }
+    th {
+        white-space: nowrap;
+    }
 </style>
