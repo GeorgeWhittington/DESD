@@ -1,10 +1,13 @@
 from rest_framework import serializers
 
-from smartcare_auth.models import UserType
-from .models import Invoice
+from smartcare_auth.serializers import UserSerializer
+from smartcare_finance.models import Invoice
 
 
 class InvoiceSerializer(serializers.HyperlinkedModelSerializer):
+    staff = UserSerializer(read_only=True)
+    patient = UserSerializer(read_only=True)
+
     class Meta:
         model = Invoice
-        fields = ["appointment", "duration", "amount", "is_paid", "created_at", "paid_at"]
+        fields = ["staff", "patient", "duration", "amount", "is_paid", "paid_at", "id"]

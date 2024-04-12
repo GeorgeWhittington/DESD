@@ -1,0 +1,54 @@
+body {
+    margin: 20px;
+    font-family: 'Gill Sans';
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    text-align: right;
+}
+
+header img {
+    height: 170px;
+}
+
+header div {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+header p,
+#billing-info p {
+    margin-top: 0;
+    margin-bottom: 5px;
+}
+
+#billing-info {
+    display: flex;
+    justify-content: space-between;
+    padding: 15px 0;
+}
+
+#billing-info div {
+    display: flex;
+    flex-direction: column;
+}
+
+#billing-info div:nth-child(2) {
+    text-align: right;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+table tr {
+    border-bottom: 1px solid #ddd;
+}
+
+table tfoot {
+    background-color: #ddd;
+}

@@ -16,6 +16,8 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / "subdir".
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+MEDIA_ROOT = "/usr/src/smartcare_django/media"
+MEDIA_URL = "media/"
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
@@ -40,6 +42,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "knox",
     "corsheaders",
+    "django_filters",
     "smartcare_appointments.apps.SmartcareAppointmentsConfig",
     "smartcare_auth.apps.SmartcareAuthConfig",
     "smartcare_finance.apps.SmartcareFinanceConfig",

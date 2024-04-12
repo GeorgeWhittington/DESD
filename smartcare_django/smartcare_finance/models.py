@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
@@ -16,9 +18,20 @@ class Invoice(models.Model):
 
     duration = models.DurationField(null=False)
     amount = models.FloatField(null=False, validators=[MinValueValidator(0.01)])
-    is_paid = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     paid_at = models.DateTimeField(null=True)
+
+    def staff(self):
+        return self.appointment.staff
+
+    def patient(self):
+        return self.appointment.patient
+
+    def is_paid(self):
+        return self.paid_at is not None
+
+    def due_date(self):
+        return self.created_at + timedelta(weeks=4)
 
     def fill_extra_fields(self):
         if not hasattr(self, "appointment") or self.appointment.stage != AppointmentStage.COMPLETED:

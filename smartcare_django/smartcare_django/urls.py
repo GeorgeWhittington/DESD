@@ -16,12 +16,15 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from django.conf import settings
+from django.conf.urls.static import static
 from rest_framework import routers
 from knox import views as knox_views
 
 from smartcare_auth.views import UserView, StaffView, LoginView
 from smartcare_appointments.views import AppointmentView, TimeOffView, PrescriptionsView, AppointmentCommentView
-from smartcare_finance.views import InvoiceView
+from smartcare_finance.views import InvoiceView, generate_turnover_report
+
 
 router = routers.DefaultRouter()
 router.register(r"auth/user", UserView, basename="user")
@@ -40,6 +43,9 @@ urlpatterns = [
     path("api/auth/login/", LoginView.as_view(), name="knox_login"),
     path("api/auth/logout/", knox_views.LogoutView.as_view(), name="knox_logout"),
     path("api/auth/logoutall/", knox_views.LogoutAllView.as_view(), name="knox_logoutall"),
-]
+    path("api/generate-turnover-report/", generate_turnover_report),
+# Following only works in development, django will not serve these files in production
+# https://docs.djangoproject.com/en/5.0/howto/static-files/#serving-files-uploaded-by-a-user-during-development
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 urlpatterns += router.urls
