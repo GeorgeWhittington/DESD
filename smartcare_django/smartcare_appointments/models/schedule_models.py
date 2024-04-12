@@ -10,7 +10,7 @@ class WorkingDay(models.Model):
 
     def __str__(self):
         return f"{self.get_day_display()}"
-    
+
     class Meta:
         unique_together = ('staff', 'day')
 
@@ -23,7 +23,6 @@ class TimeOff(models.Model):
 
     def __str__(self):
         return f"{self.staff.user.full_name()} - from {self.start_date} to {self.end_date}"
-    
+
     class Meta:
         unique_together = ('staff', 'start_date','end_date')
-    

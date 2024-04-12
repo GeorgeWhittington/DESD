@@ -22,14 +22,16 @@ from rest_framework import routers
 from knox import views as knox_views
 
 from smartcare_auth.views import UserView, StaffView, LoginView
-from smartcare_appointments.views import AppointmentView, TimeOffView, PrescriptionsView
+from smartcare_appointments.views import AppointmentView, TimeOffView, PrescriptionsView, AppointmentCommentView
 from smartcare_finance.views import InvoiceView, generate_turnover_report
+
 
 router = routers.DefaultRouter()
 router.register(r"auth/user", UserView, basename="user")
 router.register(r"appointments", AppointmentView, basename="appointment")
+router.register(r"appointment_comments", AppointmentCommentView, basename="appointment_comments")
 router.register(r"staff", StaffView, basename="staff")
-router.register(r'timeoff', TimeOffView)
+router.register(r"timeoff", TimeOffView)
 router.register(f"invoice", InvoiceView, basename="invoice")
 router.register(r"prescriptions", PrescriptionsView)
 
