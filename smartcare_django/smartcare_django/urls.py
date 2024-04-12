@@ -26,6 +26,7 @@ from smartcare_appointments.views import TimeOffView
 router = routers.DefaultRouter()
 router.register(r"auth/user", views.UserView, basename="user")
 router.register(r"appointments", appointment_views.AppointmentView, basename="appointment")
+router.register(r"appointment_comments", appointment_views.AppointmentCommentView, basename="appointment_comments")
 router.register(r"staff", views.StaffView, basename="staff")
 router.register(r'timeoff', TimeOffView)
 
