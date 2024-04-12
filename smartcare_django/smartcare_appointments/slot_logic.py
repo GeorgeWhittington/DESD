@@ -2,6 +2,8 @@ from smartcare_auth.models import Staff
 from smartcare_appointments.models import Appointment
 from django.conf import settings
 from datetime import datetime
+from django.db.models import Q
+from smartcare_appointments.schedule_models import TimeOff
 
 #Then test the appointments they already have for that date against the slots they are working: (test the appointment model for any appointments that match the staff)
 #import appointment model
@@ -27,7 +29,10 @@ def calculate_available_slots(user, date):
 
 def schedule_appointment(appointment):
     print("TEST")
-    date = datetime.now()
+    date = appointment.date_requested
+    timeRequested = appointment.time_preference
+
+    print("time preference", timeRequested)
     
     availableStaff = get_staff_working_on_date(date)
     print("AVAILABLE STAFF",availableStaff)
@@ -42,14 +47,18 @@ def schedule_appointment(appointment):
 
 def get_staff_working_on_date(date):
     dateToDay = date.strftime("%A")
+    print("Query Date:", date)
+    print("Day of Week:", dateToDay)
 
-    availableStaff = Staff.objects.all().filter(
+    conflicting_holidays = TimeOff.objects.filter(start_date__lte=date, end_date__gte=date).only("id").all()
+    print(f"conflicting holiday: {conflicting_holidays}")
+
+    availableStaff = Staff.objects.filter(
         working_days__day=dateToDay
+    ).exclude(
+        timeOff__id__in=conflicting_holidays
     )
-    # .exclude(
-    #     timeOff__start_date__lte = date,
-    #     timeOff__end_date__gte = date
-    # )
+    print("AVAILABLE STAFF: ", availableStaff)
     return availableStaff
 
 def staff_get_available_slot(staff,date,timePreference):

@@ -12,7 +12,7 @@ class WorkingDayInline(admin.TabularInline):
     can_delete = True
     def get_queryset(self, request):
         qs = super().get_queryset(request)
-        # If there is an object being edited (i.e., we're not creating a new one)
+        # If there is an object being edited
         if hasattr(self, 'instance') and self.instance is not None:
             assigned_days = qs.values_list('day', flat=True)
             self.form.base_fields['day'].queryset = self.form.base_fields['day'].queryset.exclude(name__in=assigned_days)
