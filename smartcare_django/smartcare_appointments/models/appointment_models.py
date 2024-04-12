@@ -28,6 +28,14 @@ class AppointmentStage(IntEnum):
     def choices(cls):
         return [(key.value, key.name) for key in cls]
 
+class AppointmentPayee(IntEnum):
+    PATIENT = 0
+    NHS = 1
+
+    @classmethod
+    def choices(cls):
+        return [(key.value, key.name) for key in cls]
+
 
 class Appointment(models.Model):
     patient = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.CASCADE, related_name='appointment_patient')
@@ -56,6 +64,8 @@ class Appointment(models.Model):
     # time that the appointment actually took place
     actual_start_time = models.DateTimeField(null=True)
     actual_end_time = models.DateTimeField(null=True)
+
+    paid_by = models.IntegerField(choices=AppointmentPayee.choices(), null=True, default=None)
 
 class AppointmentComment(models.Model):
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.CASCADE)
