@@ -1,48 +1,30 @@
 from smartcare_auth.models import Staff
 from smartcare_appointments.models import Appointment, TimeOff
 from django.conf import settings
-from datetime import datetime
+from datetime import datetime,date
 from django.db.models import Q
 
-#Then test the appointments they already have for that date against the slots they are working: (test the appointment model for any appointments that match the staff)
-#import appointment model
-#list = Appoimtment.get_all().filter
 
-
-
-def calculate_available_slots(user, date):
-    pass
-
-
-
-
-# function which takes date,staff -> returns bool of if staff is free or not
-# function to get the free slot which takes(time preference) and returns a slot
-
-# def doctor_has_slot(staff,date):
-#     slots = len(settings.SLOTS)
-#     bookedAppointments = 
-
-
-
-
-def schedule_appointment(appointment):
-    print("TEST")
+def scheduler(appointment):
+    print("STARTED SCHEDULING")
     date = appointment.date_requested
     timeRequested = appointment.time_preference
 
-    print("time preference", timeRequested)
-    
+    #returns the staff available on the requested date
     availableStaff = get_staff_working_on_date(date)
-    print("AVAILABLE STAFF",availableStaff)
-    for staff in availableStaff:
-        print(staff)
-        #check if slot is available
-            #slot = Invalid slot
-            # check staff appointments
-                #return appointments
-            # for each alot check if available (start loop at preference)
 
+    print("AVAILABLE STAFF",availableStaff)
+
+    for staff in availableStaff:
+
+        availableSlot = staff_get_available_slot(staff,date,timeRequested)
+        if availableSlot:
+            schedule_appointment(staff, availableSlot)
+            break
+
+
+def schedule_appointment(staff, slot):
+    pass
 
 def get_staff_working_on_date(date):
     dateToDay = date.strftime("%A")
@@ -61,15 +43,41 @@ def get_staff_working_on_date(date):
     return availableStaff
 
 def staff_get_available_slot(staff,date,timePreference):
-    slot = settings.SLOT_INVALID
+    
+    # gets the appointments a doctor already has for date
+    appointmentSlotNumbers = staff_get_appointments(staff,date)
+    
+    #stores available slots
+    availableSlotNumbers = []
 
-    slots = staff_get_appointments()
-    for slot in slots:
-        #if free
-            return slot
+    
+    if len(appointmentSlotNumbers) >= len(settings.SLOTS)-4:
+        return False
+    else:
+        for slot in settings.SLOTS:
+            if slot in settings.BREAK_SLOTS:
+                continue
+            elif slot in appointmentSlotNumbers:
+                continue
+            else:
+                availableSlotNumbers.append(slot)
+
+    if timePreference != 0:
+        availableSlotNumbers = list(reversed(availableSlotNumbers))
+
+    print(availableSlotNumbers)
+        
+    return availableSlotNumbers[0] if availableSlotNumbers else False
     
 def staff_get_appointments(staff,date):
-    #search appointments
-    pass
-    #return   
+
+    staffHasAppointments = Appointment.objects.filter(
+        staff = staff.user,
+        assigned_start_time__date = date
+    )
+
+    appointmentSlotNumbers = {appointment.slot_number for appointment in staffHasAppointments}
+
+    return appointmentSlotNumbers
+ 
     

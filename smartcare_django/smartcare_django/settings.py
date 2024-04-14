@@ -198,6 +198,8 @@ SLOTS = {
 
 SLOT_INVALID =-1
 
+BREAK_SLOTS = [12,13,14,15]
+
 DAY_CHOICES = [
     ('Monday', 'Monday'), 
     ('Tuesday', 'Tuesday'), 
