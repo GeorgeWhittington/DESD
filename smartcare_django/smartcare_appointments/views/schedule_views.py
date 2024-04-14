@@ -10,10 +10,4 @@ class TimeOffView(viewsets.ModelViewSet):
     queryset = TimeOff.objects.all()
     serializer_class = TimeOffSerializer
 
-    # def get_queryset(self):
-
-    #     user = self.request.user
-    #     if user.is_authenticated:
-    #         return TimeOff.objects.filter(staff__user=user)
-    #     else:
-    #         return TimeOff.objects.none()
+    

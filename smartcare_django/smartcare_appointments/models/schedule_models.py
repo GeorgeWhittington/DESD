@@ -26,3 +26,4 @@ class TimeOff(models.Model):
 
     class Meta:
         unique_together = ('staff', 'start_date','end_date')
+

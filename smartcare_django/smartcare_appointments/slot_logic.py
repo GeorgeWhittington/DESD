@@ -7,25 +7,54 @@ from django.db.models import Q
 
 def scheduler(appointment):
     print("STARTED SCHEDULING")
-    date = appointment.date_requested
+    dateRequested = appointment.date_requested
     timeRequested = appointment.time_preference
-
     #returns the staff available on the requested date
-    availableStaff = get_staff_working_on_date(date)
+    availableStaff = get_staff_working_on_date(dateRequested)
 
     print("AVAILABLE STAFF",availableStaff)
 
     for staff in availableStaff:
+        availableSlot = staff_get_available_slot(staff,dateRequested,timeRequested)
 
-        availableSlot = staff_get_available_slot(staff,date,timeRequested)
-        if availableSlot:
-            schedule_appointment(staff, availableSlot)
-            break
+        if availableSlot is not None:
+            print("CHOSEN DETAILS: ", staff, availableSlot)
+            appointmentScheduled = schedule_appointment(staff, availableSlot,appointment,dateRequested)
+            if appointmentScheduled:
+                ("APPOINTMENT SCHEDULED")
+                return True
+    
+    return False
 
 
-def schedule_appointment(staff, slot):
-    pass
+# schedule the appointment using the chosen staff and slot
+def schedule_appointment(staff, slot, appointment,dateRequested):
+    try:
+        appointment.slot_number = slot
+        slotStartTime = settings.SLOTS[slot]['start']
+        convertedSlotTime = datetime.strptime(slotStartTime, '%H:%M:%S').time()
+        appointment.staff = staff.user
+        appointment.stage = 1
+        appointment.assigned_start_time = (datetime.combine(dateRequested,convertedSlotTime)).isoformat()
+        appointment.save()
+        return True
+    except Exception:
+        return False
 
+
+# handles appointments affected by unplanned leave: tries to reschedule
+def handle_affected_appointments(affected_appointments):
+    for appointment in affected_appointments:
+        rescheduled = scheduler(appointment)
+        if not rescheduled:
+            print("APPOINTMENT ", appointment, " CANCELLED")
+            appointment.stage = 3
+            appointment.staff = None
+            appointment.slot_number = -1
+            appointment.assigned_start_time = None
+            appointment.save()
+
+# find the staff who are working on the chosen day and are not on time off
 def get_staff_working_on_date(date):
     dateToDay = date.strftime("%A")
     print("Query Date:", date)
@@ -42,6 +71,7 @@ def get_staff_working_on_date(date):
     print("AVAILABLE STAFF: ", availableStaff)
     return availableStaff
 
+# get a staff's available slots 
 def staff_get_available_slot(staff,date,timePreference):
     
     # gets the appointments a doctor already has for date
@@ -64,11 +94,10 @@ def staff_get_available_slot(staff,date,timePreference):
 
     if timePreference != 0:
         availableSlotNumbers = list(reversed(availableSlotNumbers))
-
-    print(availableSlotNumbers)
         
     return availableSlotNumbers[0] if availableSlotNumbers else False
     
+# gets a staff member's appointments
 def staff_get_appointments(staff,date):
 
     staffHasAppointments = Appointment.objects.filter(
@@ -79,5 +108,9 @@ def staff_get_appointments(staff,date):
     appointmentSlotNumbers = {appointment.slot_number for appointment in staffHasAppointments}
 
     return appointmentSlotNumbers
+
+
+
+
  
     
