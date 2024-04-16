@@ -5,6 +5,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from datetime import timedelta
 from smartcare_appointments.slot_logic import handle_affected_appointments
+from django.db.models import Q
 
 # a doctor/nurse working days set by full time/part time defaults or by admin
 def update_working_days(staff):
@@ -40,6 +41,8 @@ def report_unavailability(staff, start_date, end_date=None):
     affected_appointments = Appointment.objects.filter(
         staff=staff.user,
         assigned_start_time__range=(start_date, end_date)
+    ).exclude(
+        Q(stage=2) | Q(stage=3)
     )
     
     if affected_appointments.exists():
