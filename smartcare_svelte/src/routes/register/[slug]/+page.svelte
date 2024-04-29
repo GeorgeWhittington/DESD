@@ -36,7 +36,6 @@
 
     let errors = {};
 
-    let getErrors = (property) => {errors.hasOwnProperty(property) ? errors[property] : []}
     $: first_name_errors = errors.hasOwnProperty("first_name") ? errors["first_name"] : [];
     $: last_name_errors = errors.hasOwnProperty("last_name") ? errors["last_name"] : [];
     $: email_errors = errors.hasOwnProperty("email") ? errors["email"] : [];

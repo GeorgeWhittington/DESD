@@ -52,6 +52,12 @@ class User(AbstractUser):
         return f"{self.first_name} {self.last_name}"
 
 
+class PasswordReset(models.Model):
+    email = models.EmailField()
+    token = models.CharField(max_length=100)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
 # class Patient(models.Model):
 #     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
 #     # additional fields specifically for patient data
