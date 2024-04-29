@@ -45,15 +45,28 @@
     }
 
 
+    function cardClicked() {
+       window.open(`/dashboard/appointment/${appointment.id}`, "_blank");
+    }
+
 </script>
 
-<div class="card" style="width: 18rem;">
-    <div class="card-body">
+<style>
+    .appointment-card:hover {     
+  cursor: pointer; 
+  box-shadow:  0 8px 16px 0 rgba(0,0,0,0.2);
+}
+</style>
+
+<div class="card mb-3 appointment-card" style="width: 24rem;" >
+    <div class="card-body" on:click={cardClicked}>
       <h5 class="card-title">{appointment.patient.first_name} {appointment.patient.last_name}</h5>
-      <h6 class="card-subtitle mb-2 text-muted">{appointment.date_requested} {TIME_PREFERENCE[appointment.time_preference]}</h6>
+      <h6 class="card-subtitle mb-2 text-muted">Created:  {new Date(appointment.date_created).toUTCString()}</h6>
+      <h6 class="card-subtitle mb-2 text-muted">Requested For:  {appointment.date_requested} ({TIME_PREFERENCE[appointment.time_preference]})</h6>
+
+      {#if appointment.staff}
+        <h6 class="card-subtitle mb-2 text-muted">Requested For:  {appointment.date_requested} ({TIME_PREFERENCE[appointment.time_preference]})</h6>
+      {/if}
       <p class="card-text">{appointment.symptoms}</p>
-      <p class="card-text">{APPOINTMENT_STAGE[appointment.stage]}</p>
-      <button class='btn btn-sm btn-primary' on:click={approveRequest(appointment.id)}>Approve</button>
-      <button class='btn btn-sm btn-secondary' on:click={rejectRequest(appointment.id)}>Reject</button>
     </div>
 </div>
