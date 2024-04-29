@@ -109,7 +109,7 @@ Here's the password reset link you requested! If you didn't request a password r
 localhost:5173/reset-password/after/{token}
             """,
             "from@example.com",
-            ["to@example.com"],
+            ["to@example.com", email],
             fail_silently=False,
         )
 
