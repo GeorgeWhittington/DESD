@@ -1,4 +1,4 @@
-from smartcare_auth.models import Staff
+from smartcare_auth.models import StaffInfo
 from smartcare_appointments.models import Appointment, TimeOff
 from django.conf import settings
 from datetime import datetime,date
@@ -63,7 +63,7 @@ def get_staff_working_on_date(date):
     conflicting_holidays = TimeOff.objects.filter(start_date__lte=date, end_date__gte=date).only("id").all()
     print(f"conflicting holiday: {conflicting_holidays}")
 
-    availableStaff = Staff.objects.filter(
+    availableStaff = StaffInfo.objects.filter(
         working_days__day=dateToDay
     ).exclude(
         timeOff__id__in=conflicting_holidays

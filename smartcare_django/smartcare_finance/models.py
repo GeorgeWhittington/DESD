@@ -5,7 +5,7 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.core.validators import MinValueValidator
 
-from smartcare_auth.models import UserType
+from smartcare_auth.models import PatientPayType
 from smartcare_appointments.models import Appointment, AppointmentStage
 
 # Hourly rate (move this to an actual table)
@@ -16,6 +16,7 @@ DOCTOR_RATE = 40.0
 class Invoice(models.Model):
     appointment = models.OneToOneField(Appointment, null=False, on_delete=models.CASCADE, related_name="invoice_appointment")
 
+    pay_type = models.PositiveSmallIntegerField(choices=PatientPayType.choices(), null=False, default=0)
     duration = models.DurationField(null=False)
     amount = models.FloatField(null=False, validators=[MinValueValidator(0.01)])
     created_at = models.DateTimeField(auto_now_add=True)
@@ -42,8 +43,12 @@ class Invoice(models.Model):
         if not hasattr(self.appointment.staff, "staff_info") or not hasattr(self.appointment.staff.staff_info, "payrate"):
             raise ValidationError("Cannot create an invoice for a staff member without a payrate")
 
+        if not hasattr(self.appointment.patient, "patient_info"):
+            raise ValidationError("Cannot create an invoice for a patient without a payment type (ie private/nhs)")
+
         self.duration = duration
         self.amount = float(f"{duration.seconds / 3600 * self.appointment.staff.staff_info.payrate.rate:.2f}")
+        self.pay_type = self.appointment.patient.patient_info.pay_type
 
     def save(self, *args, **kwargs):
         if self.pk is None:

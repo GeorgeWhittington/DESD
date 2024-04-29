@@ -1,5 +1,7 @@
 import datetime
 
+from django.core.mail import EmailMessage
+from django.conf import settings
 from rest_framework import viewsets, mixins
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -7,6 +9,9 @@ from rest_framework.response import Response
 from smartcare_appointments.slot_logic import scheduler
 from smartcare_appointments.models import Appointment, AppointmentComment, AppointmentStage
 from smartcare_appointments.serializers import AppointmentSerializer, AppointmentCommentSerializer
+from smartcare_finance.models import Invoice
+from smartcare_finance.views import load_pdf_html
+from smartcare_auth.models import PatientPayType
 
 
 class AppointmentView(mixins.CreateModelMixin, mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
@@ -65,6 +70,30 @@ class AppointmentView(mixins.CreateModelMixin, mixins.ListModelMixin, mixins.Ret
             text="Appointment Completed"
         )
         comment.save()
+
+        invoice = Invoice(appointment=appointment)
+
+        if hasattr(appointment.patient, "patient_info") and appointment.patient.patient_info.pay_type == PatientPayType.PRIVATE:
+            html = load_pdf_html("smartcare_finance/invoice.html", {"invoice": invoice})
+            filename = f"/invoice-{invoice.id}.pdf"
+
+            with open(settings.INVOICE_FOLDER + filename, "wb") as file:
+                html.write_pdf(file)
+
+            email = EmailMessage(
+                subject="Appointment Invoice",
+                body=f"""
+                Dear {appointment.patient.first_name} {appointment.patient.last_name},
+
+                Thank you for your recent appointment at smartcare. Your invoice is attached to this email.
+
+                Regards, Smartcare.
+                """,
+                from_email="from@example.com",
+                to=["to@example.com", appointment.patient.email]
+            )
+            email.attach_file(settings.INVOICE_FOLDER + filename, mimetype="application/pdf")
+            email.send()
 
         return Response({"result" : "success"})
 

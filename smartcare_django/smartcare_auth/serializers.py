@@ -5,7 +5,7 @@ from django.db.models import Q
 from django.contrib.auth import get_user_model, tokens
 from rest_framework import serializers
 
-from smartcare_auth.models import Staff, PayRate, UserType, PasswordReset
+from smartcare_auth.models import StaffInfo, PayRate, UserType, PasswordReset, PatientInfo, PatientPayType
 from smartcare_appointments.schedule_serializers import WorkingDaySerializer, TimeOffSerializer
 
 UserModel = get_user_model()
@@ -15,13 +15,13 @@ class StaffSerializer(serializers.ModelSerializer):
     working_days = WorkingDaySerializer(many=True, read_only=True)
     time_off = TimeOffSerializer(many=True, read_only=True,source='timeOff')
     class Meta:
-        model = Staff
+        model = StaffInfo
         fields = ['user','employment_type','working_days', 'time_off']
 
 #to display basic information within the user api
 class StaffBasicSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Staff
+        model = StaffInfo
         fields = ['user','employment_type']
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
@@ -57,7 +57,6 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
             is_staff=user_type <= UserType.ADMIN  # Admin and Superuser accounts can access the admin site
         )
         user.user_type = user_type
-
         user.save(update_fields=["user_type"])
 
         if user_type in [UserType.DOCTOR, UserType.NURSE]:
@@ -66,10 +65,13 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
             else:
                 payrate = PayRate.objects.get(Q(title="nurse"))
 
-            Staff(
+            StaffInfo(
                 user=user,
                 employment_type=staff_info.get('employment_type') if staff_info else None,
                 payrate=payrate)
+
+        if user_type == UserType.PATIENT:
+            PatientInfo(user=user, pay_type=PatientPayType.PRIVATE)
 
         return user
 
