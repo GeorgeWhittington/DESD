@@ -1,4 +1,4 @@
-from datetime import datetime, date
+from datetime import datetime, date, timezone
 import json
 
 from django.contrib.auth import get_user_model
@@ -99,7 +99,7 @@ class AppointmentView(mixins.CreateModelMixin, mixins.ListModelMixin, mixins.Ret
         # if appointment.staff != requested_user:
         #    return Response({"result" : "error", "message" : "the logged in user does not own this appointment"})
 
-        appointment.actual_start_time = datetime.now()
+        appointment.actual_start_time = datetime.now(timezone.utc)
         appointment.save()
 
         comment = AppointmentComment.objects.create(
@@ -121,7 +121,7 @@ class AppointmentView(mixins.CreateModelMixin, mixins.ListModelMixin, mixins.Ret
         # if appointment.staff != requested_user:
         #    return Response({"result" : "error", "message" : "the logged in user does not own this appointment"})
 
-        appointment.actual_end_time = datetime.now()
+        appointment.actual_end_time = datetime.now(timezone.utc)
         appointment.stage = AppointmentStage.COMPLETED
         appointment.save()
 
@@ -133,6 +133,7 @@ class AppointmentView(mixins.CreateModelMixin, mixins.ListModelMixin, mixins.Ret
         comment.save()
 
         invoice = Invoice(appointment=appointment)
+        invoice.save()
 
         if hasattr(appointment.patient, "patient_info") and appointment.patient.patient_info.pay_type == PatientPayType.PRIVATE:
             html = load_pdf_html("smartcare_finance/invoice.html", {"invoice": invoice})
@@ -144,11 +145,11 @@ class AppointmentView(mixins.CreateModelMixin, mixins.ListModelMixin, mixins.Ret
             email = EmailMessage(
                 subject="Appointment Invoice",
                 body=f"""
-                Dear {appointment.patient.first_name} {appointment.patient.last_name},
+Dear {appointment.patient.first_name} {appointment.patient.last_name},
 
-                Thank you for your recent appointment at smartcare. Your invoice is attached to this email.
+Thank you for your recent appointment at smartcare. Your invoice is attached to this email.
 
-                Regards, Smartcare.
+Regards, Smartcare.
                 """,
                 from_email="from@example.com",
                 to=["to@example.com", appointment.patient.email]
