@@ -1,5 +1,5 @@
 from smartcare_auth.models import Staff
-from smartcare_appointments.models import Appointment, TimeOff
+from smartcare_appointments.models import Appointment, TimeOff, AppointmentStage
 from django.conf import settings
 from datetime import datetime,date
 from django.db.models import Q
@@ -40,11 +40,12 @@ def schedule_appointment(staff, slot, appointment,dateRequested):
         slotStartTime = settings.SLOTS[slot]['start']
         convertedSlotTime = datetime.strptime(slotStartTime, '%H:%M:%S').time()
         appointment.staff = staff.user
-        appointment.stage = 1
-        appointment.assigned_start_time = (datetime.combine(dateRequested,convertedSlotTime)).isoformat()
+        appointment.stage = AppointmentStage.SCHEDULED
+        appointment.assigned_start_time = (datetime.combine(dateRequested,convertedSlotTime))
         appointment.save()
         return True
-    except Exception:
+    except Exception as e:
+        print(e)
         return False
 
 

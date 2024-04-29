@@ -143,20 +143,25 @@
     }
 
 
-    export async function postNewComment() {
+    export async function addAppointmentComment() {
+        if (!txtNewComment || txtNewComment.length == 0) {
+            return;
+        }
+        
         let response;
-
-        let req_body = { appointment_id: appointment.id, text: txtNewComment };
-
         try {
-            response = await fetch(`${API_ENDPOINT}/appointment_comments/`, {
+            response = await fetch(`${API_ENDPOINT}/appointments/${appointment.id}/add_comment/`, {
                 method: "POST",
                 headers: {
                     Authorization: `Token ${$session.token}`,
                     "content-type": "application/json",
                 },
-                body: JSON.stringify(req_body),
+                body: JSON.stringify({comment : txtNewComment})
             });
+
+            console.log(response.text())
+            location.reload();
+
         } catch (error) {
             return "Server error, please try again later!";
         }
@@ -306,11 +311,12 @@
                     <div>{c.text}</div>
                 </div>
                 <u></u>
+                <hr>
             {/each}
 
             <!-- Comment Box -->
             <br />
-            <form on:submit|preventDefault={postNewComment}>
+            <form on:submit|preventDefault={addAppointmentComment}>
                 <div class="mb-3">
                     <textarea
                         class="form-control"
