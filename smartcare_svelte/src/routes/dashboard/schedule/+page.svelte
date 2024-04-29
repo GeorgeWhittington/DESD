@@ -5,8 +5,10 @@
     import FullCalendar from 'svelte-fullcalendar';
     import interactionPlugin from '@fullcalendar/interaction'
     import daygridPlugin from '@fullcalendar/daygrid';
+    import IdleDetection from "$lib/components/IdleDetection.svelte";
+    import NeedsAuthorisation from "$lib/components/NeedsAuthorisation.svelte";
+
     const session = getContext("session");
-    
 
     let selectedStart = null;
     let selectedEnd = null;
@@ -176,7 +178,9 @@
     }
 
 </script>
-  
+
+<IdleDetection userType={$session.userType} session={session} />
+<NeedsAuthorisation userType={$session.userType} userTypesPermitted={[0, 1, 2, 3]} />
 
 <div class="container mt-4">
     <h2 id="ScheduleHeader">Schedule</h2>

@@ -6,6 +6,8 @@
         TIME_PREFERENCE,
         APPOINTMENT_STAGE
     } from "$lib/constants";
+    import IdleDetection from "$lib/components/IdleDetection.svelte";
+    import NeedsAuthorisation from "$lib/components/NeedsAuthorisation.svelte";
     import { onMount, getContext } from "svelte";
 
     const session = getContext("session");
@@ -117,7 +119,7 @@
 
             console.log(response.text())
             location.reload();
-            
+
         } catch (error) {
             return "Server error, please try again later!";
         }
@@ -147,7 +149,7 @@
         if (!txtNewComment || txtNewComment.length == 0) {
             return;
         }
-        
+
         let response;
         try {
             response = await fetch(`${API_ENDPOINT}/appointments/${appointment.id}/add_comment/`, {
@@ -171,6 +173,9 @@
 
     let isStaff = $session.userType == 2 || $session.userType == 3;
 </script>
+
+<IdleDetection userType={$session.userType} session={session} />
+<NeedsAuthorisation userType={$session.userType} userTypesPermitted={[0, 1, 2, 3, 5]} />
 
 <div>
     <h2>View Appointment</h2>

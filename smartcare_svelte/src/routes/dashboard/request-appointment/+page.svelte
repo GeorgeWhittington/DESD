@@ -2,6 +2,8 @@
     import { API_ENDPOINT, BLANK_SESSION, QUICK_SYMPTOMS } from "$lib/constants";
     import { getContext } from "svelte";
     import QuickSymptomSelect from "$lib/components/QuickSymptomSelect.svelte";
+    import IdleDetection from "$lib/components/IdleDetection.svelte";
+    import NeedsAuthorisation from "$lib/components/NeedsAuthorisation.svelte";
     import { goto } from '$app/navigation';
 
     const session = getContext("session");
@@ -50,6 +52,9 @@
         }
     }
 </script>
+
+<IdleDetection userType={$session.userType} session={session} />
+<NeedsAuthorisation userType={$session.userType} userTypesPermitted={[5]} />
 
 <div>
     <h2>Request Appointment</h2>

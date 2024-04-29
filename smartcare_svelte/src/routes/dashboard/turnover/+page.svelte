@@ -4,6 +4,7 @@
     import Th from "$lib/components/Th.svelte";
     import NeedsAuthorisation from "$lib/components/NeedsAuthorisation.svelte";
     import GenerateTurnoverReportsCard from "$lib/components/GenerateTurnoverReportsCard.svelte";
+    import IdleDetection from "$lib/components/IdleDetection.svelte";
     import TablePagination from "$lib/components/TablePagination.svelte";
     import { API_ENDPOINT } from "$lib/constants.js";
 
@@ -65,6 +66,7 @@
     loadInvoices();
 </script>
 
+<IdleDetection userType={$session.userType} session={session} />
 <NeedsAuthorisation userType={$session.userType} userTypesPermitted={[0, 1]} />
 
 <GenerateTurnoverReportsCard token={$session.token} />
