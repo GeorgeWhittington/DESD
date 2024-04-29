@@ -14,7 +14,10 @@
 
 {#if $session.userType === 5}
 <!-- USER DASHBOARD -->
-<p> user stuff here </p>
+<AppointmentDashboard title="Outstanding Appointments" stage_id=012></AppointmentDashboard>
+<br>
+<AppointmentDashboard title="Past Appointments" stage_id=34></AppointmentDashboard>
+
 {:else if $session.userType === 2 || $session.userType === 3}
 <!-- STAFF DASHBOARD-->
 <AppointmentDashboard title="My Appointments" staff_id={userId}, stage_id=3></AppointmentDashboard>

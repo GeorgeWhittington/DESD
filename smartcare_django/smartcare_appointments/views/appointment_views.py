@@ -33,7 +33,15 @@ class AppointmentView(mixins.CreateModelMixin, mixins.ListModelMixin, mixins.Ret
 
         # filter based on stage
         if 'stage_id' in self.request.query_params:
-            queryset = queryset.filter(stage=int(self.request.query_params.get('stage_id')))
+            stage_id_str = str(self.request.query_params.get('stage_id'))
+            stage_ids = []
+
+            if stage_id_str:
+                for character in str(self.request.query_params.get('stage_id')):
+                    stage_ids.append(int(character))
+                
+                print(stage_ids)
+                queryset = queryset.filter(stage__in=stage_ids)
 
         return queryset
 
