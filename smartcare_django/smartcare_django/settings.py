@@ -164,38 +164,41 @@ EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD")
 EMAIL_PORT = os.environ.get("EMAIL_PORT")
 
 SLOTS = {
-    0: {"start": "08:00", "end": "08:15", "label": "Early Morning"},
-    1: {"start": "08:20", "end": "08:35", "label": "Early Morning"},
-    2: {"start": "08:40", "end": "08:55", "label": "Early Morning"},
-    3: {"start": "09:00", "end": "09:15", "label": "Early Morning"},
-    4: {"start": "09:20", "end": "09:35", "label": "Early Morning"},
-    5: {"start": "09:40", "end": "09:55", "label": "Early Morning"},
-    6: {"start": "10:00", "end": "10:15", "label": "Late Morning"},
-    7: {"start": "10:20", "end": "10:35", "label": "Late Morning"},
-    8: {"start": "10:40", "end": "10:55", "label": "Late Morning"},
-    9: {"start": "11:00", "end": "11:15", "label": "Late Morning"},
-    10: {"start": "11:20", "end": "11:35", "label": "Late Morning"},
-    11: {"start": "11:40", "end": "11:55", "label": "Late Morning"},
-    12: {"start": "12:00", "end": "12:15", "label": "Late Morning"},
-    13: {"start": "12:20", "end": "12:35", "label": "Early Afternoon"},
-    14: {"start": "12:40", "end": "12:55", "label": "Early Afternoon"},
-    15: {"start": "13:00", "end": "13:15", "label": "Early Afternoon"},
-    16: {"start": "13:20", "end": "13:35", "label": "Early Afternoon"},
-    17: {"start": "13:40", "end": "13:55", "label": "Early Afternoon"},
-    18: {"start": "14:00", "end": "14:15", "label": "Early Afternoon"},
-    19: {"start": "14:20", "end": "14:35", "label": "Early Afternoon"},
-    20: {"start": "14:40", "end": "14:55", "label": "Early Afternoon"},
-    21: {"start": "15:00", "end": "15:15", "label": "Early Afternoon"},
-    22: {"start": "15:20", "end": "15:35", "label": "Early Afternoon"},
-    23: {"start": "15:40", "end": "15:55", "label": "Late Afternoon"},
-    24: {"start": "16:00", "end": "16:15", "label": "Late Afternoon"},
-    25: {"start": "16:20", "end": "16:35", "label": "Late Afternoon"},
-    26: {"start": "16:40", "end": "16:55", "label": "Late Afternoon"},
-    27: {"start": "17:00", "end": "17:15", "label": "Late Afternoon"},
-    28: {"start": "17:20", "end": "17:35", "label": "Late Afternoon"},
-    29: {"start": "17:40", "end": "17:55", "label": "Late Afternoon"},
+    0: {"start": "08:00:00", "end": "08:15:00", "label": "Early Morning"},
+    1: {"start": "08:20:00", "end": "08:35:00", "label": "Early Morning"},
+    2: {"start": "08:40:00", "end": "08:55:00", "label": "Early Morning"},
+    3: {"start": "09:00:00", "end": "09:15:00", "label": "Early Morning"},
+    4: {"start": "09:20:00", "end": "09:35:00", "label": "Early Morning"},
+    5: {"start": "09:40:00", "end": "09:55:00", "label": "Early Morning"},
+    6: {"start": "10:00:00", "end": "10:15:00", "label": "Late Morning"},
+    7: {"start": "10:20:00", "end": "10:35:00", "label": "Late Morning"},
+    8: {"start": "10:40:00", "end": "10:55:00", "label": "Late Morning"},
+    9: {"start": "11:00:00", "end": "11:15:00", "label": "Late Morning"},
+    10: {"start": "11:20:00", "end": "11:35:00", "label": "Late Morning"},
+    11: {"start": "11:40:00", "end": "11:55:00", "label": "Late Morning"},
+    12: {"start": "12:00:00", "end": "12:15:00", "label": "Late Morning"},
+    13: {"start": "12:20:00", "end": "12:35:00", "label": "Early Afternoon"},
+    14: {"start": "12:40:00", "end": "12:55:00", "label": "Early Afternoon"},
+    15: {"start": "13:00:00", "end": "13:15:00", "label": "Early Afternoon"},
+    16: {"start": "13:20:00", "end": "13:35:00", "label": "Early Afternoon"},
+    17: {"start": "13:40:00", "end": "13:55:00", "label": "Early Afternoon"},
+    18: {"start": "14:00:00", "end": "14:15:00", "label": "Early Afternoon"},
+    19: {"start": "14:20:00", "end": "14:35:00", "label": "Early Afternoon"},
+    20: {"start": "14:40:00", "end": "14:55:00", "label": "Early Afternoon"},
+    21: {"start": "15:00:00", "end": "15:15:00", "label": "Early Afternoon"},
+    22: {"start": "15:20:00", "end": "15:35:00", "label": "Early Afternoon"},
+    23: {"start": "15:40:00", "end": "15:55:00", "label": "Late Afternoon"},
+    24: {"start": "16:00:00", "end": "16:15:00", "label": "Late Afternoon"},
+    25: {"start": "16:20:00", "end": "16:35:00", "label": "Late Afternoon"},
+    26: {"start": "16:40:00", "end": "16:55:00", "label": "Late Afternoon"},
+    27: {"start": "17:00:00", "end": "17:15:00", "label": "Late Afternoon"},
+    28: {"start": "17:20:00", "end": "17:35:00", "label": "Late Afternoon"},
+    29: {"start": "17:40:00", "end": "17:55:00", "label": "Late Afternoon"},
 }
 
+SLOT_INVALID =-1
+
+BREAK_SLOTS = [12,13,14,15]
 
 DAY_CHOICES = [
     ('Monday', 'Monday'), 
@@ -206,6 +209,13 @@ DAY_CHOICES = [
     ('Saturday', 'Saturday'), 
     ('Sunday', 'Sunday'),
 ]
+
+APPOINTMENTSTAGES = {
+  0: 'REQUESTED',
+  1: 'SCHEDULED',
+  2: 'COMPLETED',
+  3: 'CANCELLED',
+}
 
 FULL_TIME_WORKING_DAYS = ['Tuesday', 'Wednesday', 'Thursday', 'Saturday', 'Sunday']
 PART_TIME_WORKING_DAYS = ['Monday', 'Friday']

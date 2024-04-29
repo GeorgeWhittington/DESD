@@ -1,6 +1,6 @@
-from rest_framework import serializers, request, response
+from rest_framework import serializers
 
-from smartcare_appointments.models import AppointmentStage, Appointment, AppointmentComment, TimeOff
+from smartcare_appointments.models import AppointmentStage, Appointment, AppointmentComment
 from smartcare_auth.serializers import UserSerializer
 
 
@@ -55,7 +55,9 @@ class AppointmentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Appointment
-        fields = ['id', 'patient', 'staff', 'date_created', 'symptoms', 'stage', 'symptom_duration', 'time_preference', 'assigned_start_time', 'actual_start_time', 'actual_end_time', 'date_requested', 'appointment_comments']
+        fields = ["id", "patient", "staff", "date_created", "symptoms", "stage", "symptom_duration",
+                  "time_preference", "slot_number", "assigned_start_time", "actual_start_time",
+                  "actual_end_time", "date_requested", "appointment_comments"]
         extra_kwargs = {
             "staff": {
                 "required": False

@@ -1,7 +1,11 @@
 from smartcare_appointments.models import Appointment, TimeOff, WorkingDay
 from smartcare_auth.models import Staff, EmploymentType
 from django.conf import settings
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 from datetime import timedelta
+from smartcare_appointments.slot_logic import handle_affected_appointments
+from django.db.models import Q
 
 # a doctor/nurse working days set by full time/part time defaults or by admin
 def update_working_days(staff):
@@ -30,22 +34,22 @@ def report_unavailability(staff, start_date, end_date=None):
     if not end_date:
         end_date = start_date
     
-    # Create the Holiday instance for the period of unavailability
-    TimeOff.objects.create(staff=staff, start_date=start_date, end_date=end_date)
+    
+    #TimeOff.objects.create(staff=staff, start_date=start_date, end_date=end_date)
     
     # Find appointments that overlap with the unavailability period
     affected_appointments = Appointment.objects.filter(
-        staff=staff,
-        date__range=(start_date, end_date)
+        staff=staff.user,
+        assigned_start_time__range=(start_date, end_date)
+    ).exclude(
+        Q(stage=2) | Q(stage=3)
     )
     
     if affected_appointments.exists():
-        # Logic to handle affected appointments, e.g., notifying involved parties or rescheduling
+        print("AFFECTED APPPOINTMENTS: ", affected_appointments)
         handle_affected_appointments(affected_appointments)
 
-def handle_affected_appointments(affected_appointments):
-    for appointment in affected_appointments:
-        # Implement your logic here. This could be sending an email to the patient,
-        # creating a task to reschedule the appointment, logging the conflict, etc.
-        print(f"Appointment {appointment.id} is affected and needs rescheduling.")
-
+@receiver(post_save, sender=TimeOff)
+def handle_unplanned_leave(sender, instance, created, **kwargs):
+    if created and instance.reason == 'Unplanned leave':
+        report_unavailability(instance.staff,instance.start_date, instance.end_date)

@@ -1,12 +1,13 @@
-from rest_framework.views import APIView
-from rest_framework import routers, serializers, viewsets, generics, permissions, mixins
-from rest_framework.renderers import JSONRenderer
-from smartcare_appointments.models import Appointment, AppointmentComment, AppointmentStage
-from smartcare_appointments.serializers import AppointmentSerializer, AppointmentCommentSerializer
-from django.contrib.auth.models import User
+import datetime
+
+from rest_framework import viewsets, mixins
 from rest_framework.decorators import action
 from rest_framework.response import Response
-import datetime
+
+from smartcare_appointments.slot_logic import scheduler
+from smartcare_appointments.models import Appointment, AppointmentComment, AppointmentStage
+from smartcare_appointments.serializers import AppointmentSerializer, AppointmentCommentSerializer
+
 
 class AppointmentView(mixins.CreateModelMixin, mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     queryset = Appointment.objects.all()
@@ -15,6 +16,7 @@ class AppointmentView(mixins.CreateModelMixin, mixins.ListModelMixin, mixins.Ret
     @action(detail=True, methods=['post'])
     def approve(self, request, pk=None):
         appointment = self.get_object()
+        scheduler(appointment)
         return Response({"result" : f"request to approve {appointment.id}"})
 
     @action(detail=True, methods=['post'])
@@ -33,7 +35,7 @@ class AppointmentView(mixins.CreateModelMixin, mixins.ListModelMixin, mixins.Ret
 
         appointment.actual_start_time = datetime.datetime.now()
         appointment.save()
-        
+
         comment = AppointmentComment.objects.create(
             created_by=appointment.staff,
             appointment=appointment,
@@ -56,7 +58,7 @@ class AppointmentView(mixins.CreateModelMixin, mixins.ListModelMixin, mixins.Ret
         appointment.actual_end_time = datetime.datetime.now()
         appointment.stage = AppointmentStage.COMPLETED
         appointment.save()
-        
+
         comment = AppointmentComment.objects.create(
             created_by=appointment.staff,
             appointment=appointment,
@@ -65,7 +67,7 @@ class AppointmentView(mixins.CreateModelMixin, mixins.ListModelMixin, mixins.Ret
         comment.save()
 
         return Response({"result" : "success"})
-        
+
     @action(detail=True, methods=['post'])
     def assign_to_current_user(self, request, pk=None):
         appointment = self.get_object()
@@ -76,8 +78,8 @@ class AppointmentView(mixins.CreateModelMixin, mixins.ListModelMixin, mixins.Ret
             appointment.save()
 
         return Response({"result" : "success"})
-        
-    
+
+
 class AppointmentCommentView(mixins.CreateModelMixin, mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     queryset = AppointmentComment.objects.all()
     serializer_class = AppointmentCommentSerializer

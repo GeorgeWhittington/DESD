@@ -1,30 +1,117 @@
 from smartcare_auth.models import Staff
+from smartcare_appointments.models import Appointment, TimeOff
+from django.conf import settings
+from datetime import datetime,date
+from django.db.models import Q
 
-#Then test the appointments they already have for that date against the slots they are working: (test the appointment model for any appointments that match the staff)
-#import appointment model
-#list = Appoimtment.get_all().filter
 
+def scheduler(appointment):
+    print("STARTED SCHEDULING")
+    dateRequested = appointment.date_requested
+    timeRequested = appointment.time_preference
+    #returns the staff available on the requested date
+    availableStaff = get_staff_working_on_date(dateRequested)
 
+    print("AVAILABLE STAFF",availableStaff)
 
-def calculate_available_slots(user, date):
-    pass
+    for staff in availableStaff:
+        availableSlot = staff_get_available_slot(staff,dateRequested,timeRequested)
 
-def find_available_staff(date):
-    day_of_week = date.strftime("%A")
+        if availableSlot is not None:
+            print("CHOSEN DETAILS: ", staff, availableSlot)
+            appointmentScheduled = schedule_appointment(staff, availableSlot,appointment,dateRequested)
+            if appointmentScheduled:
+                ("APPOINTMENT SCHEDULED")
+                return True
     
-    # Start with all staff scheduled to work on that day of the week
-    available_staff = Staff.objects.filter(
-        working_days__day=day_of_week
+    return False
+
+
+# schedule the appointment using the chosen staff and slot
+def schedule_appointment(staff, slot, appointment,dateRequested):
+    try:
+        appointment.slot_number = slot
+        slotStartTime = settings.SLOTS[slot]['start']
+        convertedSlotTime = datetime.strptime(slotStartTime, '%H:%M:%S').time()
+        appointment.staff = staff.user
+        appointment.stage = 1
+        appointment.assigned_start_time = (datetime.combine(dateRequested,convertedSlotTime)).isoformat()
+        appointment.save()
+        return True
+    except Exception:
+        return False
+
+
+# handles appointments affected by unplanned leave: tries to reschedule
+def handle_affected_appointments(affected_appointments):
+    for appointment in affected_appointments:
+        rescheduled = scheduler(appointment)
+        if not rescheduled:
+            print("APPOINTMENT ", appointment, " CANCELLED")
+            appointment.stage = 3
+            appointment.staff = None
+            appointment.slot_number = -1
+            appointment.assigned_start_time = None
+            appointment.save()
+
+# find the staff who are working on the chosen day and are not on time off
+def get_staff_working_on_date(date):
+    dateToDay = date.strftime("%A")
+    print("Query Date:", date)
+    print("Day of Week:", dateToDay)
+
+    conflicting_holidays = TimeOff.objects.filter(start_date__lte=date, end_date__gte=date).only("id").all()
+    print(f"conflicting holiday: {conflicting_holidays}")
+
+    availableStaff = Staff.objects.filter(
+        working_days__day=dateToDay
+    ).exclude(
+        timeOff__id__in=conflicting_holidays
     )
+    print("AVAILABLE STAFF: ", availableStaff)
+    return availableStaff
+
+# get a staff's available slots 
+def staff_get_available_slot(staff,date,timePreference):
     
-    # Exclude staff who have time off on that date
-    available_staff = available_staff.exclude(
-        time_off__date=date
+    # gets the appointments a doctor already has for date
+    appointmentSlotNumbers = staff_get_appointments(staff,date)
+    
+    #stores available slots
+    availableSlotNumbers = []
+
+    
+    if len(appointmentSlotNumbers) >= len(settings.SLOTS)-4:
+        return False
+    else:
+        for slot in settings.SLOTS:
+            if slot in settings.BREAK_SLOTS:
+                continue
+            elif slot in appointmentSlotNumbers:
+                continue
+            else:
+                availableSlotNumbers.append(slot)
+
+    if timePreference != 0:
+        availableSlotNumbers = list(reversed(availableSlotNumbers))
+        
+    return availableSlotNumbers[0] if availableSlotNumbers else False
+    
+# gets a staff member's appointments
+def staff_get_appointments(staff,date):
+
+    staffHasAppointments = Appointment.objects.filter(
+        staff = staff.user,
+        assigned_start_time__date = date
     )
+
+    appointmentSlotNumbers = {appointment.slot_number for appointment in staffHasAppointments}
+
+    return appointmentSlotNumbers
+
+
+def checkSlotsInRange(startDate,endDate):
+    Appointment.objects.filter(assigned_start_time__date__range=[startDate, endDate])
+
+ 
     
-    # Exclude staff who already have appointments at any slot for that date
-    available_staff = available_staff.exclude(
-        appointments__date=date
-    )
-    
-    return available_staff

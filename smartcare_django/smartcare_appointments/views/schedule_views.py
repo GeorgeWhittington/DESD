@@ -1,19 +1,18 @@
 from django.shortcuts import render
-from rest_framework import routers, serializers, viewsets
+from rest_framework import viewsets
+from rest_framework import viewsets, mixins
 
-from smartcare_appointments.models import Appointment, TimeOff
+
+from smartcare_appointments.models import TimeOff
 from smartcare_appointments.schedule_serializers import TimeOffSerializer
-from smartcare_appointments.serializers import AppointmentSerializer
+from smartcare_auth.rest_permissions import IsStaff
 
-
-class TimeOffView(viewsets.ModelViewSet):
+class TimeOffView(mixins.CreateModelMixin, mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):#viewsets.ModelViewSet
     queryset = TimeOff.objects.all()
     serializer_class = TimeOffSerializer
 
-    # def get_queryset(self):
+    permission_classes = [IsStaff]
 
-    #     user = self.request.user
-    #     if user.is_authenticated:
-    #         return TimeOff.objects.filter(staff__user=user)
-    #     else:
-    #         return TimeOff.objects.none()
+
+
+    
