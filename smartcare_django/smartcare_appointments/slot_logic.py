@@ -5,12 +5,18 @@ from datetime import datetime,date
 from django.db.models import Q
 
 
-def scheduler(appointment):
+def scheduler(appointment, user=None):
     print("STARTED SCHEDULING")
     dateRequested = appointment.date_requested
     timeRequested = appointment.time_preference
     #returns the staff available on the requested date
-    availableStaff = get_staff_working_on_date(dateRequested)
+    
+    availableStaff = []
+    
+    if user is not None:
+        availableStaff = [user]
+    else:
+        availableStaff = get_staff_working_on_date(dateRequested)
 
     print("AVAILABLE STAFF",availableStaff)
 
