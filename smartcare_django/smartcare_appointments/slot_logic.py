@@ -1,18 +1,18 @@
-from smartcare_auth.models import Staff
-from smartcare_appointments.models import Appointment, TimeOff, AppointmentStage
-from django.conf import settings
-from datetime import datetime,date
-from django.db.models import Q
+from datetime import datetime
 
+from django.conf import settings
+
+from smartcare_auth.models import StaffInfo
+from smartcare_appointments.models import Appointment, TimeOff, AppointmentStage
 
 def scheduler(appointment, user=None):
     print("STARTED SCHEDULING")
     dateRequested = appointment.date_requested
     timeRequested = appointment.time_preference
     #returns the staff available on the requested date
-    
+
     availableStaff = []
-    
+
     if user is not None:
         availableStaff = [user]
     else:
@@ -29,7 +29,7 @@ def scheduler(appointment, user=None):
             if appointmentScheduled:
                 ("APPOINTMENT SCHEDULED")
                 return True
-    
+
     return False
 
 
@@ -70,7 +70,7 @@ def get_staff_working_on_date(date):
     conflicting_holidays = TimeOff.objects.filter(start_date__lte=date, end_date__gte=date).only("id").all()
     print(f"conflicting holiday: {conflicting_holidays}")
 
-    availableStaff = Staff.objects.filter(
+    availableStaff = StaffInfo.objects.filter(
         working_days__day=dateToDay
     ).exclude(
         timeOff__id__in=conflicting_holidays

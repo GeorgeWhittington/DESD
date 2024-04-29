@@ -43,20 +43,6 @@ class InvoiceView(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.Gen
     filter_backends = [filters.DjangoFilterBackend]
     filterset_class = InvoiceFilter
 
-    # TODO: only an api route for testing, in reality this code should run during post appt email generation
-    # and the pdf should be attached directly to that email, not be saved to the server
-    @action(detail=True)
-    def pdf(self, request, pk=None):
-        invoice = self.get_object()
-
-        html = load_pdf_html("smartcare_finance/invoice.html", {"invoice": invoice})
-        filename = f"/reports/invoice-{invoice.id}.pdf"
-
-        with default_storage.open(default_storage.location + filename, "wb") as file:
-            html.write_pdf(file)
-
-        return Response({"pdf": default_storage.url(filename)})
-
 
 @api_view(["POST"])
 @permission_classes((IsAdmin,))

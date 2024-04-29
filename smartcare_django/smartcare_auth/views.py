@@ -8,7 +8,7 @@ from rest_framework.response import Response
 from knox.views import LoginView as KnoxLoginView
 
 from .rest_permissions import IsStaff
-from .models import Staff, PasswordReset
+from .models import StaffInfo, PasswordReset
 from .serializers import UserSerializer, StaffSerializer, ResetPasswordSerializer
 
 UserModel = get_user_model()
@@ -55,7 +55,7 @@ class UserView(mixins.CreateModelMixin, mixins.ListModelMixin, mixins.RetrieveMo
 
 class StaffView(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):#viewsets.ModelViewSet
     serializer_class = StaffSerializer
-    queryset = Staff.objects.all().prefetch_related('timeOff')
+    queryset = StaffInfo.objects.all().prefetch_related('timeOff')
     permission_classes = [IsStaff]
 
 

@@ -19,6 +19,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 MEDIA_ROOT = "/usr/src/smartcare_django/media"
 MEDIA_URL = "media/"
 
+INVOICE_FOLDER = "/usr/src/smartcare_django/invoices"
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 

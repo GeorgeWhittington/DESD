@@ -1,7 +1,9 @@
+from datetime import datetime, date, timezone
 import json
-from datetime import datetime, date
-from django.db import models
-from smartcare_auth.models import User
+
+from django.contrib.auth import get_user_model
+from django.core.mail import EmailMessage
+from django.conf import settings
 from rest_framework import viewsets, mixins
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -9,7 +11,13 @@ from rest_framework.response import Response
 from smartcare_appointments.slot_logic import scheduler
 from smartcare_appointments.models import Appointment, AppointmentComment, AppointmentStage
 from smartcare_appointments.serializers import AppointmentSerializer, AppointmentCommentSerializer
-      
+from smartcare_finance.models import Invoice
+from smartcare_finance.views import load_pdf_html
+from smartcare_auth.models import PatientPayType
+
+UserModel = get_user_model()
+
+
 class AppointmentView(mixins.CreateModelMixin, mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     queryset = Appointment.objects.all()
     serializer_class = AppointmentSerializer
@@ -20,16 +28,16 @@ class AppointmentView(mixins.CreateModelMixin, mixins.ListModelMixin, mixins.Ret
         by filtering against a `username` query parameter in the URL.
         """
         queryset = Appointment.objects.all()
-        
+
         # filter based on staff / patient user
         if not self.request.user.is_clinic_staff():
             queryset = queryset.filter(patient=self.request.user)
         else:
             if 'staff_id' in self.request.query_params:
-                queryset = queryset.filter(staff=User.objects.get(id=int(self.request.query_params.get('staff_id')) ))
+                queryset = queryset.filter(staff=UserModel.objects.get(id=int(self.request.query_params.get('staff_id')) ))
 
             if 'patient_id' in self.request.query_params:
-                queryset = queryset.filter(patient=User.objects.get(id=int(self.request.query_params.get('patient_id')) ))
+                queryset = queryset.filter(patient=UserModel.objects.get(id=int(self.request.query_params.get('patient_id')) ))
 
         # filter based on stage
         if 'stage_id' in self.request.query_params:
@@ -39,7 +47,7 @@ class AppointmentView(mixins.CreateModelMixin, mixins.ListModelMixin, mixins.Ret
             if stage_id_str:
                 for character in str(self.request.query_params.get('stage_id')):
                     stage_ids.append(int(character))
-                
+
                 print(stage_ids)
                 queryset = queryset.filter(stage__in=stage_ids)
 
@@ -91,7 +99,7 @@ class AppointmentView(mixins.CreateModelMixin, mixins.ListModelMixin, mixins.Ret
         # if appointment.staff != requested_user:
         #    return Response({"result" : "error", "message" : "the logged in user does not own this appointment"})
 
-        appointment.actual_start_time = datetime.now()
+        appointment.actual_start_time = datetime.now(timezone.utc)
         appointment.save()
 
         comment = AppointmentComment.objects.create(
@@ -113,7 +121,7 @@ class AppointmentView(mixins.CreateModelMixin, mixins.ListModelMixin, mixins.Ret
         # if appointment.staff != requested_user:
         #    return Response({"result" : "error", "message" : "the logged in user does not own this appointment"})
 
-        appointment.actual_end_time = datetime.now()
+        appointment.actual_end_time = datetime.now(timezone.utc)
         appointment.stage = AppointmentStage.COMPLETED
         appointment.save()
 
@@ -123,6 +131,31 @@ class AppointmentView(mixins.CreateModelMixin, mixins.ListModelMixin, mixins.Ret
             text="Appointment Completed"
         )
         comment.save()
+
+        invoice = Invoice(appointment=appointment)
+        invoice.save()
+
+        if hasattr(appointment.patient, "patient_info") and appointment.patient.patient_info.pay_type == PatientPayType.PRIVATE:
+            html = load_pdf_html("smartcare_finance/invoice.html", {"invoice": invoice})
+            filename = f"/invoice-{invoice.id}.pdf"
+
+            with open(settings.INVOICE_FOLDER + filename, "wb") as file:
+                html.write_pdf(file)
+
+            email = EmailMessage(
+                subject="Appointment Invoice",
+                body=f"""
+Dear {appointment.patient.first_name} {appointment.patient.last_name},
+
+Thank you for your recent appointment at smartcare. Your invoice is attached to this email.
+
+Regards, Smartcare.
+                """,
+                from_email="from@example.com",
+                to=["to@example.com", appointment.patient.email]
+            )
+            email.attach_file(settings.INVOICE_FOLDER + filename, mimetype="application/pdf")
+            email.send()
 
         return Response({"result" : "success"})
 
