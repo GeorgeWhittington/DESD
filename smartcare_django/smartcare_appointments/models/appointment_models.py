@@ -40,6 +40,7 @@ class AppointmentPayee(IntEnum):
 class Appointment(models.Model):
     patient = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.CASCADE, related_name='appointment_patient')
     staff = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.CASCADE, related_name='appointment_staff')
+    date_created = models.DateTimeField(null=False, auto_now=True)
 
      # stage of the appointment
     stage = models.IntegerField(choices=AppointmentStage.choices(), null=False, default=AppointmentStage.REQUESTED)
