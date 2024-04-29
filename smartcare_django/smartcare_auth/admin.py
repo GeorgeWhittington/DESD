@@ -31,7 +31,7 @@ class StaffAdmin(admin.ModelAdmin):
 
 
 class StaffInline(admin.StackedInline):
-    model = Staff 
+    model = Staff
     verbose_name_plural = 'staff'
     fk_name = 'user'
     extra = 0
@@ -40,10 +40,10 @@ class StaffInline(admin.StackedInline):
 @admin.register(User)
 class CustomUserAdmin(UserAdmin):
     inlines = (StaffInline, )
-    list_display = ["username", "email", "full_name", "user_type", "is_active", "is_staff","employment_type_display"]
+    list_display = ["username", "email", "full_name", "user_type", "is_active", "is_staff", "employment_type_display"]
     fieldsets = UserAdmin.fieldsets + (
         ("Custom Fields", {
-            "fields": ("user_type","employment_type",)
+            "fields": ("user_type",)
         }),
     )
 
