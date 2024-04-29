@@ -21,7 +21,7 @@ from django.conf.urls.static import static
 from rest_framework import routers
 from knox import views as knox_views
 
-from smartcare_auth.views import UserView, StaffView, LoginView
+from smartcare_auth.views import UserView, StaffView, LoginView, PasswordResetView
 from smartcare_appointments.views import AppointmentView, TimeOffView, PrescriptionsView, AppointmentCommentView
 from smartcare_finance.views import InvoiceView, generate_turnover_report
 
@@ -34,6 +34,7 @@ router.register(r"staff", StaffView, basename="staff")
 router.register(r"timeoff", TimeOffView)
 router.register(f"invoice", InvoiceView, basename="invoice")
 router.register(r"prescriptions", PrescriptionsView)
+router.register(r"auth/password-reset", PasswordResetView, basename="password_reset")
 
 urlpatterns = [
     path("admin/", admin.site.urls),
