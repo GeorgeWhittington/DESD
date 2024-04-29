@@ -20,9 +20,10 @@ class TimeSlot(IntEnum):
 
 class AppointmentStage(IntEnum):
     REQUESTED = 0
-    SCHEDULED = 1
-    COMPLETED = 2
-    CANCELLED = 3
+    APPROVED = 1
+    SCHEDULED = 2
+    COMPLETED = 3
+    CANCELLED = 4
 
     @classmethod
     def choices(cls):

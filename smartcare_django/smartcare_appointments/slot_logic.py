@@ -1,16 +1,22 @@
-from smartcare_auth.models import StaffInfo
-from smartcare_appointments.models import Appointment, TimeOff
+from datetime import datetime
+
 from django.conf import settings
-from datetime import datetime,date
-from django.db.models import Q
 
+from smartcare_auth.models import StaffInfo
+from smartcare_appointments.models import Appointment, TimeOff, AppointmentStage
 
-def scheduler(appointment):
+def scheduler(appointment, user=None):
     print("STARTED SCHEDULING")
     dateRequested = appointment.date_requested
     timeRequested = appointment.time_preference
     #returns the staff available on the requested date
-    availableStaff = get_staff_working_on_date(dateRequested)
+
+    availableStaff = []
+
+    if user is not None:
+        availableStaff = [user]
+    else:
+        availableStaff = get_staff_working_on_date(dateRequested)
 
     print("AVAILABLE STAFF",availableStaff)
 
@@ -23,7 +29,7 @@ def scheduler(appointment):
             if appointmentScheduled:
                 ("APPOINTMENT SCHEDULED")
                 return True
-    
+
     return False
 
 
@@ -34,11 +40,12 @@ def schedule_appointment(staff, slot, appointment,dateRequested):
         slotStartTime = settings.SLOTS[slot]['start']
         convertedSlotTime = datetime.strptime(slotStartTime, '%H:%M:%S').time()
         appointment.staff = staff.user
-        appointment.stage = 1
-        appointment.assigned_start_time = (datetime.combine(dateRequested,convertedSlotTime)).isoformat()
+        appointment.stage = AppointmentStage.SCHEDULED
+        appointment.assigned_start_time = (datetime.combine(dateRequested,convertedSlotTime))
         appointment.save()
         return True
-    except Exception:
+    except Exception as e:
+        print(e)
         return False
 
 

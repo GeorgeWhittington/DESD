@@ -43,6 +43,46 @@
         }
     });
 
+    export async function approveAppointment() {
+        let response;
+        console.log("begin appointment!!")
+        try {
+            response = await fetch(`${API_ENDPOINT}/appointments/${appointment.id}/approve/`, {
+                method: "POST",
+                headers: {
+                    Authorization: `Token ${$session.token}`,
+                    "content-type": "application/json",
+                }
+            });
+
+            console.log(response.text())
+            //location.reload();
+
+        } catch (error) {
+            return "Server error, please try again later!";
+        }
+    }
+
+    export async function rejectAppointment() {
+        let response;
+        console.log("begin appointment!!")
+        try {
+            response = await fetch(`${API_ENDPOINT}/appointments/${appointment.id}/approve/`, {
+                method: "POST",
+                headers: {
+                    Authorization: `Token ${$session.token}`,
+                    "content-type": "application/json",
+                }
+            });
+
+            console.log(response.text())
+            location.reload();
+
+        } catch (error) {
+            return "Server error, please try again later!";
+        }
+    }
+
     export async function beginAppointment() {
         let response;
         console.log("begin appointment!!")
@@ -103,20 +143,25 @@
     }
 
 
-    export async function postNewComment() {
+    export async function addAppointmentComment() {
+        if (!txtNewComment || txtNewComment.length == 0) {
+            return;
+        }
+        
         let response;
-
-        let req_body = { appointment_id: appointment.id, text: txtNewComment };
-
         try {
-            response = await fetch(`${API_ENDPOINT}/appointment_comments/`, {
+            response = await fetch(`${API_ENDPOINT}/appointments/${appointment.id}/add_comment/`, {
                 method: "POST",
                 headers: {
                     Authorization: `Token ${$session.token}`,
                     "content-type": "application/json",
                 },
-                body: JSON.stringify(req_body),
+                body: JSON.stringify({comment : txtNewComment})
             });
+
+            console.log(response.text())
+            location.reload();
+
         } catch (error) {
             return "Server error, please try again later!";
         }
@@ -179,18 +224,28 @@
 
     <br />
 
-    <!-- Staff Actions -->
+    <!-- Actions -->
     {#if isStaff}
         <div class="card">
-            <div class="card-header">Staff Actions</div>
+            <div class="card-header">Actions</div>
             <div class="card-body">
                 
-                <button type="submit" class="btn btn-sm btn-primary" on:click={assignToCurrentUser}
-                        >Assign to current user</button
+                <!-- Requested Stage -->
+                {#if appointment.stage === 0 }
+                <button type="submit" class="btn btn-primary" on:click={approveAppointment}>Approve</button>
+                <button type="submit" class="btn btn-danger" on:click={rejectAppointment}>Reject</button>
+                {/if}
+
+                <!-- Approved Stage -->
+                {#if appointment.stage === 1 }
+                <button type="submit" class="btn btn-sm btn-primary"
+                        >Manual Schedule</button
                     >
+                {/if}
+                
 
                 <!-- Begin Appointment -->
-                {#if !appointment.actual_start_time && !appointment.actual_end_time}
+                {#if appointment.stage === 2 && !appointment.actual_start_time && !appointment.actual_end_time}
                 <button type="submit" class="btn btn-sm btn-primary" on:click={beginAppointment}
                         >Start Appointment</button
                     >
@@ -205,9 +260,10 @@
 
             </div>
         </div>
+        <br />
     {/if}
 
-    <br />
+    
 
     <!-- Original Request -->
     <div class="card">
@@ -255,11 +311,12 @@
                     <div>{c.text}</div>
                 </div>
                 <u></u>
+                <hr>
             {/each}
 
             <!-- Comment Box -->
             <br />
-            <form on:submit|preventDefault={postNewComment}>
+            <form on:submit|preventDefault={addAppointmentComment}>
                 <div class="mb-3">
                     <textarea
                         class="form-control"

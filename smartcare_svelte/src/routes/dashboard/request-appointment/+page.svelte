@@ -38,8 +38,12 @@
                 },
                 body: JSON.stringify(req_body),
             });
-
-            goto('/dashboard/appointments');
+            
+            if (response.ok) {
+                let new_appointment = await response.json();
+                console.log('New Appointment = ', new_appointment)
+                goto(`/dashboard/appointment/${new_appointment.id}`)
+            }
             
         } catch (error) {
             return "Server error, please try again later!";
