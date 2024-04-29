@@ -110,7 +110,8 @@ def staff_get_appointments(staff,date):
     return appointmentSlotNumbers
 
 
-
+def checkSlotsInRange(startDate,endDate):
+    Appointment.objects.filter(assigned_start_time__date__range=[startDate, endDate])
 
  
     
