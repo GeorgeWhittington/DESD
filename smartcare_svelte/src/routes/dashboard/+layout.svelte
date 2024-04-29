@@ -43,13 +43,13 @@
             <nav class="nav  flex-column align-items-stretch">
                 <!-- superuser/admin -->
                 {#if [0, 1].includes($session["userType"])}
-                <NavLink link="#" iconClass="bi-activity" title="Overview" />
-                <NavLink link="#" iconClass="bi-calendar" title="Schedules" />
+                <NavLink link="/dashboard#" iconClass="bi-activity" title="Overview" />
+                <NavLink link="/dashboard/schedule" iconClass="bi-calendar" title="Schedules" />
                 <NavLink link="/dashboard/turnover" iconClass="bi-bank" title="Turnover" />
 
                 <!-- doctor/nurse -->
                 {:else if [2, 3].includes($session["userType"])}
-                <NavLink link="#" iconClass="bi-activity" title="Overview" />
+                <NavLink link="/dashboard#" iconClass="bi-activity" title="Overview" />
                 <NavLink link="/dashboard/schedule" iconClass="bi-calendar" title="Schedule" />
                     {#if $page.url.pathname === "/dashboard/schedule"}
                     <ul>
@@ -61,8 +61,9 @@
 
                 <!-- patient -->
                 {:else if $session["userType"] === 5}
-                <NavLink link="/dashboard/appointments" iconClass="bi-calendar" title="My Appointments" />
-                <NavLink link="#prescriptions" iconClass="bi-capsule" title="My Prescriptions" />
+                <NavLink link="/dashboard#appointments" iconClass="bi-calendar" title="My Appointments" />
+                <NavLink link="/dashboard#prescriptions" iconClass="bi-capsule" title="My Prescriptions" />
+                <NavLink link="/dashboard/request-appointment" iconClass="bi-pencil-square" title="Request Appointment" />
                 {/if}
                 <!-- svelte-ignore a11y-invalid-attribute -->
                 <a class="nav-link text-white" href="#" role="button" on:click|preventDefault={logoutWrapper}>
