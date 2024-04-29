@@ -1,4 +1,4 @@
-from rest_framework import serializers
+from rest_framework import serializers, request, response
 
 from smartcare_appointments.models import AppointmentStage, Appointment, AppointmentComment, TimeOff
 from smartcare_auth.serializers import UserSerializer
@@ -6,6 +6,19 @@ from smartcare_auth.serializers import UserSerializer
 
 class AppointmentCommentSerializer(serializers.ModelSerializer):
     created_by = UserSerializer(read_only=True)
+
+    def create(self, validated_data):
+        appointment_id = validated_data["appointment_id"]
+        appointment = Appointment.objects.get(pk=appointment_id)
+        text = validated_data["text"]
+
+        if appointment is not None:
+            comment = AppointmentComment.objects.create(
+                appointment=appointment,
+                text=text
+            )
+            comment.save()
+            return comment
 
     class Meta:
         model = AppointmentComment
@@ -31,11 +44,18 @@ class AppointmentSerializer(serializers.ModelSerializer):
         )
         appointment.save()
 
+        comment = AppointmentComment.objects.create(
+            created_by=appointment.patient,
+            appointment=appointment,
+            text="Appointment requested"
+        )
+        comment.save()
+
         return appointment
 
     class Meta:
         model = Appointment
-        fields = ['id', 'patient', 'staff', 'symptoms', 'stage', 'symptom_duration', 'time_preference', 'assigned_start_time', 'actual_start_time', 'actual_end_time', 'date_requested', 'appointment_comments']
+        fields = ['id', 'patient', 'staff', 'date_created', 'symptoms', 'stage', 'symptom_duration', 'time_preference', 'assigned_start_time', 'actual_start_time', 'actual_end_time', 'date_requested', 'appointment_comments']
         extra_kwargs = {
             "staff": {
                 "required": False
