@@ -21,7 +21,7 @@
     let comments = [];
 
     onMount(async () => {
-        let response = await apiGET($session, `/appointments/${data.slug}/`);
+        let response = await apiGET(session, `/appointments/${data.slug}/`);
         if (response && response.ok) {
             appointment = await response.json();
             patient = appointment.patient;
@@ -36,7 +36,7 @@
     });
 
     async function approveAppointment() {
-        let response = await apiPOST($session, `/appointments/${appointment.id}/approve/`, "");
+        let response = await apiPOST(session, `/appointments/${appointment.id}/approve/`, "");
 
         if (response && response.ok) {
             console.log(response.text())
@@ -47,7 +47,7 @@
     }
 
     async function rejectAppointment() {
-        let response = await apiPOST($session, `/appointments/${appointment.id}/reject/`, "");
+        let response = await apiPOST(session, `/appointments/${appointment.id}/reject/`, "");
 
         if (response && response.ok) {
             console.log(response.text())
@@ -58,7 +58,7 @@
     }
 
     async function beginAppointment() {
-        let response = await apiPOST($session, `/appointments/${appointment.id}/begin/`, "");
+        let response = await apiPOST(session, `/appointments/${appointment.id}/begin/`, "");
 
         if (response && response.ok) {
             console.log(response.text())
@@ -69,7 +69,7 @@
     }
 
     async function endAppointment() {
-        let response = await apiPOST($session, `/appointments/${appointment.id}/end/`, "");
+        let response = await apiPOST(session, `/appointments/${appointment.id}/end/`, "");
 
         if (response && response.ok) {
             console.log(response.text())
@@ -80,7 +80,7 @@
     }
 
     async function assignToCurrentUser() {
-        let response = await apiPOST($session, `/appointments/${appointment.id}/assign_to_current_user/`, "");
+        let response = await apiPOST(session, `/appointments/${appointment.id}/assign_to_current_user/`, "");
 
         if (response && response.ok) {
             console.log(response.text())
@@ -96,7 +96,7 @@
         }
 
         let response = await apiPOST(
-            $session, `/appointments/${appointment.id}/add_comment/`,
+            session, `/appointments/${appointment.id}/add_comment/`,
             JSON.stringify({comment : txtNewComment})
         );
 

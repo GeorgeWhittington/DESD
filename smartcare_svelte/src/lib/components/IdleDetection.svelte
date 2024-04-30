@@ -8,6 +8,9 @@
     export let session;
 
     import { listen, idle } from "svelte-idle";
+    import { apiPOST } from "$lib/apiFetch.js";
+    import { BLANK_SESSION } from "$lib/constants.js";
+    import { goto } from "$app/navigation";
 
     let timer = null;
     $: {
@@ -29,7 +32,7 @@
     }
 
     async function logout() {
-        let response = await apiPOST($session, "/auth/logout/", "");
+        let response = await apiPOST(session, "/auth/logout/", "");
         if (response && response.status < 500) {
             session.set(BLANK_SESSION);
             goto("/");

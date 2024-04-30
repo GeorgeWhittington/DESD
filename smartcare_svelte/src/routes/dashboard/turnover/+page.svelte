@@ -43,7 +43,7 @@
     }
 
     export async function loadInvoices() {
-        let response = await apiGET($session, `/invoice/?date=${invoice_date}`);
+        let response = await apiGET(session, `/invoice/?date=${invoice_date}`);
         if (response && response.ok) {
             invoices = await response.json(); // TODO: Could this raise errors?
             handler.setRows(invoices);
@@ -62,7 +62,7 @@
 <IdleDetection userType={$session.userType} session={session} />
 <NeedsAuthorisation userType={$session.userType} userTypesPermitted={[0, 1]} />
 
-<GenerateTurnoverReportsCard session={$session} />
+<GenerateTurnoverReportsCard session={session} />
 
 <div class="card mt-3">
     <div class="card-body ">

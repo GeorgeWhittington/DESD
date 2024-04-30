@@ -14,7 +14,7 @@
     let alert = "";
 
     async function logoutWrapper() {
-        let response = await apiPOST($session, "/auth/logout/", "");
+        let response = await apiPOST(session, "/auth/logout/", "");
         if (response && response.status < 500) {
             session.set(BLANK_SESSION);
             goto("/");

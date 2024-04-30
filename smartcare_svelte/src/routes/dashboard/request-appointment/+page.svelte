@@ -28,7 +28,7 @@
     }
 
     export async function requestAppointment() {
-        let response = await apiPOST($session, "/appointments/", JSON.stringify({
+        let response = await apiPOST(session, "/appointments/", JSON.stringify({
             symptoms: symptoms, time_preference: time_preference, symptom_duration: symptom_duration, date_requested: date_requested
         }));
 
