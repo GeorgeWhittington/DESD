@@ -1,5 +1,5 @@
 <script>
-    import { TIME_PREFERENCE, APPOINTMENT_STAGE } from "$lib/constants";
+    import { TIME_PREFERENCE, APPOINTMENT_STAGE, APPOINTMENT_STAGE_COLOURS } from "$lib/constants";
     import { API_ENDPOINT } from "$lib/constants";
     import { getContext } from "svelte";
     import { apiPOST } from "$lib/apiFetch.js";
@@ -40,13 +40,33 @@
 
 <div class="card mb-3 appointment-card" style="width: 24rem;" >
     <div class="card-body" on:click={cardClicked}>
-      <h5 class="card-title">{appointment.patient.first_name} {appointment.patient.last_name}</h5>
-      <h6 class="card-subtitle mb-2 text-muted">Created:  {new Date(appointment.date_created).toUTCString()}</h6>
-      <h6 class="card-subtitle mb-2 text-muted">Requested For:  {appointment.date_requested} ({TIME_PREFERENCE[appointment.time_preference]})</h6>
+      <span class="card-title"><b>{appointment.patient.first_name} {appointment.patient.last_name}</b><span class="badge float-end" style="background-color: {APPOINTMENT_STAGE_COLOURS[appointment.stage]};">{APPOINTMENT_STAGE[appointment.stage]}</span></span>
+      
+      {#if appointment.assigned_start_time}
+
+      <br>
+      <span class="card-subtitle mb-2 text-muted">Scheduled For:  {new Date(appointment.assigned_start_time).toLocaleString("en-GB")}</span>
+
+      {:else}
+      <br>
+      <span class="card-subtitle mb-2 text-muted">Created:  {new Date(appointment.date_created).toLocaleString("en-GB")}</span>
+      
+      <br>
+      <span class="card-subtitle mb-2 text-muted">Requested For:  {appointment.date_requested} ({TIME_PREFERENCE[appointment.time_preference]})</span>
+      {/if}
 
       {#if appointment.staff}
-        <h6 class="card-subtitle mb-2 text-muted">Requested For:  {appointment.date_requested} ({TIME_PREFERENCE[appointment.time_preference]})</h6>
+        <br>
+        <span class="card-subtitle mb-2 text-muted">Assigned To: {appointment.staff.first_name} {appointment.staff.last_name}</span>
       {/if}
-      <p class="card-text">{appointment.symptoms}</p>
+
+      <br>
+      <span class="card-subtitle mb-2 text-muted">Symptom Duration: {appointment.symptom_duration} days</span>
+
+      <br>
+      <span class="card-subtitle mb-2 text-muted">Symptoms:</span>
+      <br>
+      <textarea class="form-control" style="resize:none; padding:4px; border: none;" readonly disabled
+      rows="3">{appointment.symptoms}</textarea>
     </div>
 </div>

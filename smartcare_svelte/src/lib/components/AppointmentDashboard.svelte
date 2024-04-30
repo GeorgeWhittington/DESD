@@ -10,6 +10,7 @@
     export let stage_id = -1;
     export let staff_id = -1;
     export let patient_id = -1;
+    export let today_only = false
 
     let appointments = [];
 
@@ -26,6 +27,10 @@
 
         if (patient_id >= 0) {
             endpoint += `patient_id=${patient_id}&`;
+        }
+
+        if (today_only) {
+            endpoint += `today_only=${today_only}&`;
         }
 
         let response = await apiGET($session, endpoint, "");
@@ -51,7 +56,11 @@
     <div class="card-header">
         {title}  ({appointments.length})
     </div>
-    <div class="card-body d-flex flex-wrap justify-content-between">
+    <div class="card-body d-flex flex-wrap justify-content-evenly">
+        {#if appointments.length === 0}
+        <span>No appointments to show</span>
+        {/if}
+
         {#each appointments as a, i }
         <AppointmentCard appointment={a}></AppointmentCard>
     {/each}

@@ -40,7 +40,7 @@
 
         if (response && response.ok) {
             console.log(response.text())
-            //location.reload();
+            location.reload();
         } else {
             return "Server error, please try again later!";
         }
