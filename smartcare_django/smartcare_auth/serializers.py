@@ -11,12 +11,20 @@ from smartcare_appointments.schedule_serializers import WorkingDaySerializer, Ti
 UserModel = get_user_model()
 
 
+class BasicUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserModel
+        fields = ["id", "first_name", "last_name"]
+
+
 class StaffSerializer(serializers.ModelSerializer):
+    user = BasicUserSerializer(required=True)
     working_days = WorkingDaySerializer(many=True, read_only=True)
     time_off = TimeOffSerializer(many=True, read_only=True,source='timeOff')
     class Meta:
         model = StaffInfo
         fields = ['user','employment_type','working_days', 'time_off']
+
 
 #to display basic information within the user api
 class StaffBasicSerializer(serializers.ModelSerializer):

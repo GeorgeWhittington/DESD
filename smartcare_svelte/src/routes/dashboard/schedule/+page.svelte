@@ -51,7 +51,7 @@
         let staffResponse = await apiGET($session, "/staff/");
         if (staffResponse && staffResponse.ok) {
             let response_json = await staffResponse.json();
-            staffList = response_json.filter(staff => staff.user !== userId);
+            staffList = response_json.filter(staff => staff.user.id !== userId);
         }
         
         await fetchData(userId)
@@ -62,7 +62,7 @@
 
     async function fetchData(staffId){
 
-        let timeOffResponse = await apiGET($session, "/timeoff/");
+        let timeOffResponse = await apiGET($session, "/timeoff?staff=${staffId}");
         if (timeOffResponse && timeOffResponse.ok) {
             let timeOffData  = await timeOffResponse.json();
             timeOffEvents = timeOffData
@@ -78,11 +78,11 @@
             console.log("Error fetching timeoff data");
         }
 
-        let appointmentResponse = await apiGET($session, "/appointments/");
+        let appointmentResponse = await apiGET($session, `/appointments?staff_id=${staffId}`);
         if (appointmentResponse && appointmentResponse.ok) {
             let appointmentData = await appointmentResponse.json();
+            console.log("TEST:",appointmentData)
             appointmentEvents = appointmentData
-                .filter(item => item.staff?.id === staffId)
                 .map(item => ({
                     id: item.id,
                     title: "appointment" ,
@@ -145,7 +145,8 @@
 
     function handleEventClick(eventInfo){
         if (eventInfo.event.extendedProps.eventType === 'appointment') {
-            fetchAppointmentDetails(eventInfo.event.id);
+            window.open(`/dashboard/appointment/${eventInfo.event.id}`, "_blank");
+            
         }
     }
 
@@ -195,8 +196,7 @@
             <li><a class="dropdown-item" href="#" on:click|preventDefault={() => fetchData(userId)}>You</a></li>
             <li><hr class="dropdown-divider"></li>
             {#each staffList as staff}
-            <li><a class="dropdown-item" href="#" on:click|preventDefault={() => fetchData(staff.user)}>{staff.user}</a></li>
-            <!-- <li><a class="dropdown-item" href="#">{staff.user}</a></li> -->
+            <li><a class="dropdown-item" href="#" on:click|preventDefault={() => fetchData(staff.user.id)}>{staff.user.first_name} {staff.user.last_name}</a></li>
             {/each}  
         </ul>
     </div> 
