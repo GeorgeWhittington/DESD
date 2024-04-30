@@ -67,7 +67,11 @@ class Appointment(models.Model):
     actual_start_time = models.DateTimeField(null=True)
     actual_end_time = models.DateTimeField(null=True)
 
+    # TODO: can be removed
     paid_by = models.IntegerField(choices=AppointmentPayee.choices(), null=True, default=None)
+
+    def __str__(self):
+        return f"Appointment {self.id}"
 
 class AppointmentComment(models.Model):
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.CASCADE)

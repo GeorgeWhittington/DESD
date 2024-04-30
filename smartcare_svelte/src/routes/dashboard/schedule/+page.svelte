@@ -1,5 +1,5 @@
 <script>
-    import { onMount } from 'svelte';
+    import { onMount} from 'svelte';
     import { API_ENDPOINT,USER_ID} from "$lib/constants";
     import { getContext } from "svelte";
     import { apiGET, apiPOST } from "$lib/apiFetch.js";
@@ -15,21 +15,53 @@
     let selectedEnd = null;
     let start_date;
     let end_date;
+    let userId = $session.userId
+    let selectedId = userId
 
     let timeOffEvents = []
     let appointmentEvents = []
+    let staffList = []
 
-    let options = {
+    let options = reactiveOptions();
+
+    function reactiveOptions() {
+        return {
         initialView: 'dayGridMonth',
-        plugins: [daygridPlugin, interactionPlugin]
-    };
+        plugins: [daygridPlugin, interactionPlugin],
+        editable: false,
+        selectable: true,
+        aspectRatio: 1.5,
+        height: 660,
+        eventTimeFormat: {
+            hour: '2-digit',
+            minute: '2-digit',
+            meridiem: 'short',
+            hour12: true
+        },
+        eventClick: handleEventClick,
+        select: handleDateSelect,
+        events: [...timeOffEvents, ...appointmentEvents]
+        };
+    }
 
     onMount(async () => {
-        let timeOffResponse = await apiGET($session, "/timeoff/");
+        let staffResponse = await apiGET(session, "/staff/");
+        if (staffResponse && staffResponse.ok) {
+            let response_json = await staffResponse.json();
+            staffList = response_json.filter(staff => staff.user.id !== userId);
+        }
+
+        await fetchData(userId)
+        options = reactiveOptions()
+    });
+
+    async function fetchData(staffId){
+
+        let timeOffResponse = await apiGET(session, "/timeoff?staff=${staffId}");
         if (timeOffResponse && timeOffResponse.ok) {
             let timeOffData  = await timeOffResponse.json();
             timeOffEvents = timeOffData
-                .filter(item => item.staff === $session.userId)
+                .filter(item => item.staff === staffId)
                 .map(item => ({
                     title: item.reason,
                     start: item.start_date,
@@ -41,11 +73,11 @@
             console.log("Error fetching timeoff data");
         }
 
-        let appointmentResponse = await apiGET($session, "/appointments/");
+        let appointmentResponse = await apiGET(session, `/appointments?staff_id=${staffId}`);
         if (appointmentResponse && appointmentResponse.ok) {
             let appointmentData = await appointmentResponse.json();
+            console.log("TEST:",appointmentData)
             appointmentEvents = appointmentData
-                .filter(item => item.staff?.id === $session.userId)
                 .map(item => ({
                     id: item.id,
                     title: "appointment" ,
@@ -56,29 +88,9 @@
                 }));
         }
 
-        options = {
-        initialView: 'dayGridMonth',
-        plugins: [daygridPlugin, interactionPlugin],
-        editable: false,
-        selectable: true,
-        aspectRatio: 1.5,
-        height: 660,
-        eventTimeFormat: {
-        hour: '2-digit',
-        minute: '2-digit',
-        meridiem: 'short', 
-        hour12: true
-        },
-        eventClick: handleEventClick,
-        select: handleDateSelect,
-        events: [...timeOffEvents, ...appointmentEvents]
-        };
+        options = reactiveOptions();
+    }
 
-        console.log(appointmentEvents)
-    });
-
-
-    // @ts-ignore
     function handleDateSelect(selectInfo) {
         const today = new Date();
         const twoWeeksFromToday = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 14);
@@ -120,7 +132,8 @@
 
     function handleEventClick(eventInfo){
         if (eventInfo.event.extendedProps.eventType === 'appointment') {
-            fetchAppointmentDetails(eventInfo.event.id);
+            window.open(`/dashboard/appointment/${eventInfo.event.id}`, "_blank");
+            
         }
     }
 
@@ -142,7 +155,7 @@
             return;
         }
 
-        let response = await apiPOST($session, "/timeoff/", JSON.stringify({
+        let response = await apiPOST(session, "/timeoff/", JSON.stringify({
             staff: $session.userId, start_date: start_date, end_date: end_date, reason: reason
         }));
 
@@ -152,6 +165,8 @@
             return "Server error, please try again later!";
         }
     }
+    
+    
 
 </script>
 
@@ -160,7 +175,19 @@
 
 <div class="container mt-4">
     <h2 id="ScheduleHeader">Schedule</h2>
-    <div class="card">
+    <div class="dropdown">
+        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+          View Staff Calendars
+        </button>
+        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+            <li><a class="dropdown-item" href="#" on:click|preventDefault={() => fetchData(userId)}>You</a></li>
+            <li><hr class="dropdown-divider"></li>
+            {#each staffList as staff}
+            <li><a class="dropdown-item" href="#" on:click|preventDefault={() => fetchData(staff.user.id)}>{staff.user.first_name} {staff.user.last_name}</a></li>
+            {/each}  
+        </ul>
+    </div> 
+    <div class="card mt-2">
         <div class="card-body">
             <div class="schedule-calendar">
                 
@@ -171,6 +198,7 @@
         </div>
     </div>
 </div>
+
 
   
 

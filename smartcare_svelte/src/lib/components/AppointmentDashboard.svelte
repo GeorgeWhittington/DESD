@@ -33,7 +33,7 @@
             endpoint += `today_only=${today_only}&`;
         }
 
-        let response = await apiGET($session, endpoint, "");
+        let response = await apiGET(session, endpoint, "");
 
         if (response && response.ok) {
             appointments = await response.json();

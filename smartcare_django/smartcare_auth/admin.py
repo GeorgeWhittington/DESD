@@ -36,6 +36,7 @@ class TimeOffInline(admin.TabularInline):
 
 @admin.register(StaffInfo)
 class StaffAdmin(admin.ModelAdmin):
+    list_display = ["user", "employment_type", "payrate"]
     inlines = (WorkingDayInline, TimeOffInline,)
 
 

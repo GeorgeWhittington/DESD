@@ -8,7 +8,7 @@
     const session = getContext("session");
 
     async function approveRequest(id) {
-        let response = await apiPOST($session, `/appointments/${id}/approve/`, "");
+        let response = await apiPOST(session, `/appointments/${id}/approve/`, "");
         if (response && response.ok) {
             console.log(response.text())
         } else {
@@ -17,7 +17,7 @@
     }
 
     async function rejectRequest(id) {
-        let response = await apiPOST($session, `/appointments/${id}/reject/`, "");
+        let response = await apiPOST(session, `/appointments/${id}/reject/`, "");
         if (response && response.ok) {
             console.log(response.text())
         } else {

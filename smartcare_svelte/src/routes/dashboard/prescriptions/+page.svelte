@@ -17,7 +17,7 @@
     let doctorTypes = [0,1,2,3]
 
     async function loadPrescriptions() {
-        let response = await apiGET($session, "/prescriptions/");
+        let response = await apiGET(session, "/prescriptions/");
 
         if (response && response.ok) {
             prescriptions = await response.json();
