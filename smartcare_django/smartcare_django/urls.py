@@ -26,6 +26,7 @@ router = routers.DefaultRouter()
 router.register(r"auth/user", views.UserView, basename="user")
 router.register(r"appointments", appointment_views.AppointmentView)
 router.register(r"prescriptions", prescriptions_views.PrescriptionsView)
+router.register(r"Percsciptions_requests", prescriptions_views.PrescriptionRequestView)
 
 urlpatterns = [
     path("admin/", admin.site.urls),

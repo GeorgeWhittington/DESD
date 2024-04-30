@@ -45,6 +45,10 @@ class User(AbstractUser):
     def is_clinic_staff(self):
         return self.is_staff or (self.user_type is not None and self.user_type <= 3)
     
+    def is_clinic_or_external_staff(self):
+        allowed = [UserType.ADMIN, UserType.DOCTOR, UserType.NURSE, UserType.EXTERNAL]
+        return self.is_staff or (self.user_type is not None and self.user_type in allowed)
+
     def is_full_time(self):
         return self.employment_type == EmploymentType.FULL_TIME
     

@@ -12,7 +12,9 @@
     const rows = handler.getRows()
 
     let prescriptions = []
+    let doctorTypes = [0,1,2,3]
 
+    
 
     export async function loadPrescriptions() {
         let response;
@@ -28,6 +30,8 @@
         prescriptions = await response.json();
         handler.setRows(prescriptions)
         console.log(prescriptions);
+        console.log($session.userType);
+
 
 
         } catch (error) {
@@ -39,6 +43,8 @@
    
 </script>
 
+
+{#if doctorTypes.includes($session.userType)}
 <table class="table">
     <thead class="table-light">
         <tr>
@@ -68,3 +74,7 @@
         {/each}
     </tbody>
 </table>
+
+{:else}
+
+{/if}
