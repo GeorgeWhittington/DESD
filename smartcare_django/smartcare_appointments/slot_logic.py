@@ -1,16 +1,24 @@
-from smartcare_auth.models import Staff
-from smartcare_appointments.models import Appointment, TimeOff
+from datetime import datetime
+
 from django.conf import settings
 from datetime import datetime,date,timedelta
 from django.db.models import Q
 
+from smartcare_auth.models import StaffInfo
+from smartcare_appointments.models import Appointment, TimeOff, AppointmentStage
 
-def scheduler(appointment):
+def scheduler(appointment, user=None):
     print("STARTED SCHEDULING")
     dateRequested = appointment.date_requested
     timeRequested = appointment.time_preference
     #returns the staff available on the requested date
-    availableStaff = get_staff_working_on_date(dateRequested)
+
+    availableStaff = []
+
+    if user is not None:
+        availableStaff = [user]
+    else:
+        availableStaff = get_staff_working_on_date(dateRequested)
 
     print("AVAILABLE STAFF",availableStaff)
 
@@ -23,7 +31,7 @@ def scheduler(appointment):
             if appointmentScheduled:
                 ("APPOINTMENT SCHEDULED")
                 return True
-    
+
     return False
 
 
@@ -34,11 +42,12 @@ def schedule_appointment(staff, slot, appointment,dateRequested):
         slotStartTime = settings.SLOTS[slot]['start']
         convertedSlotTime = datetime.strptime(slotStartTime, '%H:%M:%S').time()
         appointment.staff = staff.user
-        appointment.stage = 1
-        appointment.assigned_start_time = (datetime.combine(dateRequested,convertedSlotTime)).isoformat()
+        appointment.stage = AppointmentStage.SCHEDULED
+        appointment.assigned_start_time = (datetime.combine(dateRequested,convertedSlotTime))
         appointment.save()
         return True
-    except Exception:
+    except Exception as e:
+        print(e)
         return False
 
 
@@ -63,7 +72,7 @@ def get_staff_working_on_date(date):
     conflicting_holidays = TimeOff.objects.filter(start_date__lte=date, end_date__gte=date).only("id").all()
     print(f"conflicting holiday: {conflicting_holidays}")
 
-    availableStaff = Staff.objects.filter(
+    availableStaff = StaffInfo.objects.filter(
         working_days__day=dateToDay
     ).exclude(
         timeOff__id__in=conflicting_holidays
@@ -142,8 +151,4 @@ def checkSlotsInRange(startDate,endDate):
         
         startDate = startDate + timedelta(days=1)
 
-    return result
-
-print(checkSlotsInRange(datetime(2024, 4, 17),datetime(2024, 4, 30)))
- 
-    
+    return result    

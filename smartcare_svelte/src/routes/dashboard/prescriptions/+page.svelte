@@ -2,9 +2,11 @@
     import { DataHandler } from '@vincjo/datatables';
     import Th from "$lib/components/Th.svelte";
     import ThFilter from "$lib/components/ThFilter.svelte";
-    import { getContext } from "svelte";
+    import IdleDetection from "$lib/components/IdleDetection.svelte";
+    import NeedsAuthorisation from "$lib/components/NeedsAuthorisation.svelte";
+    import { getContext, onMount } from "svelte";
     import { API_ENDPOINT } from "$lib/constants";
-
+    import { apiGET } from "$lib/apiFetch.js";
 
     const session = getContext("session");
 
@@ -14,30 +16,26 @@
     let prescriptions = []
 
 
-    export async function loadPrescriptions() {
-        let response;
-        try {
-            response = await fetch(`${API_ENDPOINT}/prescriptions/`, {
-                method: "GET",
-                headers: {
-                    Authorization: `Token ${$session.token}`,
-                    "content-type": "application/json",
-                },
-            });
+    async function loadPrescriptions() {
+        let response = await apiGET($session, "/prescriptions/");
 
-        prescriptions = await response.json();
-        handler.setRows(prescriptions)
-        console.log(prescriptions);
-
-
-        } catch (error) {
+        if (response && response.ok) {
+            prescriptions = await response.json();
+            handler.setRows(prescriptions)
+            console.log(prescriptions);
+        } else {
             return "Server error, please try again later!";
         }
     }
 
-    loadPrescriptions();   
-   
+    onMount(() => {
+        loadPrescriptions();
+    })
+
 </script>
+
+<IdleDetection userType={$session.userType} session={session} />
+<NeedsAuthorisation userType={$session.userType} userTypesPermitted={[0, 1, 2, 3, 5]} />
 
 <table class="table">
     <thead class="table-light">

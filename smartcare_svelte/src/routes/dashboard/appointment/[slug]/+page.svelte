@@ -6,12 +6,14 @@
         TIME_PREFERENCE,
         APPOINTMENT_STAGE
     } from "$lib/constants";
+    import IdleDetection from "$lib/components/IdleDetection.svelte";
+    import NeedsAuthorisation from "$lib/components/NeedsAuthorisation.svelte";
     import { onMount, getContext } from "svelte";
+    import { apiGET, apiPOST } from "$lib/apiFetch.js";
 
     const session = getContext("session");
 
     export let data;
-    console.log(data.slug);
 
     let appointment = {};
     let patient = {};
@@ -19,18 +21,8 @@
     let comments = [];
 
     onMount(async () => {
-        try {
-            let response = await fetch(
-                `${API_ENDPOINT}/appointments/${data.slug}`,
-                {
-                    method: "GET",
-                    headers: {
-                        Authorization: `Token ${$session.token}`,
-                        "content-type": "application/json",
-                    },
-                },
-            );
-
+        let response = await apiGET($session, `/appointments/${data.slug}/`);
+        if (response && response.ok) {
             appointment = await response.json();
             patient = appointment.patient;
             staff = appointment.staff;
@@ -38,86 +30,80 @@
             console.log(appointment);
             console.log(staff)
             console.log();
-        } catch (error) {
+        } else {
             return "Server error, please try again later!";
         }
     });
 
-    export async function beginAppointment() {
-        let response;
-        console.log("begin appointment!!")
-        try {
-            response = await fetch(`${API_ENDPOINT}/appointments/${appointment.id}/begin/`, {
-                method: "POST",
-                headers: {
-                    Authorization: `Token ${$session.token}`,
-                    "content-type": "application/json",
-                }
-            });
+    async function approveAppointment() {
+        let response = await apiPOST($session, `/appointments/${appointment.id}/approve/`, "");
 
+        if (response && response.ok) {
             console.log(response.text())
-            location.reload();
-
-        } catch (error) {
+            //location.reload();
+        } else {
             return "Server error, please try again later!";
         }
     }
 
-    export async function endAppointment() {
-        let response;
-        console.log("end appointment!!")
-        try {
-            response = await fetch(`${API_ENDPOINT}/appointments/${appointment.id}/end/`, {
-                method: "POST",
-                headers: {
-                    Authorization: `Token ${$session.token}`,
-                    "content-type": "application/json",
-                }
-            });
+    async function rejectAppointment() {
+        let response = await apiPOST($session, `/appointments/${appointment.id}/reject/`, "");
 
+        if (response && response.ok) {
             console.log(response.text())
             location.reload();
-            
-        } catch (error) {
+        } else {
             return "Server error, please try again later!";
         }
     }
 
-    export async function assignToCurrentUser() {
-        let response;
-        try {
-            response = await fetch(`${API_ENDPOINT}/appointments/${appointment.id}/assign_to_current_user/`, {
-                method: "POST",
-                headers: {
-                    Authorization: `Token ${$session.token}`,
-                    "content-type": "application/json",
-                }
-            });
+    async function beginAppointment() {
+        let response = await apiPOST($session, `/appointments/${appointment.id}/begin/`, "");
 
+        if (response && response.ok) {
             console.log(response.text())
             location.reload();
-
-        } catch (error) {
+        } else {
             return "Server error, please try again later!";
         }
     }
 
+    async function endAppointment() {
+        let response = await apiPOST($session, `/appointments/${appointment.id}/end/`, "");
 
-    export async function postNewComment() {
-        let response;
+        if (response && response.ok) {
+            console.log(response.text())
+            location.reload();
+        } else {
+            return "Server error, please try again later!";
+        }
+    }
 
-        let req_body = { appointment_id: appointment.id, text: txtNewComment };
+    async function assignToCurrentUser() {
+        let response = await apiPOST($session, `/appointments/${appointment.id}/assign_to_current_user/`, "");
 
-        try {
-            response = await fetch(`${API_ENDPOINT}/appointment_comments/`, {
-                method: "POST",
-                headers: {
-                    Authorization: `Token ${$session.token}`,
-                    "content-type": "application/json",
-                },
-                body: JSON.stringify(req_body),
-            });
-        } catch (error) {
+        if (response && response.ok) {
+            console.log(response.text())
+            location.reload();
+        } else {
+            return "Server error, please try again later!";
+        }
+    }
+
+    async function addAppointmentComment() {
+        if (!txtNewComment || txtNewComment.length == 0) {
+            return;
+        }
+
+        let response = await apiPOST(
+            $session, `/appointments/${appointment.id}/add_comment/`,
+            JSON.stringify({comment : txtNewComment})
+        );
+
+        if (response && response.ok) {
+            console.log(response.text())
+            location.reload();
+        } else {
             return "Server error, please try again later!";
         }
     }
@@ -126,6 +112,9 @@
 
     let isStaff = $session.userType == 2 || $session.userType == 3;
 </script>
+
+<IdleDetection userType={$session.userType} session={session} />
+<NeedsAuthorisation userType={$session.userType} userTypesPermitted={[0, 1, 2, 3, 5]} />
 
 <div>
     <h2>View Appointment</h2>
@@ -179,18 +168,28 @@
 
     <br />
 
-    <!-- Staff Actions -->
+    <!-- Actions -->
     {#if isStaff}
         <div class="card">
-            <div class="card-header">Staff Actions</div>
+            <div class="card-header">Actions</div>
             <div class="card-body">
                 
-                <button type="submit" class="btn btn-sm btn-primary" on:click={assignToCurrentUser}
-                        >Assign to current user</button
+                <!-- Requested Stage -->
+                {#if appointment.stage === 0 }
+                <button type="submit" class="btn btn-primary" on:click={approveAppointment}>Approve</button>
+                <button type="submit" class="btn btn-danger" on:click={rejectAppointment}>Reject</button>
+                {/if}
+
+                <!-- Approved Stage -->
+                {#if appointment.stage === 1 }
+                <button type="submit" class="btn btn-sm btn-primary"
+                        >Manual Schedule</button
                     >
+                {/if}
+                
 
                 <!-- Begin Appointment -->
-                {#if !appointment.actual_start_time && !appointment.actual_end_time}
+                {#if appointment.stage === 2 && !appointment.actual_start_time && !appointment.actual_end_time}
                 <button type="submit" class="btn btn-sm btn-primary" on:click={beginAppointment}
                         >Start Appointment</button
                     >
@@ -205,9 +204,10 @@
 
             </div>
         </div>
+        <br />
     {/if}
 
-    <br />
+    
 
     <!-- Original Request -->
     <div class="card">
@@ -255,11 +255,12 @@
                     <div>{c.text}</div>
                 </div>
                 <u></u>
+                <hr>
             {/each}
 
             <!-- Comment Box -->
             <br />
-            <form on:submit|preventDefault={postNewComment}>
+            <form on:submit|preventDefault={addAppointmentComment}>
                 <div class="mb-3">
                     <textarea
                         class="form-control"

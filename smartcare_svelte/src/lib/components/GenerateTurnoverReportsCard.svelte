@@ -1,6 +1,7 @@
 <script>
     import { API_ENDPOINT, MEDIA_ENDPOINT } from "$lib/constants";
-    export let token;
+    import { apiPOST } from "$lib/apiFetch.js";
+    export let session;
 
     const today = new Date().toISOString().split("T")[0];
     let from_date = today;
@@ -30,28 +31,20 @@
     async function generate_report() {
         error = "";
         report = "";
-        let response;
-        let response_json;
-        try {
-            response = await fetch(`${API_ENDPOINT}/generate-turnover-report/`, {
-                method: "POST",
-                body: JSON.stringify({from: from_date, to: to_date, type: selected_invoice_type}),
-                headers: {
-                    "Authorization": `Token ${token}`,
-                    "Content-Type": "application/json"
-                }
-            });
-            response_json = await response.json();
-        } catch (err) {
-            return;
-        }
+        let response = await apiPOST(session, "/generate-turnover-report/", JSON.stringify({
+            from: from_date, to: to_date, type: selected_invoice_type
+        }));
 
-        console.log(response_json);
+        if (response) {
+            let response_json = await response.json();
 
-        if (response.ok) {
-            report = response_json.pdf;
-        } else if (response.status < 500) {
-            error = response_json.detail;
+            if (response.ok) {
+                report = response_json.pdf;
+            } else if (response.status < 500) {
+                error = response_json.detail;
+            } else {
+                error = "Server Error, Please try again";
+            }
         } else {
             error = "Server Error, Please try again";
         }

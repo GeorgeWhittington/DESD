@@ -1,27 +1,27 @@
 from random import randint
 
+from django.core.mail import send_mail
 from django.db.models import Q
-from django.contrib.auth import get_user_model
+from django.contrib.auth import get_user_model, tokens
 from rest_framework import serializers
 
-from .models import Staff, PayRate, UserType
+from smartcare_auth.models import StaffInfo, PayRate, UserType, PasswordReset, PatientInfo, PatientPayType
 from smartcare_appointments.schedule_serializers import WorkingDaySerializer, TimeOffSerializer
 
 UserModel = get_user_model()
-
 
 
 class StaffSerializer(serializers.ModelSerializer):
     working_days = WorkingDaySerializer(many=True, read_only=True)
     time_off = TimeOffSerializer(many=True, read_only=True,source='timeOff')
     class Meta:
-        model = Staff
+        model = StaffInfo
         fields = ['user','employment_type','working_days', 'time_off']
 
 #to display basic information within the user api
 class StaffBasicSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Staff
+        model = StaffInfo
         fields = ['user','employment_type']
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
@@ -35,7 +35,6 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
         user_type = validated_data["user_type"]
         first_name = validated_data["first_name"]
         last_name = validated_data["last_name"]
-
 
         fullname = f"{first_name}{last_name}"
         username = fullname
@@ -58,7 +57,6 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
             is_staff=user_type <= UserType.ADMIN  # Admin and Superuser accounts can access the admin site
         )
         user.user_type = user_type
-
         user.save(update_fields=["user_type"])
 
         if user_type in [UserType.DOCTOR, UserType.NURSE]:
@@ -67,10 +65,13 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
             else:
                 payrate = PayRate.objects.get(Q(title="nurse"))
 
-            Staff(
+            StaffInfo(
                 user=user,
                 employment_type=staff_info.get('employment_type') if staff_info else None,
                 payrate=payrate)
+
+        if user_type == UserType.PATIENT:
+            PatientInfo(user=user, pay_type=PatientPayType.PRIVATE)
 
         return user
 
@@ -85,3 +86,38 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
             }
         }
 
+
+class ResetPasswordSerializer(serializers.ModelSerializer):
+    email = serializers.EmailField(required=True)
+
+    def create(self, validated_data):
+        email = validated_data["email"]
+        user = UserModel.objects.filter(email__iexact=email).first()
+
+        # Don't tell attackers that an email does/does not exist in the system
+        if not user:
+            raise serializers.ValidationError("Password reset request failed")
+
+        token = tokens.default_token_generator.make_token(user)
+
+        password_reset = PasswordReset(email=email, token=token)
+        password_reset.save()
+
+        send_mail(
+            "Your Smartcare Password Reset Request",
+            f"""
+Here's the password reset link you requested! If you didn't request a password reset, please ignore this email.
+
+localhost:5173/reset-password/after/{token}
+            """,
+            "from@example.com",
+            ["to@example.com", email],
+            fail_silently=False,
+        )
+
+        return password_reset
+
+
+    class Meta:
+        model = PasswordReset
+        fields = ["email"]

@@ -8,7 +8,6 @@
     let username = "";
     let password = "";
     let error = "";
-    
 
     async function login() {
         let userpass = `${username}:${password}`;

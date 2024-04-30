@@ -60,9 +60,10 @@ export const TIME_PREFERENCE = {
 
 export const APPOINTMENT_STAGE = {
     0: "REQUESTED",
-    1: "SCHEDULED",
-    2: "COMPLETED",
-    3: "CANCELLED",
+    1: "APPROVED",
+    2: "SCHEDULED",
+    3: "COMPLETED",
+    4: "CANCELLED",
 }
 
 export const bootstrapThemes = {
