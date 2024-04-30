@@ -47,6 +47,9 @@ class User(AbstractUser):
     def full_name(self):
         return f"{self.first_name} {self.last_name}"
 
+    def __str__(self):
+        return self.full_name() if self.first_name and self.last_name else self.username
+
 
 class EmploymentType(models.TextChoices):
     FULL_TIME = 'FT', _('Full Time')
@@ -56,6 +59,9 @@ class EmploymentType(models.TextChoices):
 class PayRate(models.Model):
     title = models.CharField(max_length=150, unique=True, null=False)
     rate = models.FloatField(null=False, validators=[MinValueValidator(0.01)])
+
+    def __str__(self):
+        return f"{self.title}: £{self.rate}/h"
 
 
 class StaffInfo(models.Model):
