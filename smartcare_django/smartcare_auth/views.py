@@ -7,7 +7,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from knox.views import LoginView as KnoxLoginView
 
-from .rest_permissions import IsStaff
+from .rest_permissions import IsStaff, IsOwnerOrReadOnly
 from .models import StaffInfo, PasswordReset
 from .serializers import UserSerializer, StaffSerializer, ResetPasswordSerializer
 
@@ -33,15 +33,17 @@ class LoginView(KnoxLoginView):
             return timedelta(hours=1)
 
 
-class UserView(mixins.CreateModelMixin, mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
+class UserView(mixins.CreateModelMixin, mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.UpdateModelMixin, viewsets.GenericViewSet):
     serializer_class = UserSerializer
     model = get_user_model()
     queryset = get_user_model().objects.all()
 
     def get_permissions(self):
         # Anyone can register a user, only clinic staff can view user data other than their own
-        if self.request.method == "POST":
+        if self.action == "create":
             return [permissions.AllowAny()]
+        elif self.action in ["update", "partial_update"]:
+            return [IsOwnerOrReadOnly()]
         elif self.action == "me":
             return [permissions.IsAuthenticated()]
         else:

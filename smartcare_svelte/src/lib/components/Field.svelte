@@ -29,6 +29,14 @@
             {errors.join(", ")}
         </div>
     </div>
+{:else if type === "date"}
+    <div class="form-floating {custom_classes}">
+        <input type="date" class="form-control {isInvalid}" id="{id}" placeholder="{label}" bind:value/>
+        <label for="{id}">{label}</label>
+        <div class="invalid-feedback">
+            {errors.join(", ")}
+        </div>
+    </div>
 {:else}
     <div class="form-floating {custom_classes}">
         <input type="text" class="form-control {isInvalid}" id="{id}" placeholder="{label}" bind:value/>

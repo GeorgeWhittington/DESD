@@ -19,9 +19,9 @@
         let response;
 
         if (is_doctor) {
-            response = await apiGET($session, "/prescriptions/");
+            response = await apiGET(session, "/prescriptions/");
         } else {
-            response = await apiGET($session, "/prescriptions/my_prescriptions/");
+            response = await apiGET(session, "/prescriptions/my_prescriptions/");
         }
 
         if (response && response.ok) {
@@ -33,9 +33,9 @@
     };
 
     async function requestButtonClick() {
-        console.log($selected)
-        //let response = await apiPOST($session, "/prescription-requests/create_request/", JSON.stringify({prescription_id : prescriptions[0].id}));
-        //console.log(response)
+        //console.log($selected)
+        //let response = await apiPOST($session, "/prescription-requests/create_request/", JSON.stringify({prescription_id : $selected}));
+       // console.log(response)
     }
 
     onMount(() => {
