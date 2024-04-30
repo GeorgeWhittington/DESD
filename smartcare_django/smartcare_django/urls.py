@@ -16,26 +16,38 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from django.conf import settings
+from django.conf.urls.static import static
 from rest_framework import routers
 from knox import views as knox_views
 
-from smartcare_auth import views
-from smartcare_appointments import views as appointment_views, prescriptions_views
+from smartcare_auth.views import UserView, StaffView, LoginView, PasswordResetView
+from smartcare_appointments.views import AppointmentView, TimeOffView, PrescriptionsView, AppointmentCommentView, PrescriptionRequestView
+from smartcare_finance.views import InvoiceView, generate_turnover_report
+
 
 router = routers.DefaultRouter()
-router.register(r"auth/user", views.UserView, basename="user")
-router.register(r"appointments", appointment_views.AppointmentView)
-router.register(r"prescriptions", prescriptions_views.PrescriptionsView)
-router.register(r"Percsciptions_requests", prescriptions_views.PrescriptionRequestView)
+router.register(r"auth/user", UserView, basename="user")
+router.register(r"appointments", AppointmentView, basename="appointment")
+router.register(r"appointment_comments", AppointmentCommentView, basename="appointment_comments")
+router.register(r"staff", StaffView, basename="staff")
+router.register(r"timeoff", TimeOffView)
+router.register(f"invoice", InvoiceView, basename="invoice")
+router.register(r"prescriptions", PrescriptionsView)
+router.register(r"prescription-requests", PrescriptionRequestView)
+router.register(r"auth/password-reset", PasswordResetView, basename="password_reset")
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/", include(router.urls)),
 # TODO: Being able to log in via the drf frontend should only really be possible in DEBUG, remove or make this conditional on that setting!!!
     path("api-auth/", include("rest_framework.urls", namespace="rest_framework")),
-    path("api/auth/login/", views.LoginView.as_view(), name="knox_login"),
+    path("api/auth/login/", LoginView.as_view(), name="knox_login"),
     path("api/auth/logout/", knox_views.LogoutView.as_view(), name="knox_logout"),
-    path("api/auth/logoutall/", knox_views.LogoutAllView.as_view(), name="knox_logoutall")
-]
+    path("api/auth/logoutall/", knox_views.LogoutAllView.as_view(), name="knox_logoutall"),
+    path("api/generate-turnover-report/", generate_turnover_report),
+# Following only works in development, django will not serve these files in production
+# https://docs.djangoproject.com/en/5.0/howto/static-files/#serving-files-uploaded-by-a-user-during-development
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 urlpatterns += router.urls

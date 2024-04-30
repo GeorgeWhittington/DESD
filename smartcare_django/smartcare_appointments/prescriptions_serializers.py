@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from smartcare_appointments.prescriptions_models import Prescription, PrescriptionRequest
+from smartcare_appointments.models import Prescription, PrescriptionRequest
 from smartcare_auth.serializers import UserSerializer
 
 class PrescriptionsSerializer(serializers.HyperlinkedModelSerializer):

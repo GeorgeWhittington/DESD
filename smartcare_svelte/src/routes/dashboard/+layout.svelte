@@ -5,32 +5,22 @@
     import { page } from '$app/stores';
     import { BLANK_SESSION } from "$lib/constants";
     import NavLink from "$lib/components/NavLink.svelte";
-    import { logout } from "$lib/logout.js";
+    import { apiPOST } from "$lib/apiFetch.js";
 
     let innerWidth;
     $: alwaysShowNav = innerWidth >= 992 ? "show" : "";
 
     const session = getContext("session");
-
-    // need to be logged in as valid user to access dashboard (external users only have api access)
-    $: {
-        if (browser) {
-            if ($session.token === BLANK_SESSION.token ||
-                $session.userType === BLANK_SESSION.userType ||
-                $session.userType === 4
-            ) {
-                // TODO: set up flash message system using localStorage
-                // and here notify the user that they are not logged in
-                session.set(BLANK_SESSION);  // clear all incase of only one being set
-                goto("/");
-            }
-        }
-    }
-
     let alert = "";
 
     async function logoutWrapper() {
-        alert = await logout($session.token, session);
+        let response = await apiPOST($session, "/auth/logout/", "");
+        if (response && response.status < 500) {
+            session.set(BLANK_SESSION);
+            goto("/");
+        } else {
+            alert = "Server error, please try again later!";
+        }
     }
 </script>
 
@@ -59,30 +49,27 @@
             <nav class="nav  flex-column align-items-stretch">
                 <!-- superuser/admin -->
                 {#if [0, 1].includes($session["userType"])}
-                <NavLink link="#" iconClass="bi-activity" title="Overview" />
-                <NavLink link="#" iconClass="bi-calendar" title="Schedules" />
-                <NavLink link="#" iconClass="bi-bank" title="Turnover" />
+                <NavLink link="/dashboard#" iconClass="bi-activity" title="Overview" />
+                <NavLink link="/dashboard/schedule" iconClass="bi-calendar" title="Schedules" />
+                <NavLink link="/dashboard/turnover" iconClass="bi-bank" title="Turnover" />
 
                 <!-- doctor/nurse -->
                 {:else if [2, 3].includes($session["userType"])}
-                <NavLink link="#" iconClass="bi-activity" title="Overview" />
+                <NavLink link="/dashboard#" iconClass="bi-activity" title="Overview" />
                 <NavLink link="/dashboard/schedule" iconClass="bi-calendar" title="Schedule" />
                     {#if $page.url.pathname === "/dashboard/schedule"}
                     <ul>
                         <li><NavLink link="/dashboard/schedule#ScheduleHeader" title="Schedule" /></li>
-                        <li><NavLink link="/dashboard/schedule#appointmentHeader" title="Appointments" /></li>
-                        <li><NavLink link="/dashboard/schedule#holidaysHeader" title="Holiday" /></li>
                         <li><NavLink link="/dashboard/schedule#unplannedLeaverHeader" title="Unplanned Leave" /></li>
                     </ul>
                     {/if}
-                <!-- schedule,appointments,working hours and unplanned leave -->
-
                 <NavLink link="/dashboard/prescriptions" iconClass="bi-capsule" title="Prescriptions" />
 
                 <!-- patient -->
                 {:else if $session["userType"] === 5}
-                <NavLink link="/dashboard/appointments" iconClass="bi-calendar" title="My Appointments" />
-                <NavLink link="#prescriptions" iconClass="bi-capsule" title="My Prescriptions" />
+                <NavLink link="/dashboard#appointments" iconClass="bi-calendar" title="My Appointments" />
+                <NavLink link="/dashboard#prescriptions" iconClass="bi-capsule" title="My Prescriptions" />
+                <NavLink link="/dashboard/request-appointment" iconClass="bi-pencil-square" title="Request Appointment" />
                 {/if}
                 <!-- svelte-ignore a11y-invalid-attribute -->
                 <a class="nav-link text-white" href="#" role="button" on:click|preventDefault={logoutWrapper}>
@@ -94,7 +81,6 @@
     </div>
     <div class="col-lg-9">
         <div class="dashboard-body container-fluid py-2">
-            <!-- TODO: Alert/Flash component would fit well here -->
             <slot />
         </div>
     </div>

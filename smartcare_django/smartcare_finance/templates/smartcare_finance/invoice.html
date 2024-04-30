@@ -1,0 +1,62 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <link href="invoice.css" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'smartcare_finance/invoice.css' %}">
+  </head>
+  <body>
+	<header>
+        <img src="{% static 'smartcare_finance/logo.png' %}" alt="smartcare logo" />
+        <div>
+            <p>Smartcare Healthcare Ltd.</p>
+            <p>33 Example Street, Bristol</p>
+            <p><b>Email:</b> contact@smartcare.co.uk</p>
+            <p><b>Phone: </b> 0123456789</p>
+            <p><b>Website:</b> smartcare.co.uk</p>
+        </div>
+    </header>
+    <hr/>
+    <div id="billing-info">
+      <div>
+        <p><b>Bill to:</b></p>
+        <p>Smartcare Healthcare Ltd.</p>
+        <p>33 Example Street</p>
+        <p>Bristol</p>
+      </div>
+      <div>
+        <p><b>Invoice N.O.</b> {{ invoice.id }}</p>
+        <p><b>Invoice Date:</b> {{ invoice.created_at|date:"jS F, Y" }}</p>
+        <p><b>Invoice Due:</b> {{ invoice.due_date|date:"jS F, Y" }}</p>
+      </div>
+    </div>
+    <hr/>
+    <section>
+      <table>
+        <thead>
+          <tr>
+            <th>Staff Member</th>
+            <th>Rate /hour</th>
+            <th>Appointment Duration</th>
+            <th>Amount</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>{{ invoice.staff.first_name }} {{ invoice.staff.last_name }}</td>
+            <td>£{{ invoice.staff.staff_info.payrate.rate|floatformat:-2 }}</td>
+            <td>{{ invoice.formatted_duration }}</td>
+            <td>£{{ invoice.amount|floatformat:-2 }}</td>
+          </tr>
+        </tbody>
+        <tfoot>
+          <tr>
+            <th colspan="3">Total:</th>
+            <td>£{{ invoice.amount|floatformat:-2 }}</td>
+          </tr>
+        </tfoot>
+      </table>
+    </section>
+  </body>
+</html>

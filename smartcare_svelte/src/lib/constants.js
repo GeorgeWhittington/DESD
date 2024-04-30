@@ -1,10 +1,16 @@
 export const API_ENDPOINT = "http://localhost:8000/api"
+export const MEDIA_ENDPOINT = "http://localhost:8000"
+
+export const USER_ID ={
+    id: null
+}
 
 export const BLANK_SESSION = {
     token: "",
     userType: null,
     firstName: "",
-    lastName: ""
+    lastName: "",
+    userId: null
 }
 
 export const USER_TYPES = {
@@ -44,6 +50,30 @@ export const QUICK_SYMPTOMS = {
         "Difficulty sleeping",
         "Irritable or restless",
         "Loss of appetite"],    
+}
+
+export const TIME_PREFERENCE = {
+    0: "Morning",
+    1: "Morning",
+    2: "Afternoon",
+    3: "Afternoon",
+}
+
+
+export const APPOINTMENT_STAGE = {
+    0: "REQUESTED",
+    1: "APPROVED",
+    2: "SCHEDULED",
+    3: "COMPLETED",
+    4: "CANCELLED",
+}
+
+export const APPOINTMENT_STAGE_COLOURS = {
+    0: "#528ef7",
+    1: "#ce52f7",
+    2: "#f7cb52",
+    3: "#177524",
+    4: "#f75d52",
 }
 
 export const bootstrapThemes = {
