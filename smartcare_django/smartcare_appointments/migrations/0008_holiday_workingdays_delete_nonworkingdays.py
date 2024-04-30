@@ -7,7 +7,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('smartcare_appointments', '0007_nonworkingdays'),
+        ('smartcare_appointments', '0007_prescription_patient_prescription_staff_and_more'),
         ('smartcare_auth', '0011_staff_remove_user_employment_type'),
     ]
 

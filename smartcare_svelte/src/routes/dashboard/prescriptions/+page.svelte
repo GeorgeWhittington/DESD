@@ -14,7 +14,7 @@
     const rows = handler.getRows()
 
     let prescriptions = []
-
+    let doctorTypes = [0,1,2,3]
 
     async function loadPrescriptions() {
         let response = await apiGET(session, "/prescriptions/");
@@ -37,6 +37,7 @@
 <IdleDetection userType={$session.userType} session={session} />
 <NeedsAuthorisation userType={$session.userType} userTypesPermitted={[0, 1, 2, 3, 5]} />
 
+{#if doctorTypes.includes($session.userType)}
 <table class="table">
     <thead class="table-light">
         <tr>
@@ -66,3 +67,7 @@
         {/each}
     </tbody>
 </table>
+
+{:else}
+
+{/if}

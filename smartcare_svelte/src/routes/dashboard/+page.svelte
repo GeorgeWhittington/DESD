@@ -1,10 +1,13 @@
 <script>
-    import { getContext } from "svelte";
+    import { getContext, onMount } from "svelte";
     import IdleDetection from "$lib/components/IdleDetection.svelte";
     import NeedsAuthorisation from "$lib/components/NeedsAuthorisation.svelte";
     import AppointmentDashboard from "$lib/components/AppointmentDashboard.svelte";
+    import PrescriptionTable from "$lib/components/PrescriptionTable.svelte";
+
     const session = getContext("session");
-    let userId = $session.userId
+    let doctorTypes = [0,1,2,3]
+    let userId = $session.userId;
 </script>
 
 <IdleDetection userType={$session.userType} session={session} />
@@ -27,4 +30,7 @@
 <AppointmentDashboard title="Waiting For Approval" stage_id=0></AppointmentDashboard>
 <br>
 <AppointmentDashboard title="Requires Manual Scheduling" stage_id=1></AppointmentDashboard>
+
 {/if}
+
+<PrescriptionTable session={session} is_doctor={doctorTypes.includes($session.userType)} />
