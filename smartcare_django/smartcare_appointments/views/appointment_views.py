@@ -51,6 +51,10 @@ class AppointmentView(mixins.CreateModelMixin, mixins.ListModelMixin, mixins.Ret
                 print(stage_ids)
                 queryset = queryset.filter(stage__in=stage_ids)
 
+        if 'today_only' in self.request.query_params:
+            today = datetime.now().date()
+            queryset = queryset.filter(assigned_start_time__date=today)
+
         return queryset
 
     @action(detail=True, methods=['post'])

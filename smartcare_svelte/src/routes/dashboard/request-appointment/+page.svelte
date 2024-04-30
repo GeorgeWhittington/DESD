@@ -98,7 +98,7 @@
 
             <input type="number" class="form-control" id="txtSymptomDuration" bind:value={symptom_duration}>
 
-            <select
+            <select disabled
                     class="form-select"
                     id="selSymptomDuration"
                 >
