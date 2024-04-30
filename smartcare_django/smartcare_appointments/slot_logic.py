@@ -1,6 +1,8 @@
 from datetime import datetime
 
 from django.conf import settings
+from datetime import datetime,date,timedelta
+from django.db.models import Q
 
 from smartcare_auth.models import StaffInfo
 from smartcare_appointments.models import Appointment, TimeOff, AppointmentStage
@@ -117,8 +119,36 @@ def staff_get_appointments(staff,date):
     return appointmentSlotNumbers
 
 
-def checkSlotsInRange(startDate,endDate):
-    Appointment.objects.filter(assigned_start_time__date__range=[startDate, endDate])
 
- 
+def checkSlotsInRange(startDate,endDate):
     
+    result = {}
+    while startDate <= endDate:
+        morningAvailable = False
+        eveningAvailable = False
+        availableStaff = get_staff_working_on_date(startDate)
+
+        for staff in availableStaff:
+            slots =[]
+            morningSlot = staff_get_available_slot(staff,startDate,0)
+            eveningSlot = staff_get_available_slot(staff,startDate,1)
+            if morningSlot is not None and eveningSlot is not None:
+                
+                slots.append(morningSlot)
+                slots.append(eveningSlot)
+                for slot in slots:
+                    slotStartTime = settings.SLOTS[slot]['start']
+                    convertedSlotTime = datetime.strptime(slotStartTime, '%H:%M:%S').time()
+                    eveningCutoffTime = datetime.strptime('12:00:00', '%H:%M:%S').time()
+                    if convertedSlotTime <= eveningCutoffTime:
+                        morningAvailable = True
+                        
+                    else:
+                        eveningAvailable = True
+                    date = startDate.strftime("%Y-%m-%d")
+                    result[date] = [morningAvailable,eveningAvailable]
+
+        
+        startDate = startDate + timedelta(days=1)
+
+    return result    

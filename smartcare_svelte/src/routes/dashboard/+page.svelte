@@ -20,9 +20,11 @@
 
 {:else if $session.userType === 2 || $session.userType === 3}
 <!-- STAFF DASHBOARD-->
-<AppointmentDashboard title="My Appointments" staff_id={userId}, stage_id=3></AppointmentDashboard>
+<AppointmentDashboard title="Appointments For Today" staff_id={userId} stage_id=2 today_only=true></AppointmentDashboard>
 <br>
-<AppointmentDashboard title="Waiting for approval" stage_id=0></AppointmentDashboard>
+<AppointmentDashboard title="Assigned To Me" staff_id={userId}, stage_id=2></AppointmentDashboard>
+<br>
+<AppointmentDashboard title="Waiting For Approval" stage_id=0></AppointmentDashboard>
 <br>
 <AppointmentDashboard title="Requires Manual Scheduling" stage_id=1></AppointmentDashboard>
 {/if}
