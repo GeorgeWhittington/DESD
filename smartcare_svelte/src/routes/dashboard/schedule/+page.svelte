@@ -2,6 +2,7 @@
     import { onMount } from 'svelte';
     import { API_ENDPOINT,USER_ID} from "$lib/constants";
     import { getContext } from "svelte";
+    import { apiGET, apiPOST } from "$lib/apiFetch.js";
     import FullCalendar from 'svelte-fullcalendar';
     import interactionPlugin from '@fullcalendar/interaction'
     import daygridPlugin from '@fullcalendar/daygrid';
@@ -20,41 +21,40 @@
 
     let options = {
         initialView: 'dayGridMonth',
-        plugins: [daygridPlugin, interactionPlugin],
-        
+        plugins: [daygridPlugin, interactionPlugin]
     };
 
     onMount(async () => {
+        let timeOffResponse = await apiGET($session, "/timeoff/");
+        if (timeOffResponse && timeOffResponse.ok) {
+            let timeOffData  = await timeOffResponse.json();
+            timeOffEvents = timeOffData
+                .filter(item => item.staff === $session.userId)
+                .map(item => ({
+                    title: item.reason,
+                    start: item.start_date,
+                    end: item.end_date,
+                    color: item.reason === 'Unplanned leave' ? 'red' : 'blue',
+                    eventType: 'timeOff'
+                }));
+        } else {
+            console.log("Error fetching timeoff data");
+        }
 
-        const headers = {
-        Authorization: `Token ${$session.token}`,
-        "content-type": "application/json",
-        };
-
-        const timeOffResponse  = await fetch(`${API_ENDPOINT}/timeoff/`,{headers});
-        const timeOffData  = await timeOffResponse.json();
-        timeOffEvents = timeOffData
-        .filter(item => item.staff === $session.userId)
-        .map(item => ({
-            title: item.reason,
-            start: item.start_date,
-            end: item.end_date,
-            color: item.reason === 'Unplanned leave' ? 'red' : 'blue',
-            eventType: 'timeOff'
-        }));
-
-        const appointmentResponse = await fetch(`${API_ENDPOINT}/appointments/`, { headers });
-        const appointmentData = await appointmentResponse.json();
-        appointmentEvents = appointmentData
-        .filter(item => item.staff?.id === $session.userId)
-        .map(item => ({
-            id: item.id,
-            title: "appointment" ,
-            start: item.assigned_start_time, 
-            end: item.assigned_start_time,
-            color: item.stage === 2 ? 'green' : item.stage === 3 ? 'red' : 'orange',
-            eventType: 'appointment'
-        }));
+        let appointmentResponse = await apiGET($session, "/appointments/");
+        if (appointmentResponse && appointmentResponse.ok) {
+            let appointmentData = await appointmentResponse.json();
+            appointmentEvents = appointmentData
+                .filter(item => item.staff?.id === $session.userId)
+                .map(item => ({
+                    id: item.id,
+                    title: "appointment" ,
+                    start: item.assigned_start_time, 
+                    end: item.assigned_start_time,
+                    color: item.stage === 2 ? 'green' : item.stage === 3 ? 'red' : 'orange',
+                    eventType: 'appointment'
+                }));
+        }
 
         options = {
         initialView: 'dayGridMonth',
@@ -71,7 +71,7 @@
         },
         eventClick: handleEventClick,
         select: handleDateSelect,
-        events: [...timeOffEvents, ...appointmentEvents]  
+        events: [...timeOffEvents, ...appointmentEvents]
         };
 
         console.log(appointmentEvents)
@@ -125,29 +125,13 @@
     }
 
     async function fetchAppointmentDetails(eventId){
-        try {
-            const response = await fetch(`${API_ENDPOINT}/appointments/${eventId}`, {
-                headers: {
-                    Authorization: `Token ${$session.token}`,
-                    "Content-Type": "application/json", 
-                }
-            });
-
-            if (!response.ok) {
-                throw new Error('Failed to fetch appointment details');
-            }
-
-            const details = await response.json();
-
-            
-            let message = `Patient: ${details.patient.first_name} ${details.patient.last_name}
+        let response = await apiGET($session, `/appointments/${eventId}`);
+        if (response && response.ok) {
+            let response_json = await response.json();
+            alert(`Patient: ${details.patient.first_name} ${details.patient.last_name}
             \nDescription: ${details.symptoms}
-            \nStage: ${details.stage === 2 ? 'Completed' : details.stage === 3 ? 'Cancelled' : 'Scheduled'}`;
-            
-            
-            alert(message);
-        } catch (error) {
-            console.error("Error fetching appointment details:", error);
+            \nStage: ${details.stage === 2 ? 'Completed' : details.stage === 3 ? 'Cancelled' : 'Scheduled'}`);
+        } else {
             alert("There was an error fetching the appointment details.");
         }
     }
@@ -158,21 +142,13 @@
             return;
         }
 
-        let response;
+        let response = await apiPOST($session, "/timeoff/", JSON.stringify({
+            staff: $session.userId, start_date: start_date, end_date: end_date, reason: reason
+        }));
 
-        let req_body = { staff: $session.userId, start_date: start_date, end_date : end_date, reason : reason };
-
-        try {
-            response = await fetch(`${API_ENDPOINT}/timeoff/`, {
-                method: "POST",
-                headers: {
-                    Authorization: `Token ${$session.token}`,
-                    "content-type": "application/json",
-                },
-                body: JSON.stringify(req_body),
-            });
-            location.reload()
-        } catch (error) {
+        if (response && response.ok) {
+            location.reload();
+        } else {
             return "Server error, please try again later!";
         }
     }

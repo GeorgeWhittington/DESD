@@ -5,7 +5,7 @@
     import { page } from '$app/stores';
     import { BLANK_SESSION } from "$lib/constants";
     import NavLink from "$lib/components/NavLink.svelte";
-    import { logout } from "$lib/logout.js";
+    import { apiPOST } from "$lib/apiFetch.js";
 
     let innerWidth;
     $: alwaysShowNav = innerWidth >= 992 ? "show" : "";
@@ -14,7 +14,13 @@
     let alert = "";
 
     async function logoutWrapper() {
-        alert = await logout($session.token, session);
+        let response = await apiPOST($session, "/auth/logout/", "");
+        if (response && response.status < 500) {
+            session.set(BLANK_SESSION);
+            goto("/");
+        } else {
+            alert = "Server error, please try again later!";
+        }
     }
 </script>
 

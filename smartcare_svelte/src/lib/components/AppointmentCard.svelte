@@ -2,48 +2,28 @@
     import { TIME_PREFERENCE, APPOINTMENT_STAGE } from "$lib/constants";
     import { API_ENDPOINT } from "$lib/constants";
     import { getContext } from "svelte";
+    import { apiPOST } from "$lib/apiFetch.js";
     export let appointment;
 
     const session = getContext("session");
 
-    export async function approveRequest(id) {
-        let response;
-        try {
-            response = await fetch(`${API_ENDPOINT}/appointments/${id}/approve/`, {
-                method: "POST",
-                headers: {
-                    Authorization: `Token ${$session.token}`,
-                    "content-type": "application/json",
-                },
-            });
-
+    async function approveRequest(id) {
+        let response = await apiPOST($session, `/appointments/${id}/approve/`, "");
+        if (response && response.ok) {
             console.log(response.text())
-
-        } catch (error) {
-            console.log("Failed to load appointments:", error);
+        } else {
             return "Server error, please try again later!";
         }
     }
 
-    export async function rejectRequest(id) {
-        let response;
-        try {
-            response = await fetch(`${API_ENDPOINT}/appointments/${id}/reject/`, {
-                method: "POST",
-                headers: {
-                    Authorization: `Token ${$session.token}`,
-                    "content-type": "application/json",
-                },
-            });
-
+    async function rejectRequest(id) {
+        let response = await apiPOST($session, `/appointments/${id}/reject/`, "");
+        if (response && response.ok) {
             console.log(response.text())
-
-        } catch (error) {
-            console.log("Failed to load appointments:", error);
+        } else {
             return "Server error, please try again later!";
         }
     }
-
 
     function cardClicked() {
        window.open(`/dashboard/appointment/${appointment.id}`, "_blank");
@@ -52,10 +32,10 @@
 </script>
 
 <style>
-    .appointment-card:hover {     
-  cursor: pointer; 
-  box-shadow:  0 8px 16px 0 rgba(0,0,0,0.2);
-}
+    .appointment-card:hover {
+        cursor: pointer;
+        box-shadow:  0 8px 16px 0 rgba(0, 0, 0, 0.2);
+    }
 </style>
 
 <div class="card mb-3 appointment-card" style="width: 24rem;" >

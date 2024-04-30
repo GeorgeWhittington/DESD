@@ -4,6 +4,7 @@
     import QuickSymptomSelect from "$lib/components/QuickSymptomSelect.svelte";
     import IdleDetection from "$lib/components/IdleDetection.svelte";
     import NeedsAuthorisation from "$lib/components/NeedsAuthorisation.svelte";
+    import { apiPOST } from "$lib/apiFetch.js";
     import { goto } from '$app/navigation';
 
     const session = getContext("session");
@@ -16,8 +17,8 @@
 
     const scrollToBottom = async (node) => {
         node.scroll({ top: node.scrollHeight, behavior: 'smooth' });
-     }; 
-  
+     };
+
     function quickSymptomClicked(event) {
         if (symptoms.length > 0) {
             symptoms += "\n";
@@ -27,27 +28,15 @@
     }
 
     export async function requestAppointment() {
-        let response;
+        let response = await apiPOST($session, "/appointments/", JSON.stringify({
+            symptoms: symptoms, time_preference: time_preference, symptom_duration: symptom_duration, date_requested: date_requested
+        }));
 
-        let req_body = { symptoms: symptoms, time_preference: time_preference, symptom_duration : symptom_duration, date_requested : date_requested };
-
-        try {
-            response = await fetch(`${API_ENDPOINT}/appointments/`, {
-                method: "POST",
-                headers: {
-                    Authorization: `Token ${$session.token}`,
-                    "content-type": "application/json",
-                },
-                body: JSON.stringify(req_body),
-            });
-            
-            if (response.ok) {
-                let new_appointment = await response.json();
-                console.log('New Appointment = ', new_appointment)
-                goto(`/dashboard/appointment/${new_appointment.id}`)
-            }
-            
-        } catch (error) {
+        if (response && response.ok) {
+            let new_appointment = await response.json();
+            console.log('New Appointment = ', new_appointment);
+            goto(`/dashboard/appointment/${new_appointment.id}`);
+        } else {
             return "Server error, please try again later!";
         }
     }
@@ -84,7 +73,6 @@
             </div>
         </div>
 
-        
         <QuickSymptomSelect on:symptomClicked={quickSymptomClicked}></QuickSymptomSelect>
 
         <!-- Reason -->
@@ -107,8 +95,7 @@
                 >Duration of symptoms</label>
 
             <div class="input-group mb-3">
-                
-            
+
             <input type="number" class="form-control" id="txtSymptomDuration" bind:value={symptom_duration}>
 
             <select
@@ -119,12 +106,7 @@
                     <option value="1" selected>Days</option>
                     <option value="2">Months</option>
                 </select>
-
               </div>
-
-            
-
-            
         </div>
 
         <!-- Submit Button -->

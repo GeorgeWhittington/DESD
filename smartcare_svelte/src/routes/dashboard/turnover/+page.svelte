@@ -1,5 +1,5 @@
 <script>
-    import { getContext } from "svelte";
+    import { getContext, onMount } from "svelte";
     import { DataHandler } from "@vincjo/datatables";
     import Th from "$lib/components/Th.svelte";
     import NeedsAuthorisation from "$lib/components/NeedsAuthorisation.svelte";
@@ -7,6 +7,7 @@
     import IdleDetection from "$lib/components/IdleDetection.svelte";
     import TablePagination from "$lib/components/TablePagination.svelte";
     import { API_ENDPOINT } from "$lib/constants.js";
+    import { apiGET } from "$lib/apiFetch.js";
 
     const session = getContext("session");
 
@@ -42,41 +43,33 @@
     }
 
     export async function loadInvoices() {
-        let response;
-        try {
-            response = await fetch(`${API_ENDPOINT}/invoice/?date=${invoice_date}`, {
-                method: "GET",
-                headers: {
-                    Authorization: `Token ${$session.token}`,
-                    "content-type": "application/json"
-                },
-            });
-
-            if (response.ok) {
-                invoices = await response.json();
-                handler.setRows(invoices);
-            } else {
-                // TODO: show error
-            }
-        } catch (error) {
-            // TODO: show error
+        let response = await apiGET($session, `/invoice/?date=${invoice_date}`);
+        if (response && response.ok) {
+            invoices = await response.json(); // TODO: Could this raise errors?
+            handler.setRows(invoices);
+        } else if (response) {
+            // TODO: other error
+        } else {
+            // TODO show server error
         }
     };
 
-    loadInvoices();
+    onMount(() => {
+        loadInvoices();
+    });
 </script>
 
 <IdleDetection userType={$session.userType} session={session} />
 <NeedsAuthorisation userType={$session.userType} userTypesPermitted={[0, 1]} />
 
-<GenerateTurnoverReportsCard token={$session.token} />
+<GenerateTurnoverReportsCard session={$session} />
 
 <div class="card mt-3">
     <div class="card-body ">
         <h2 class="card-title">Invoices</h2>
         <form on:submit={loadInvoices}>
             <div class="input-group">
-                <input type="date" class="form-control" max={today} bind:value={invoice_date} on:change={ console.log(invoice_date) } />
+                <input type="date" class="form-control" max={today} bind:value={invoice_date} />
                 <input type="submit" value="Fetch Invoices" class="btn btn-primary" />
             </div>
         </form>

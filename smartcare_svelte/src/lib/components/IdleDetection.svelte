@@ -8,7 +8,6 @@
     export let session;
 
     import { listen, idle } from "svelte-idle";
-    import { logout } from "$lib/logout.js";
 
     let timer = null;
     $: {
@@ -29,10 +28,18 @@
         }
     }
 
+    async function logout() {
+        let response = await apiPOST($session, "/auth/logout/", "");
+        if (response && response.status < 500) {
+            session.set(BLANK_SESSION);
+            goto("/");
+        }
+    }
+
     $: {
         if (autoLogout && $idle && $session.token !== "") {
             console.log(`User is idle! logging out ${JSON.stringify($session)}`);
-            logout($session.token, session);
+            logout();
         }
     }
 </script>

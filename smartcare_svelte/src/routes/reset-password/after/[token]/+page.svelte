@@ -5,6 +5,7 @@
     import { goto } from "$app/navigation";
     import Field from "$lib/components/Field.svelte";
     import { API_ENDPOINT } from "$lib/constants.js";
+    import { apiPOST } from "$lib/apiFetch.js";
     export let data;
 
     let resetPasswordSchema = yup.object({
@@ -23,9 +24,6 @@
     let serverError = "";
 
     async function reset_password() {
-        let response;
-        let response_json;
-
         try {
             await resetPasswordSchema.validate(
                 {"new_password": new_password, "new_password_confirm": new_password_confirm},
@@ -43,6 +41,8 @@
             return;
         }
 
+        let response;
+        let response_json;
         try {
             response = await fetch(`${API_ENDPOINT}/auth/password-reset/after/`, {
                 method: "POST",
