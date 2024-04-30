@@ -54,7 +54,9 @@ export const QUICK_SYMPTOMS = {
 
 export const TIME_PREFERENCE = {
     0: "Morning",
-    1: "Afternoon",
+    1: "Morning",
+    2: "Afternoon",
+    3: "Afternoon",
 }
 
 
@@ -64,6 +66,14 @@ export const APPOINTMENT_STAGE = {
     2: "SCHEDULED",
     3: "COMPLETED",
     4: "CANCELLED",
+}
+
+export const APPOINTMENT_STAGE_COLOURS = {
+    0: "#528ef7",
+    1: "#ce52f7",
+    2: "#f7cb52",
+    3: "#177524",
+    4: "#f75d52",
 }
 
 export const bootstrapThemes = {
