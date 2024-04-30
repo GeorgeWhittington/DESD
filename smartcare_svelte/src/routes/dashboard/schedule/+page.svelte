@@ -1,5 +1,5 @@
 <script>
-    import { onMount } from 'svelte';
+    import { onMount} from 'svelte';
     import { API_ENDPOINT,USER_ID} from "$lib/constants";
     import { getContext } from "svelte";
     import FullCalendar from 'svelte-fullcalendar';
@@ -12,18 +12,55 @@
     let selectedEnd = null;
     let start_date;
     let end_date;
+    let userId = $session.userId
+    let selectedId = userId
 
     let timeOffEvents = []
     let appointmentEvents = []
+    let staffList = []
 
-    let options = {
+    let options = reactiveOptions(); 
+
+    function reactiveOptions() {
+        return {
         initialView: 'dayGridMonth',
         plugins: [daygridPlugin, interactionPlugin],
-        
-    };
+        editable: false,
+        selectable: true,
+        aspectRatio: 1.5,
+        height: 660,
+        eventTimeFormat: {
+            hour: '2-digit',
+            minute: '2-digit',
+            meridiem: 'short',
+            hour12: true
+        },
+        eventClick: handleEventClick,
+        select: handleDateSelect,
+        events: [...timeOffEvents, ...appointmentEvents] 
+        };
+    }
 
     onMount(async () => {
 
+        
+
+        const headers = {
+        Authorization: `Token ${$session.token}`,
+        "content-type": "application/json",
+        };
+
+        const staffResponse = await fetch(`${API_ENDPOINT}/staff/`, { headers });
+        staffList = await staffResponse.json();
+        staffList = staffList.filter(staff => staff.user !== userId);
+        
+        await fetchData(userId)
+        
+        
+        options = reactiveOptions()
+    });
+
+    async function fetchData(staffId){
         const headers = {
         Authorization: `Token ${$session.token}`,
         "content-type": "application/json",
@@ -32,7 +69,7 @@
         const timeOffResponse  = await fetch(`${API_ENDPOINT}/timeoff/`,{headers});
         const timeOffData  = await timeOffResponse.json();
         timeOffEvents = timeOffData
-        .filter(item => item.staff === $session.userId)
+        .filter(item => item.staff === staffId)
         .map(item => ({
             title: item.reason,
             start: item.start_date,
@@ -44,7 +81,7 @@
         const appointmentResponse = await fetch(`${API_ENDPOINT}/appointments/`, { headers });
         const appointmentData = await appointmentResponse.json();
         appointmentEvents = appointmentData
-        .filter(item => item.staff?.id === $session.userId)
+        .filter(item => item.staff?.id === staffId)
         .map(item => ({
             id: item.id,
             title: "appointment" ,
@@ -54,29 +91,14 @@
             eventType: 'appointment'
         }));
 
-        options = {
-        initialView: 'dayGridMonth',
-        plugins: [daygridPlugin, interactionPlugin],
-        editable: false,
-        selectable: true,
-        aspectRatio: 1.5,
-        height: 660,
-        eventTimeFormat: {
-        hour: '2-digit',
-        minute: '2-digit',
-        meridiem: 'short', 
-        hour12: true
-        },
-        eventClick: handleEventClick,
-        select: handleDateSelect,
-        events: [...timeOffEvents, ...appointmentEvents]  
-        };
+        options = reactiveOptions();
 
-        console.log(appointmentEvents)
-    });
+        
+    }
 
 
-    // @ts-ignore
+
+    
     function handleDateSelect(selectInfo) {
         const today = new Date();
         const twoWeeksFromToday = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 14);
@@ -174,13 +196,27 @@
             return "Server error, please try again later!";
         }
     }
+    
+    
 
 </script>
-  
 
 <div class="container mt-4">
     <h2 id="ScheduleHeader">Schedule</h2>
-    <div class="card">
+    <div class="dropdown">
+        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+          View Staff Calendars
+        </button>
+        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+            <li><a class="dropdown-item" href="#" on:click|preventDefault={() => fetchData(userId)}>You</a></li>
+            <li><hr class="dropdown-divider"></li>
+            {#each staffList as staff}
+            <li><a class="dropdown-item" href="#" on:click|preventDefault={() => fetchData(staff.user)}>{staff.user}</a></li>
+            <!-- <li><a class="dropdown-item" href="#">{staff.user}</a></li> -->
+            {/each}  
+        </ul>
+    </div> 
+    <div class="card mt-2">
         <div class="card-body">
             <div class="schedule-calendar">
                 
@@ -191,6 +227,7 @@
         </div>
     </div>
 </div>
+
 
   
 
