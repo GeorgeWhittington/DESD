@@ -212,6 +212,8 @@ DAY_CHOICES = [
     ('Sunday', 'Sunday'),
 ]
 
+
+
 APPOINTMENTSTAGES = {
   0: 'REQUESTED',
   1: 'SCHEDULED',
