@@ -1,5 +1,6 @@
 <script>
-    import { onMount} from 'svelte';
+    import { onMount } from 'svelte';
+    import { goto } from "$app/navigation";
     import { API_ENDPOINT,USER_ID} from "$lib/constants";
     import { getContext } from "svelte";
     import { apiGET, apiPOST } from "$lib/apiFetch.js";
@@ -16,7 +17,6 @@
     let start_date;
     let end_date;
     let userId = $session.userId
-    let selectedId = userId
 
     let timeOffEvents = []
     let appointmentEvents = []
@@ -83,7 +83,7 @@
                     title: "appointment" ,
                     start: item.assigned_start_time, 
                     end: item.assigned_start_time,
-                    color: item.stage === 2 ? 'green' : item.stage === 3 ? 'red' : 'orange',
+                    color: item.stage === 3 ? 'green' : item.stage === 4 ? 'red' : 'orange',
                     eventType: 'appointment'
                 }));
         }
@@ -132,13 +132,13 @@
 
     function handleEventClick(eventInfo){
         if (eventInfo.event.extendedProps.eventType === 'appointment') {
-            window.open(`/dashboard/appointment/${eventInfo.event.id}`, "_blank");
-            
+            // window.open(`/dashboard/appointment/${eventInfo.event.id}`, "_blank");
+            goto(`/dashboard/appointment/${eventInfo.event.id}`);
         }
     }
 
     async function fetchAppointmentDetails(eventId){
-        let response = await apiGET($session, `/appointments/${eventId}`);
+        let response = await apiGET(session, `/appointments/${eventId}`);
         if (response && response.ok) {
             let response_json = await response.json();
             alert(`Patient: ${details.patient.first_name} ${details.patient.last_name}

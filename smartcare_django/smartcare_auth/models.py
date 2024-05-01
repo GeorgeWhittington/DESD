@@ -49,18 +49,17 @@ class User(AbstractUser):
         return self.is_staff or (self.user_type is not None and self.user_type == UserType.ADMIN)
 
     def is_clinic_staff(self):
-        return self.is_staff or (self.user_type is not None and self.user_type <= 3)
-    
+        return self.is_staff or (self.user_type is not None and self.user_type <= UserType.NURSE)
+
     def is_clinic_or_external_staff(self):
         allowed = [UserType.ADMIN, UserType.DOCTOR, UserType.NURSE, UserType.EXTERNAL]
         return self.is_staff or (self.user_type is not None and self.user_type in allowed)
 
     def is_full_time(self):
         return self.employment_type == EmploymentType.FULL_TIME
-    
+
     def is_part_time(self):
         return self.employment_type == EmploymentType.PART_TIME
-        return self.is_staff or (self.user_type is not None and self.user_type <= UserType.NURSE)
 
     def full_name(self):
         return f"{self.first_name} {self.last_name}"
@@ -79,7 +78,7 @@ class PayRate(models.Model):
     rate = models.FloatField(null=False, validators=[MinValueValidator(0.01)])
 
     def __str__(self):
-        return f"{self.title}: £{self.rate}/h"
+        return f"{self.title}: £{self.rate:.2f}/h"
 
 
 class StaffInfo(models.Model):

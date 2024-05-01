@@ -2,6 +2,7 @@
     import { TIME_PREFERENCE, APPOINTMENT_STAGE, APPOINTMENT_STAGE_COLOURS } from "$lib/constants";
     import { API_ENDPOINT } from "$lib/constants";
     import { getContext } from "svelte";
+    import { goto } from "$app/navigation";
     import { apiPOST } from "$lib/apiFetch.js";
     export let appointment;
 
@@ -26,7 +27,8 @@
     }
 
     function cardClicked() {
-       window.open(`/dashboard/appointment/${appointment.id}`, "_blank");
+    //    window.open(`/dashboard/appointment/${appointment.id}`, "_blank");
+       goto(`/dashboard/appointment/${appointment.id}`);
     }
 
 </script>

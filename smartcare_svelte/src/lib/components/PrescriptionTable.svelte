@@ -6,7 +6,7 @@
     import { DataHandler, RowCount } from '@vincjo/datatables';
     import Th from "$lib/components/Th.svelte";
     import ThFilter from "$lib/components/ThFilter.svelte";
-    import { apiGET, apiPOST } from "$lib/apiFetch.js";
+    import { apiGET } from "$lib/apiFetch.js";
 
     const handler = new DataHandler([], { rowsPerPage: 50 })
     const rows = handler.getRows()
@@ -14,7 +14,7 @@
     const isAllSelected = handler.isAllSelected()
 
     let prescriptions = []
-                
+
     async function loadPrescriptions() {
         let response;
 
@@ -37,6 +37,7 @@
         let response = await apiPOST(session, "/prescription-requests/create_request/", JSON.stringify({prescription_id : $selected}));
         console.log(response)
     };
+
     async function respondButtonClick() {
         console.log($selected)
         let response = await apiPOST(session, "/prescription-requests/respond_request/", JSON.stringify({prescription_id : $selected}));

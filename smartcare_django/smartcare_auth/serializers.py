@@ -30,13 +30,21 @@ class StaffSerializer(serializers.ModelSerializer):
 class StaffBasicSerializer(serializers.ModelSerializer):
     class Meta:
         model = StaffInfo
-        fields = ['user','employment_type']
+        fields = ['employment_type', 'payrate']
+
+
+class PatientInfoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PatientInfo
+        fields = ["pay_type"]
+
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
     password = serializers.CharField(write_only=True)
 
     # not all users will need the staff serializer
     staff_info = StaffBasicSerializer(required=False)
+    patient_info = PatientInfoSerializer(required=False)
 
     def create(self, validated_data):
         staff_info = validated_data.pop('staff_info', {})
@@ -94,10 +102,15 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = UserModel
-        fields = ["url", "id", "username", "first_name", "last_name", "email", "password", "user_type", "staff_info", "date_of_birth", "phone_number", "address_line_1", "address_line_2", "city", "postcode"]
+        fields = ["url", "id", "username", "first_name", "last_name", "email", "password", "user_type", "staff_info", "date_of_birth", "phone_number", "address_line_1", "address_line_2", "city", "postcode", "patient_info", "is_active"]
         # Username is constructed from first+last name programatically, no validation needed
+        # is_active should *not* ever be editable via this route
         extra_kwargs = {
             "username": {
+                "validators": [],
+                "read_only": True
+            },
+            "is_active": {
                 "validators": [],
                 "read_only": True
             }
@@ -138,3 +151,9 @@ localhost:5173/reset-password/after/{token}
     class Meta:
         model = PasswordReset
         fields = ["email"]
+
+
+class PayRateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PayRate
+        fields = ["id", "title", "rate"]
