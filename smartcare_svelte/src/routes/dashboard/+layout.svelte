@@ -52,6 +52,7 @@
                 <NavLink link="/dashboard#" iconClass="bi-activity" title="Overview" />
                 <NavLink link="/dashboard/schedule" iconClass="bi-calendar" title="Schedules" />
                 <NavLink link="/dashboard/turnover" iconClass="bi-bank" title="Turnover" />
+                <NavLink link="/dashboard/account-management" iconClass="bi-person-gear" title="Account Management" />
 
                 <!-- doctor/nurse -->
                 {:else if [2, 3].includes($session["userType"])}

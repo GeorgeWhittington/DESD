@@ -14,7 +14,7 @@
     const today = new Date().toISOString().split("T")[0];
     let invoice_date = today;
 
-    let invoices = []
+    let invoices = [];
     const handler = new DataHandler(invoices, { rowsPerPage: 10 });
     const rows = handler.getRows();
     const rowCount = handler.getRowCount();
@@ -42,10 +42,10 @@
         }
     }
 
-    export async function loadInvoices() {
+    async function loadInvoices() {
         let response = await apiGET(session, `/invoice/?date=${invoice_date}`);
         if (response && response.ok) {
-            invoices = await response.json(); // TODO: Could this raise errors?
+            invoices = await response.json();
             handler.setRows(invoices);
         } else if (response) {
             // TODO: other error

@@ -22,6 +22,16 @@ export const USER_TYPES = {
     5: "Patient"
 }
 
+export const PATIENT_PAY_TYPES = {
+    0: "Private",
+    1: "NHS"
+}
+
+export const EMPLOYMENT_TYPES = {
+    "FT": "Full Time",
+    "PT": "Part Time"
+}
+
 export const QUICK_SYMPTOMS = {
 
     "Physical": ["Bite or sting",
