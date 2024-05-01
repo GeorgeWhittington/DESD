@@ -202,6 +202,29 @@ Regards, Smartcare.
 
         return Response({"result" : "success"})
 
+    @action(detail=True, methods=['post'])
+    def unschedule(self, request, pk=None):
+        appointment = self.get_object()
+        requested_user = request.user
+
+        # TODO: reimplement this
+        # if appointment.staff != requested_user:
+        #    return Response({"result" : "error", "message" : "the logged in user does not own this appointment"})
+
+        appointment.stage = AppointmentStage.APPROVED
+        appointment.staff = None
+        appointment.actual_start_time = None
+        appointment.save()
+
+        comment = AppointmentComment.objects.create(
+            created_by=request.user,
+            appointment=appointment,
+            text="Appointment Unscheduled"
+        )
+        comment.save()
+
+        return Response({"result" : "success"})
+
 class AppointmentCommentView(mixins.CreateModelMixin, mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     queryset = AppointmentComment.objects.all()
     serializer_class = AppointmentCommentSerializer
