@@ -1,28 +1,25 @@
 <script>
-    import { onMount } from "svelte";
-    import { bootstrapThemes } from "$lib/constants.js";
-    import { getContext } from "svelte";
+  import { onMount } from "svelte";
+  import { bootstrapThemes } from "$lib/constants.js";
+  import { getContext } from "svelte";
+  import { BLANK_SESSION } from "$lib/constants";
+  import { apiPOST } from "$lib/apiFetch.js";
 
+  const session = getContext("session");
+  let themes = Object.keys(bootstrapThemes);
+  let sessionId = $session.userId
 
-    import { BLANK_SESSION } from "$lib/constants";
-
-    import { apiPOST } from "$lib/apiFetch.js";
-
-    const session = getContext("session");
-    let themes = Object.keys(bootstrapThemes);
-    let sessionId = $session.userId
-
-
-    async function logout() {
-        let response = await apiPOST(session, "/auth/logout/", "");
-        if (response && response.status < 500) {
-            session.set(BLANK_SESSION);
-            location.reload();
-        } else {
-            alert("Server error, please try again later!")
-        }
+  async function logout() {
+    let response = await apiPOST(session, "/auth/logout/", "");
+    if (response && response.status < 500) {
+      session.set(BLANK_SESSION);
+      location.reload();
+    } else {
+      alert("Server error, please try again later!")
     }
-    let openingHours = [
+  }
+
+  let openingHours = [
     { day: 'Monday', open: '8:00 AM', close: '6:00 PM' },
     { day: 'Tuesday', open: '8:00 AM', close: '6:00 PM' },
     { day: 'Wednesday', open: '8:00 AM', close: '6:00 PM' },
@@ -41,136 +38,115 @@
 </script>
 
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
-    <div class="container-fluid">
-      <span class="navbar-brand mb-0 h1">Smartcare Surgery</span>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-        
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-           {#if sessionId != null}
-          <li class="nav-item">
-            <a class="nav-link" href="/dashboard">Dashboard</a>
-          </li>
-          {/if}
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                <img src="http://cdn.onlinewebfonts.com/svg/img_311846.png" alt="logo" style="width: 20px;height:20px;">
-            </a>
-            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-              {#if sessionId == null}
-              <li><a class="dropdown-item" href="/login">Login</a></li>
-              <li><a class="dropdown-item" href="/register">Register</a></li>
-              {:else}
-              <li><a class="dropdown-item" href="#" on:click={logout}>Logout</a></li>
-              {/if}
-            </ul>
-          </li>
-        
-        </ul>
-      </div>
-    </div>
-  </nav>
-
-<div class="container-fluid d-flex flex-column vh-100 justify-content-between">
-
-    <header class="row">
-      <div class="col text-center">
-        <h1 class="my-4">Welcome to Smartcare Surgery</h1>
-      </div>
-    </header>
-  
-
-    <div class="row flex-grow-1 align-items-center justify-content-around">
-      <div class="col-md-6 mb-3 mb-md-0 d-flex flex-column justify-content-center text-center"style="min-width: 300px;">
-        
-        <h2 class="mt-4">About us</h2>
-        <p>We are a general practitioner business based in Bristol and dedicated to your health. Our team uses the latest techniques and technology to ensure the best outcomes, helping you return to your daily life with confidence.</p>
-        <h2 class="mt-4">Opening hours</h2>
-        <table class="table">
-          <thead>
-            <tr>
-              <th>Day</th>
-              <th>Opening Time</th>
-              <th>Closing Time</th>
-            </tr>
-          </thead>
-          <tbody>
-            {#each openingHours as hour}
-              <tr>
-                <td>{hour.day}</td>
-                <td>{hour.open}</td>
-                <td>{hour.close}</td>
-              </tr>
-            {/each}
-          </tbody>
-        </table>
-
-        
-
-        <h2 class="mt-4">Contact us</h2>
-        <table class="table">
-          {#each contactMethod as row}
-            <tr>
-              <td><strong>{row.header}</strong></td>
-              <td>{row.value}</td>
-            </tr>
-          {/each}
-        </table>
-
-        <div class="card mt-4">
-          <div class="card-body">
-              <div>
-                  
-                  
-                  <h6>For life-threatening emergencies, dial 999.</h6>
-                  <p>This includes severe bleeding, difficulty breathing, or unconsciousness. Immediate help is required in these cases.</p>
-                  <h6>For non-emergency medical advice, dial 111.</h6>
-                  <p>This service is available for situations where medical guidance is needed quickly but it is not a life-threatening emergency. NHS 111 can also direct you to the best local service that can provide the care you need.</p>
-                  
-              </div>
-          </div>
-      </div>
-
-
-
-      </div>
-      
-     
-      
-      <div class="col-md-6 d-flex flex-column justify-content-center text-center" style="min-width: 300px;">
-        <img src="https://images.unsplash.com/photo-1622253692010-333f2da6031d?q=80&w=1964&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="image of man in blue scrubs smiling.royalty free, found at Unsplash" >
-      </div>
-    </div>
-  
- 
-    <footer class="row mt-2">
-      <div class="col text-center mb-4">
-        <div class="dropdown">
-          <button class="btn btn-outline-primary btn-lg dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+  <div class="container-fluid">
+    <span class="navbar-brand mb-0 h1">Smartcare Surgery</span>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+        {#if sessionId != null}
+        <li class="nav-item">
+          <a class="nav-link" href="/dashboard">Dashboard</a>
+        </li>
+        {/if}
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownTheme" role="button" data-bs-toggle="dropdown" aria-expanded="false">
             Select Theme
-          </button>
-          <ul class="dropdown-menu">
-            {#each themes as theme}
-            <li>
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="navbarDropdownTheme">
+          {#each themes as theme}
+            <li class="dropdown-item">
               <form method="POST" action="?/theme">
                 <input type="hidden" name="id" value="{theme}"/>
                 <button class="dropdown-item">{theme}</button>
               </form>
             </li>
-            {/each}
+          {/each}
           </ul>
-        </div>
-      </div>
-    </footer>
+        </li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownAccount" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="bi bi-person-circle h4 mb-0"></i>
+          </a>
+          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownAccount">
+          {#if sessionId == null}
+            <li><a class="dropdown-item" href="/login">Login</a></li>
+            <li><a class="dropdown-item" href="/register">Register</a></li>
+          {:else}
+            <li><a class="dropdown-item" href="#" on:click={logout}>Logout</a></li>
+          {/if}
+          </ul>
+        </li>
+        </ul>
+     </div>
   </div>
-  
-  <style>
-   
-    header, footer {
-      flex-shrink: 0;
-    }
+</nav>
 
-    
-  </style>
+<div class="container-fluid d-flex flex-column vh-100 justify-content-between">
+  <header class="row">
+     <div class="col text-center">
+        <h1 class="my-4">Welcome to Smartcare Surgery</h1>
+     </div>
+  </header>
+
+  <div class="row flex-grow-1 align-items-center justify-content-around">
+     <div class="col-md-6 mb-3 mb-md-0 d-flex flex-column justify-content-center text-center"style="min-width: 300px;">
+        <h2 class="mt-4">About us</h2>
+        <p>We are a general practitioner business based in Bristol and dedicated to your health. Our team uses the latest techniques and technology to ensure the best outcomes, helping you return to your daily life with confidence.</p>
+        <h2 class="mt-4">Opening hours</h2>
+        <table class="table">
+           <thead>
+              <tr>
+                 <th>Day</th>
+                 <th>Opening Time</th>
+                 <th>Closing Time</th>
+              </tr>
+           </thead>
+           <tbody>
+              {#each openingHours as hour}
+              <tr>
+                 <td>{hour.day}</td>
+                 <td>{hour.open}</td>
+                 <td>{hour.close}</td>
+              </tr>
+              {/each}
+           </tbody>
+        </table>
+        <h2 class="mt-4">Contact us</h2>
+        <table class="table">
+           {#each contactMethod as row}
+           <tr>
+              <td><strong>{row.header}</strong></td>
+              <td>{row.value}</td>
+           </tr>
+           {/each}
+        </table>
+        <div class="card mt-4">
+           <div class="card-body">
+              <div>
+                 <h6>For life-threatening emergencies, dial 999.</h6>
+                 <p>This includes severe bleeding, difficulty breathing, or unconsciousness. Immediate help is required in these cases.</p>
+                 <h6>For non-emergency medical advice, dial 111.</h6>
+                 <p>This service is available for situations where medical guidance is needed quickly but it is not a life-threatening emergency. NHS 111 can also direct you to the best local service that can provide the care you need.</p>
+              </div>
+           </div>
+        </div>
+     </div>
+     <div class="col-md-6 d-flex flex-column justify-content-center text-center" style="min-width: 300px;">
+        <img src="https://images.unsplash.com/photo-1622253692010-333f2da6031d?q=80&w=1964&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" alt="image of man in blue scrubs smiling.royalty free, found at Unsplash" >
+     </div>
+  </div>
+
+  <footer class="row mt-2">
+     <div class="col text-center mb-4">
+        
+     </div>
+  </footer>
+</div>
+
+<style>
+  header, footer {
+    flex-shrink: 0;
+  }
+</style>
