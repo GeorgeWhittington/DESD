@@ -10,8 +10,8 @@
 <IdleDetection userType={$session.userType} session={session} />
 <NeedsAuthorisation userType={$session.userType} userTypesPermitted={[0, 1]} />
 
-<UserTable userTypes={[2, 3]} title="Staff Account Managment" />
+<UserTable userTypes={[2, 3]} title="Staff Account Management" />
 
-<UserTable userTypes={[5]} title="Patient Account Managment" />
+<UserTable userTypes={[5]} title="Patient Account Management" />
 
-<UserTable userTypes={[0, 1, 4]} title="Managment and External Account Managment" />
+<UserTable userTypes={[0, 1, 4]} title="Admin and External Account Management" />

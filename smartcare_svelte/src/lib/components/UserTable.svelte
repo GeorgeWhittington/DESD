@@ -27,7 +27,12 @@
     if (staff_included) {
         actions.push({id: "make_full_time", text: "Make selected staff members full time"});
         actions.push({id: "make_part_time", text: "Make selected staff members part time"});
-        actions.push({id: "set_pay_rate", text: "Set the selected staff members pay rate"});
+        actions.push({id: "set_pay_rate", text: "Set the payrate of the selected staff members"});
+    }
+
+    if (patients_included) {
+        actions.push({id: "make_nhs_patient", text: "Make selected patients NHS patients"});
+        actions.push({id: "make_private_patient", text: "Make selected patients Private patients"});
     }
 
     const session = getContext("session");
@@ -55,12 +60,15 @@
     }
 
     async function loadPayrates() {
+        error = "";
         let response = await apiGET(session, "/payrate/");
         if (response && response.ok) {
             let response_json = await response.json();
             for (const payrate of response_json) {
                 payrates.push({id: payrate.id, text: `${payrate.title} ${payrate.rate.toFixed(2)}/h`});
             }
+        } else {
+            error = "Server error, please try again later!";
         }
     }
 

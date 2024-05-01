@@ -10,7 +10,7 @@ from django_filters import rest_framework as filters
 from knox.views import LoginView as KnoxLoginView
 
 from smartcare_auth.rest_permissions import IsStaff, IsAdmin
-from smartcare_auth.models import StaffInfo, PasswordReset, UserType, EmploymentType, PayRate
+from smartcare_auth.models import StaffInfo, PasswordReset, UserType, EmploymentType, PayRate, PatientPayType
 from smartcare_auth.serializers import UserSerializer, StaffSerializer, ResetPasswordSerializer, PayRateSerializer
 from smartcare_appointments.schedule_logic import update_working_days
 
@@ -195,6 +195,40 @@ class UserView(mixins.CreateModelMixin, mixins.ListModelMixin, mixins.RetrieveMo
             updated_users,
         ) % (updated_users, payrate)}, status=status.HTTP_200_OK)
 
+    @staticmethod
+    def set_patient_pay_type(request, pay_type):
+        user_ids = request.data.get("users")
+
+        response_or_none = UserView.verify_user_ids(user_ids)
+        if response_or_none:
+            return response_or_none
+
+        selected_users = UserModel.objects.filter(
+            pk__in=user_ids, user_type=UserType.PATIENT,
+            patient_info__isnull=False).all()
+
+        for user in selected_users:
+            user.patient_info.pay_type = pay_type
+            user.patient_info.save()
+
+        updated_users = len(selected_users)
+        if updated_users == 0:
+            return Response({"detail": "No patients selected"}, status=status.HTTP_403_FORBIDDEN)
+
+        return Response({"detail": ngettext(
+            "%d patient was successfully made %s patient.",
+            "%d patients were successfully made %s patient.",
+            updated_users,
+        ) % (updated_users, "an NHS" if pay_type == PatientPayType.NHS else "a Private")}, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=["POST"])
+    def make_nhs_patient(self, request):
+        return self.set_patient_pay_type(request, PatientPayType.NHS)
+
+    @action(detail=False, methods=["POST"])
+    def make_private_patient(self, request):
+        return self.set_patient_pay_type(request, PatientPayType.PRIVATE)
+
 
 class StaffView(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     serializer_class = StaffSerializer
@@ -232,7 +266,7 @@ class PasswordResetView(mixins.CreateModelMixin, viewsets.GenericViewSet):
         return Response({"detail": "Password reset"}, status=status.HTTP_200_OK)
 
 
-class PayRateView(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
+class PayRateView(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins.CreateModelMixin, viewsets.GenericViewSet):
     serializer_class = PayRateSerializer
     queryset = PayRate.objects.all()
     permission_classes = [IsStaff]
