@@ -18,31 +18,6 @@
     </header>
     <hr/>
     <div id="content">
-    {% if breakdown %}
-        <div id="breakdown">
-            <h3>Breakdown</h3>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Month</th>
-                        <th>Income Source</th>
-                        <th>Total</th>
-                        <th>Settled</th>
-                    </tr>
-                </thead>
-                <tbody>
-                {% for month in breakdown %}
-                    <tr>
-                        <td>{{ month.month|date:"F Y" }}</td>
-                        <td>All</td>
-                        <td>£{{ month.full_total }}</td>
-                        <td>£{{ month.settled_total }}</td>
-                    </tr>
-                {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    {% endif %}
         <div id="grand-total">
             <h3>Grand Total</h3>
             <table>
@@ -57,13 +32,63 @@
                 {% for row, amounts in grand_total.items %}
                     <tr>
                         <td>{{ row }}</td>
-                        <td>£{{ amounts.total }}</td>
-                        <td>£{{ amounts.settled }}</td>
+                        <td>£{{ amounts.total|floatformat:2 }}</td>
+                        <td>£{{ amounts.settled|floatformat:2 }}</td>
                     </tr>
                 {% endfor %}
                 </tbody>
             </table>
         </div>
+    {% if breakdown %}
+        <div id="breakdown">
+            <h3>Breakdown</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Month</th>
+                        <th>Income Source</th>
+                        <th>Total</th>
+                        <th>Settled</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for month in breakdown %}
+                    {% if payment_type == "all" and month.full_total %}
+                    <tr>
+                        <td><b>{{ month.month|date:"F Y" }}</b></td>
+                        <td><b>All</b></td>
+                        <td><b>£{{ month.full_total|floatformat:2 }}</b></td>
+                        <td><b>£{{ month.settled_total|floatformat:2 }}</b></td>
+                    </tr>
+                    {% endif %}
+
+                    {% if payment_type == "all" or payment_type == "nhs" %}
+                    {% if month.nhs_full_total %}
+                    <tr>
+                        <td>{{ month.month|date:"F Y" }}</td>
+                        <td>NHS</td>
+                        <td>£{{ month.nhs_full_total|floatformat:2 }}</td>
+                        <td>£{{ month.nhs_settled_total|floatformat:2 }}</td>
+                    </tr>
+                    {% endif %}
+                    {% endif %}
+
+                    {% if payment_type == "all" or payment_type == "private" %}
+                    {% if month.private_full_total %}
+                    <tr>
+                        <td>{{ month.month|date:"F Y" }}</td>
+                        <td>Private</td>
+                        <td>£{{ month.private_full_total|floatformat:2 }}</td>
+                        <td>£{{ month.private_settled_total|floatformat:2 }}</td>
+                    </tr>
+                    {% endif %}
+                    {% endif %}
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% endif %}
+        
     </div>
   </body>
 </html>
