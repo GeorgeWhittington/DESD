@@ -1,5 +1,6 @@
 from datetime import datetime
 
+
 from django.conf import settings
 from datetime import datetime,date,timedelta
 from django.db.models import Q
@@ -23,7 +24,7 @@ def scheduler(appointment, user=None):
     print("AVAILABLE STAFF",availableStaff)
 
     for staff in availableStaff:
-        availableSlot = staff_get_available_slot(staff,dateRequested,timeRequested)
+        availableSlot = staff_get_available_slot(staff,dateRequested,timeRequested,True)
 
         if availableSlot is not None:
             print("CHOSEN DETAILS: ", staff, availableSlot)
@@ -81,7 +82,7 @@ def get_staff_working_on_date(date):
     return availableStaff
 
 # get a staff's available slots 
-def staff_get_available_slot(staff,date,timePreference):
+def staff_get_available_slot(staff,date,timePreference,timeCheck):
     
     # gets the appointments a doctor already has for date
     appointmentSlotNumbers = staff_get_appointments(staff,date)
@@ -89,7 +90,7 @@ def staff_get_available_slot(staff,date,timePreference):
     #stores available slots
     availableSlotNumbers = []
 
-    
+    print("THE APP DAY", date)
     if len(appointmentSlotNumbers) >= len(settings.SLOTS)-4:
         return False
     else:
@@ -104,8 +105,23 @@ def staff_get_available_slot(staff,date,timePreference):
     if timePreference != 0:
         availableSlotNumbers = list(reversed(availableSlotNumbers))
         
-    return availableSlotNumbers[0] if availableSlotNumbers else False
-    
+    if timeCheck:
+        todaysDate = datetime.today().date()
+
+        if todaysDate == date:
+            currentTime = datetime.today().strftime('%H:%M:%S')
+            convertedTime = datetime.strptime(currentTime, '%H:%M:%S').time()
+            for availableSlot in availableSlotNumbers:
+                slotStartTime = settings.SLOTS[availableSlot]['start']
+                convertedSlotTime = datetime.strptime(slotStartTime, '%H:%M:%S').time()
+                if convertedTime >= convertedSlotTime:
+                    False
+                else:
+                    return availableSlot
+    else:
+        return availableSlotNumbers[0] if availableSlotNumbers else False
+print("TIME",datetime.today().time().strftime('%H:%M:%S'))
+print() 
 # gets a staff member's appointments
 def staff_get_appointments(staff,date):
 
@@ -130,8 +146,8 @@ def checkSlotsInRange(startDate,endDate):
 
         for staff in availableStaff:
             slots =[]
-            morningSlot = staff_get_available_slot(staff,startDate,0)
-            eveningSlot = staff_get_available_slot(staff,startDate,1)
+            morningSlot = staff_get_available_slot(staff,startDate,0,False)
+            eveningSlot = staff_get_available_slot(staff,startDate,1,False)
             if morningSlot is not None and eveningSlot is not None:
                 
                 slots.append(morningSlot)
