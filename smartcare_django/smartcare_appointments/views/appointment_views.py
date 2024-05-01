@@ -139,12 +139,18 @@ class AppointmentView(mixins.CreateModelMixin, mixins.ListModelMixin, mixins.Ret
         invoice = Invoice(appointment=appointment)
         invoice.save()
 
-        if hasattr(appointment.patient, "patient_info") and appointment.patient.patient_info.pay_type == PatientPayType.PRIVATE:
+        if hasattr(appointment.patient, "patient_info"):
             html = load_pdf_html("smartcare_finance/invoice.html", {"invoice": invoice})
             filename = f"/invoice-{invoice.id}.pdf"
 
             with open(settings.INVOICE_FOLDER + filename, "wb") as file:
                 html.write_pdf(file)
+
+            recipients = ["to@example.com"]
+            if appointment.patient.pay_type == PatientPayType.PRIVATE:
+                recipients.append(appointment.patient.email)
+            else:
+                recipients.append("nhs-billing@fake.co.uk")
 
             email = EmailMessage(
                 subject="Appointment Invoice",
@@ -153,10 +159,12 @@ Dear {appointment.patient.first_name} {appointment.patient.last_name},
 
 Thank you for your recent appointment at smartcare. Your invoice is attached to this email.
 
+To pay your invoice, either make out a cheque to the payee indicated in the attached invoice or follow this link to pay online: http://localhost:5173/pay-invoice/{invoice.id}
+
 Regards, Smartcare.
                 """,
                 from_email="from@example.com",
-                to=["to@example.com", appointment.patient.email]
+                to=recipients
             )
             email.attach_file(settings.INVOICE_FOLDER + filename, mimetype="application/pdf")
             email.send()
