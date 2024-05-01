@@ -5,7 +5,6 @@
     import { goto } from "$app/navigation";
     import Field from "$lib/components/Field.svelte";
     import { API_ENDPOINT } from "$lib/constants.js";
-    import { apiPOST } from "$lib/apiFetch.js";
     export let data;
 
     let resetPasswordSchema = yup.object({

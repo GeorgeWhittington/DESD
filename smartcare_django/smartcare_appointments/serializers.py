@@ -1,6 +1,8 @@
 from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
 
 from smartcare_appointments.models import AppointmentStage, Appointment, AppointmentComment
+from smartcare_auth.models import UserType
 from smartcare_auth.serializers import UserSerializer
 
 
@@ -29,6 +31,9 @@ class AppointmentSerializer(serializers.ModelSerializer):
     staff = UserSerializer(read_only=True, required=False)
     appointment_comments = AppointmentCommentSerializer(many=True, read_only=True)
     def create(self, validated_data):
+        if self.context["request"].user.user_type != UserType.PATIENT:
+            raise ValidationError({"patient": "Only patient accounts can request appointments"})
+
         symptoms = validated_data["symptoms"]
         time_preference = validated_data["time_preference"]
         symptom_duration = validated_data["symptom_duration"]

@@ -6,8 +6,6 @@ from smartcare_auth.serializers import UserSerializer
 class PrescriptionsSerializer(serializers.HyperlinkedModelSerializer):
     patient = UserSerializer(read_only=True)
     staff = UserSerializer(read_only=True)
-    #first_name = serializers.Field(source='smartcare_auth_user.first_name')
-    #last_name = serializers.Field(source='smartcare_auth_user.last_name')
     class Meta:
         model = Prescription
         fields = ['id', 'appointment', 'medicine', 'notes', 'is_repeating', 'patient', 'staff']
@@ -16,16 +14,17 @@ class PrescriptionsSerializer(serializers.HyperlinkedModelSerializer):
                 "required": False
             }
         }
-
-''' Don't need this
-class PatientsSerializer(serializers.HyperlinkedModelSerializer):
-    prescriptions = PrescriptionsSerializer(many=True, read_only=True)
+    
+class PrescriptionsRequestSerializer(serializers.HyperlinkedModelSerializer):
+    prescription = PrescriptionsSerializer(read_only =True)
+    patient = UserSerializer(read_only=True)
+    staff = UserSerializer(read_only=True)
     class Meta:
-        model = Patient
-        fields = ['first_name', 'last_name', 'prescriptions']
+        model = PrescriptionRequest
+        fields = ['id', 'requested_time', 'approved_time', 'collected', 'staff', 'patient', 'prescription']
         extra_kwargs = {
             "staff": {
                 "required": False
             }
         }
-'''
+    

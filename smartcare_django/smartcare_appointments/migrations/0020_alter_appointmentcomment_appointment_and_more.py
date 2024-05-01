@@ -16,7 +16,4 @@ class Migration(migrations.Migration):
             name='appointment',
             field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='appointment_comments', to='smartcare_appointments.appointment'),
         ),
-        migrations.DeleteModel(
-            name='NonWorkingDays',
-        ),
     ]

@@ -29,9 +29,17 @@
             {errors.join(", ")}
         </div>
     </div>
+{:else if type === "number"}
+    <div class="form-floating {custom_classes}">
+        <input type="number" class="form-control {isInvalid}" id="{id}" placeholder="{label}" bind:value step="0.01" min="0"/>
+        <label for="{id}">{label}</label>
+        <div class="invalid-feedback">
+            {errors.join(", ")}
+        </div>
+    </div>
 {:else}
     <div class="form-floating {custom_classes}">
-        <input type="text" class="form-control {isInvalid}" id="{id}" placeholder="{label}" bind:value/>
+        <input type="text" class="form-control {isInvalid}" id="{id}" placeholder="{label}" bind:value required/>
         <label for="{id}">{label}</label>
         <div class="invalid-feedback">
             {errors.join(", ")}

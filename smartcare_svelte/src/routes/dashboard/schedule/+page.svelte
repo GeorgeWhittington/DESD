@@ -1,5 +1,6 @@
 <script>
-    import { onMount} from 'svelte';
+    import { onMount } from 'svelte';
+    import { goto } from "$app/navigation";
     import { API_ENDPOINT,USER_ID} from "$lib/constants";
     import { getContext } from "svelte";
     import { apiGET, apiPOST } from "$lib/apiFetch.js";
@@ -16,13 +17,12 @@
     let start_date;
     let end_date;
     let userId = $session.userId
-    
 
     let timeOffEvents = []
     let appointmentEvents = []
     let staffList = []
 
-    let options = reactiveOptions(); 
+    let options = reactiveOptions();
 
     function reactiveOptions() {
         return {
@@ -40,29 +40,24 @@
         },
         eventClick: handleEventClick,
         select: handleDateSelect,
-        events: [...timeOffEvents, ...appointmentEvents] 
+        events: [...timeOffEvents, ...appointmentEvents]
         };
     }
 
     onMount(async () => {
-        
-
-
-        let staffResponse = await apiGET($session, "/staff/");
+        let staffResponse = await apiGET(session, "/staff/");
         if (staffResponse && staffResponse.ok) {
             let response_json = await staffResponse.json();
             staffList = response_json.filter(staff => staff.user.id !== userId);
         }
-        
+
         await fetchData(userId)
-        
-        
         options = reactiveOptions()
     });
 
     async function fetchData(staffId){
 
-        let timeOffResponse = await apiGET($session, "/timeoff?staff=${staffId}");
+        let timeOffResponse = await apiGET(session, "/timeoff?staff=${staffId}");
         if (timeOffResponse && timeOffResponse.ok) {
             let timeOffData  = await timeOffResponse.json();
             timeOffEvents = timeOffData
@@ -78,7 +73,7 @@
             console.log("Error fetching timeoff data");
         }
 
-        let appointmentResponse = await apiGET($session, `/appointments?staff_id=${staffId}`);
+        let appointmentResponse = await apiGET(session, `/appointments?staff_id=${staffId}`);
         if (appointmentResponse && appointmentResponse.ok) {
             let appointmentData = await appointmentResponse.json();
             console.log("TEST:",appointmentData)
@@ -94,12 +89,8 @@
         }
 
         options = reactiveOptions();
-        
     }
 
-
-
-    
     function handleDateSelect(selectInfo) {
         const today = new Date();
         const twoWeeksFromToday = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 14);
@@ -141,13 +132,13 @@
 
     function handleEventClick(eventInfo){
         if (eventInfo.event.extendedProps.eventType === 'appointment') {
-            window.open(`/dashboard/appointment/${eventInfo.event.id}`, "_blank");
-            
+            // window.open(`/dashboard/appointment/${eventInfo.event.id}`, "_blank");
+            goto(`/dashboard/appointment/${eventInfo.event.id}`);
         }
     }
 
     async function fetchAppointmentDetails(eventId){
-        let response = await apiGET($session, `/appointments/${eventId}`);
+        let response = await apiGET(session, `/appointments/${eventId}`);
         if (response && response.ok) {
             let response_json = await response.json();
             alert(`Patient: ${details.patient.first_name} ${details.patient.last_name}
@@ -164,7 +155,7 @@
             return;
         }
 
-        let response = await apiPOST($session, "/timeoff/", JSON.stringify({
+        let response = await apiPOST(session, "/timeoff/", JSON.stringify({
             staff: $session.userId, start_date: start_date, end_date: end_date, reason: reason
         }));
 

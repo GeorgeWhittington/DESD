@@ -2,13 +2,14 @@
     import { TIME_PREFERENCE, APPOINTMENT_STAGE, APPOINTMENT_STAGE_COLOURS } from "$lib/constants";
     import { API_ENDPOINT } from "$lib/constants";
     import { getContext } from "svelte";
+    import { goto } from "$app/navigation";
     import { apiPOST } from "$lib/apiFetch.js";
     export let appointment;
 
     const session = getContext("session");
 
     async function approveRequest(id) {
-        let response = await apiPOST($session, `/appointments/${id}/approve/`, "");
+        let response = await apiPOST(session, `/appointments/${id}/approve/`, "");
         if (response && response.ok) {
             console.log(response.text())
         } else {
@@ -17,7 +18,7 @@
     }
 
     async function rejectRequest(id) {
-        let response = await apiPOST($session, `/appointments/${id}/reject/`, "");
+        let response = await apiPOST(session, `/appointments/${id}/reject/`, "");
         if (response && response.ok) {
             console.log(response.text())
         } else {
@@ -26,7 +27,8 @@
     }
 
     function cardClicked() {
-       window.open(`/dashboard/appointment/${appointment.id}`, "_blank");
+    //    window.open(`/dashboard/appointment/${appointment.id}`, "_blank");
+       goto(`/dashboard/appointment/${appointment.id}`);
     }
 
 </script>

@@ -44,8 +44,21 @@ class User(AbstractUser):
     def is_clinic_staff(self):
         return self.is_staff or (self.user_type is not None and self.user_type <= UserType.NURSE)
 
+    def is_clinic_or_external_staff(self):
+        allowed = [UserType.ADMIN, UserType.DOCTOR, UserType.NURSE, UserType.EXTERNAL]
+        return self.is_staff or (self.user_type is not None and self.user_type in allowed)
+
+    def is_full_time(self):
+        return self.employment_type == EmploymentType.FULL_TIME
+
+    def is_part_time(self):
+        return self.employment_type == EmploymentType.PART_TIME
+
     def full_name(self):
         return f"{self.first_name} {self.last_name}"
+
+    def __str__(self):
+        return self.full_name() if self.first_name and self.last_name else self.username
 
 
 class EmploymentType(models.TextChoices):
@@ -56,6 +69,9 @@ class EmploymentType(models.TextChoices):
 class PayRate(models.Model):
     title = models.CharField(max_length=150, unique=True, null=False)
     rate = models.FloatField(null=False, validators=[MinValueValidator(0.01)])
+
+    def __str__(self):
+        return f"{self.title}: £{self.rate:.2f}/h"
 
 
 class StaffInfo(models.Model):

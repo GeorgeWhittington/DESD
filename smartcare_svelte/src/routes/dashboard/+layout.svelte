@@ -14,7 +14,7 @@
     let alert = "";
 
     async function logoutWrapper() {
-        let response = await apiPOST($session, "/auth/logout/", "");
+        let response = await apiPOST(session, "/auth/logout/", "");
         if (response && response.status < 500) {
             session.set(BLANK_SESSION);
             goto("/");
@@ -52,6 +52,8 @@
                 <NavLink link="/dashboard#" iconClass="bi-activity" title="Overview" />
                 <NavLink link="/dashboard/schedule" iconClass="bi-calendar" title="Schedules" />
                 <NavLink link="/dashboard/turnover" iconClass="bi-bank" title="Turnover" />
+                <NavLink link="/dashboard/account-management" iconClass="bi-person-gear" title="Account Management" />
+                <NavLink link="/dashboard/payrate-management" iconClass="bi-cash" title="Payrate Management" />
 
                 <!-- doctor/nurse -->
                 {:else if [2, 3].includes($session["userType"])}
