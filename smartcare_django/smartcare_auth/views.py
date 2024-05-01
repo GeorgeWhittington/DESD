@@ -9,7 +9,7 @@ from rest_framework.response import Response
 from django_filters import rest_framework as filters
 from knox.views import LoginView as KnoxLoginView
 
-from smartcare_auth.rest_permissions import IsStaff, IsAdmin
+from smartcare_auth.rest_permissions import IsStaff, IsAdmin, IsOwnerOrReadOnly
 from smartcare_auth.models import StaffInfo, PasswordReset, UserType, EmploymentType, PayRate, PatientPayType
 from smartcare_auth.serializers import UserSerializer, StaffSerializer, ResetPasswordSerializer, PayRateSerializer
 from smartcare_appointments.schedule_logic import update_working_days
@@ -44,7 +44,7 @@ class UserFilter(filters.FilterSet):
         fields = ["user_type"]
 
 
-class UserView(mixins.CreateModelMixin, mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
+class UserView(mixins.CreateModelMixin, mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.UpdateModelMixin, viewsets.GenericViewSet):
     serializer_class = UserSerializer
     model = get_user_model()
     queryset = get_user_model().objects.all()
@@ -52,13 +52,15 @@ class UserView(mixins.CreateModelMixin, mixins.ListModelMixin, mixins.RetrieveMo
     filterset_class = UserFilter
 
     def get_permissions(self):
-        # Anyone can register a user, only clinic staff can view user data other than their own
-        if self.action == "me":
+        # Anyone can register a user, only clinic staff can view other users data (users can access their own data via /api/user/me/)
+        if self.action == "create":
+            return [permissions.AllowAny()]
+        elif self.action in ["update", "partial_update"]:
+            return [IsOwnerOrReadOnly()]
+        elif self.action == "me":
             return [permissions.IsAuthenticated()]
         elif self.action in ["make_active", "make_inactive", "make_full_time", "make_part_time", "set_pay_rate"]:
             return [IsAdmin()]
-        elif self.request.method == "POST":
-            return [permissions.AllowAny()]
         else:
             return [IsStaff()]
 

@@ -34,8 +34,14 @@
 
     async function requestButtonClick() {
         console.log($selected)
-        //let response = await apiPOST(session, "/prescription-requests/create_request/", JSON.stringify({prescription_id : prescriptions[0].id}));
-        //console.log(response)
+        let response = await apiPOST(session, "/prescription-requests/create_request/", JSON.stringify({prescription_id : $selected}));
+        console.log(response)
+    };
+
+    async function respondButtonClick() {
+        console.log($selected)
+        let response = await apiPOST(session, "/prescription-requests/respond_request/", JSON.stringify({prescription_id : $selected}));
+        console.log(response)
     }
 
     onMount(() => {
@@ -76,12 +82,18 @@
     <tbody>
         {#each $rows as row}
             <tr class:active={$selected.includes(row.id)}>
-                <td class="selection">
-                    <input
-                        type="checkbox"
-                        on:click={() => handler.select(row.id)}
-                        checked={$selected.includes(row.id)}
-                    />
+                {#if row.is_repeating}
+                
+                    <td class="selection">
+                        <input
+                            type="checkbox"
+                            on:click={() => handler.select(row.id)}
+                            checked={$selected.includes(row.id)}
+                        />
+                    </td>
+                {:else}
+                    <td class="empty"></td>
+                {/if}
                 <td>{row.patient.first_name}</td>
                 <td>{row.patient.last_name}</td>
                 <td>{row.medicine}</td>
@@ -96,5 +108,11 @@
         <button class="btn btn-lg btn-primary float-end" on:click="{requestButtonClick}">Make Request</button>
     {:else }
         <button class="btn btn-lg btn-primary float-end" on:click="{requestButtonClick}" disabled>Make Request</button>
+    {/if}
+{:else if is_doctor}
+    {#if $selected.length > 0 }
+        <button class="btn btn-lg btn-primary float-end" on:click="{respondButtonClick}">Make Request</button>
+    {:else }
+        <button class="btn btn-lg btn-primary float-end" on:click="{respondButtonClick}" disabled>Make Request</button>
     {/if}
 {/if}

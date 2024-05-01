@@ -63,12 +63,21 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
             else:
                 break
 
+        address_line_2 = validated_data["address_line_2"].strip()
+        address_line_2 = address_line_2 if address_line_2 else None
+
         user = UserModel.objects.create_user(
             username=username,
             first_name=first_name,
             last_name=last_name,
             email=validated_data["email"],
+            phone_number=validated_data["phone_number"],
             password=validated_data["password"],
+            date_of_birth=validated_data["date_of_birth"],
+            address_line_1=validated_data["address_line_1"],
+            address_line_2=address_line_2,
+            city=validated_data["city"],
+            postcode=validated_data["postcode"],
             is_active=user_type == UserType.PATIENT,  # Only patients are automatically activated!
             is_staff=user_type <= UserType.ADMIN  # Admin and Superuser accounts can access the admin site
         )
@@ -93,7 +102,7 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = UserModel
-        fields = ["url", "id","username", "first_name", "last_name", "email", "password", "user_type", "staff_info", "patient_info", "is_active"]
+        fields = ["url", "id", "username", "first_name", "last_name", "email", "password", "user_type", "staff_info", "date_of_birth", "phone_number", "address_line_1", "address_line_2", "city", "postcode", "patient_info", "is_active"]
         # Username is constructed from first+last name programatically, no validation needed
         # is_active should *not* ever be editable via this route
         extra_kwargs = {

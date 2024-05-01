@@ -17,22 +17,36 @@
     ];
     let user_type_changed = false;
 
+    const today = new Date().toISOString().split("T")[0];
+
     let registrationSchema = yup.object({
         first_name: yup.string().required("Please enter your first name").max(150),
         last_name: yup.string().required("Please enter your last name").max(150),
         email: yup.string().required("Please enter your email").email("Please enter a valid email address"),
         password: yup.string().required("Please enter a password").password(),
         password_confirm: yup.string().required("Please confirm your password").oneOf([yup.ref("password")], "Passwords must match"),
-        user_type: yup.string().required("Please select a user type").oneOf(user_types.map(ut => ut.id), "Please select a user type")
+        user_type: yup.string().required("Please select a user type").oneOf(user_types.map(ut => ut.id), "Please select a user type"),
+        date_of_birth: yup.date().required("Please enter your date of birth").max(today),
+        phone_number: yup.string().required().max(14).matches(/^[\d -]*$/, {message: "Phone numbers cannot contain values other than digits and hyphens"}).min(3, "Phone numbers must be atleast 3 digits long"),
+        address_line_1: yup.string().required().max(50).min(1),
+        address_line_2: yup.string().max(50),
+        city: yup.string().required().max(30).min(1).matches(/^\D+$/, {message: "City/Town names cannot include digits"}),
+        postcode: yup.string().required().max(7).matches(/^[0-9a-zA-Z]{5,7}$/, {message: "Please enter a valid postcode which is 5 to 7 characters long"})
     })
-    let patientRegistrationSchema = registrationSchema.pick(["first_name", "last_name", "email", "password", "password_confirm"]);
+    let patientRegistrationSchema = registrationSchema.pick(["first_name", "last_name", "email", "password", "password_confirm", "date_of_birth", "phone_number", "address_line_1", "address_line_2", "city", "postcode"]);
 
     let first_name = "";
     let last_name = "";
     let email = "";
     let password = "";
     let password_confirm = "";
-    let user_type = "none";
+    let user_type = "";
+    let date_of_birth = "";
+    let phone_number = "";
+    let address_line_1 = "";
+    let address_line_2 = "";
+    let city = "";
+    let postcode = "";
 
     let errors = {};
 
@@ -42,6 +56,12 @@
     $: password_errors = errors.hasOwnProperty("password") ? errors["password"] : [];
     $: password_confirm_errors = errors.hasOwnProperty("password_confirm") ? errors["password_confirm"] : [];
     $: user_type_errors = errors.hasOwnProperty("user_type") ? errors["user_type"] : [];
+    $: date_of_birth_errors = errors.hasOwnProperty("date_of_birth") ? errors["date_of_birth"] : [];
+    $: phone_number_errors = errors.hasOwnProperty("phone_number") ? errors["phone_number"] : [];
+    $: address_line_1_errors = errors.hasOwnProperty("address_line_1") ? errors["address_line_1"] : [];
+    $: address_line_2_errors = errors.hasOwnProperty("address_line_2") ? errors["address_line_2"] : [];
+    $: city_errors = errors.hasOwnProperty("city") ? errors["city"] : [];
+    $: postcode_errors = errors.hasOwnProperty("postcode") ? errors["postcode"] : [];
 
     let serverError = "";
 
@@ -52,7 +72,13 @@
             email: email,
             password: password,
             password_confirm: password_confirm,
-            user_type: data.slug == "patient" ? "5" : user_type
+            user_type: data.slug == "patient" ? "5" : user_type,
+            date_of_birth: date_of_birth == "" ? null : date_of_birth,
+            phone_number: phone_number,
+            address_line_1: address_line_1,
+            address_line_2: address_line_2,
+            city: city,
+            postcode: postcode
         }
 
         try {
@@ -104,10 +130,10 @@
     }
 </script>
 
-<div class="d-flex flex-column vh-100 justify-content-center align-items-center">
+<div class="d-flex flex-column justify-content-center align-items-center register-container">
     <form class="container" on:submit|preventDefault={register} novalidate>
         {#if data.slug == "staff"}
-        <div class="alert alert-primary" role="alert">
+        <div class="alert alert-primary mt-2" role="alert">
             After registering, please ask an administrator to activate your account. You will not be able to login without them doing so.
         </div>
         {/if}
@@ -154,6 +180,34 @@
             </div>
         </div>
         {/if}
+        <div class="row mb-2">
+            <div class="col">
+                <Field type="text" bind:value={address_line_1} errors={address_line_1_errors} id="register-address-line-1" label="Address Line 1" />
+            </div>
+        </div>
+        <div class="row mb-2">
+            <div class="col">
+                <Field type="text" bind:value={address_line_2} errors={address_line_2_errors} id="register-address-line-2" label="Address Line 2" />
+            </div>
+        </div>
+        <div class="row mb-2 g-2">
+            <div class="col-sm">
+                <Field type="text" bind:value={city} errors={city_errors} id="register-city" label="City/Town" />
+            </div>
+            <div class="col-sm">
+                <Field type="text" bind:value={postcode} errors={postcode_errors} id="register-postcode" label="Postcode" />
+            </div>
+        </div>
+        <div class="row mb-2">
+            <div class="col">
+                <Field type="text" bind:value={phone_number} errors={phone_number_errors} id="register-phone-number" label="Phone Number" />
+            </div>
+        </div>
+        <div class="row mb-2">
+            <div class="col">
+                <Field type="date" bind:value={date_of_birth} errors={date_of_birth_errors} id="register-date-of-birth" label="Date Of Birth" />
+            </div>
+        </div>
         <div class="row">
             <div class="col">
                 <button type="submit" class="btn btn-primary mb-2">Register</button>
@@ -161,3 +215,9 @@
         </div>
     </form>
 </div>
+
+<style>
+    .register-container {
+        min-height: 100vh;
+    }
+</style>

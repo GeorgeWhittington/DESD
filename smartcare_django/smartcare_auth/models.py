@@ -2,7 +2,7 @@ from enum import IntEnum
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.utils.translation import gettext_lazy as _
-from django.core.validators import MinValueValidator
+from django.core.validators import MinValueValidator, RegexValidator, MinLengthValidator
 
 from .validators import UnicodeNoEmailUsernameValidator
 
@@ -36,7 +36,14 @@ class User(AbstractUser):
         },
     )
     email = models.EmailField(_("email address"), blank=True, unique=True)
+    phone_number = models.CharField(max_length=14, null=True, blank=True, validators=[RegexValidator("^[\d -]*$", "Phone numbers cannot contain values other than digits and hyphens"), MinLengthValidator(3, "Phone numbers must be atleast 3 digits long")])
     user_type = models.PositiveSmallIntegerField(choices=UserType.choices(), null=False, default=0)
+    date_of_birth = models.DateField(null=True, blank=True)
+
+    address_line_1 = models.CharField(max_length=50, blank=True, null=True, validators=[MinLengthValidator(1, "City/Town field cannot be empty")])
+    address_line_2 = models.CharField(max_length=50, blank=True, null=True)
+    city = models.CharField(max_length=30, blank=True, null=True, validators=[RegexValidator("^\D+$", "City/Town names cannot include digits"), MinLengthValidator(1, "City/Town field cannot be empty")])
+    postcode = models.CharField(max_length=7, blank=True, null=True, validators=[RegexValidator("^[0-9a-zA-Z]{5,7}$", "Please enter a valid postcode which is 5 to 7 characters long")])
 
     def is_clinic_admin(self):
         return self.is_staff or (self.user_type is not None and self.user_type == UserType.ADMIN)
