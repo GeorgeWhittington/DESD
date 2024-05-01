@@ -16,7 +16,7 @@
     let start_date;
     let end_date;
     let userId = $session.userId
-    let selectedId = userId
+    
 
     let timeOffEvents = []
     let appointmentEvents = []
@@ -88,16 +88,12 @@
                     title: "appointment" ,
                     start: item.assigned_start_time, 
                     end: item.assigned_start_time,
-                    color: item.stage === 2 ? 'green' : item.stage === 3 ? 'red' : 'orange',
+                    color: item.stage === 3 ? 'green' : item.stage === 4 ? 'red' : 'orange',
                     eventType: 'appointment'
                 }));
         }
 
         options = reactiveOptions();
-        
-
-        
-
         
     }
 
