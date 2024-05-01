@@ -14,7 +14,7 @@
     const isAllSelected = handler.isAllSelected()
 
     let prescriptions = []
-                
+
     async function loadPrescriptions() {
         let response;
 

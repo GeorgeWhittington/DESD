@@ -7,7 +7,7 @@
 </script>
 
 {#if $pageCount > 1}
-  <div aria-label="Invoice pagination">
+  <div aria-label="table pagination">
     <ul class="pagination m-0">
       <li class="page-item" class:disabled={$pageNumber === 1}>
         <a class="page-link" href="#" aria-label="Previous" on:click={() => handler.setPage("previous")}>
