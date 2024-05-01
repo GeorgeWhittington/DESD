@@ -12,7 +12,6 @@
     let themes = Object.keys(bootstrapThemes);
     let sessionId = $session.userId
 
-    console.log("session id", $session.userId)
 
     async function logout() {
         let response = await apiPOST(session, "/auth/logout/", "");
@@ -20,7 +19,7 @@
             session.set(BLANK_SESSION);
             location.reload();
         } else {
-            let alert = "Server error, please try again later!";
+            alert("Server error, please try again later!")
         }
     }
     let openingHours = [
