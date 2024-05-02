@@ -6,7 +6,7 @@
     import { DataHandler, RowCount } from '@vincjo/datatables';
     import Th from "$lib/components/Th.svelte";
     import ThFilter from "$lib/components/ThFilter.svelte";
-    import { apiGET } from "$lib/apiFetch.js";
+    import { apiGET, apiPOST } from "$lib/apiFetch.js";
 
     const handler = new DataHandler([], { rowsPerPage: 50 })
     const rows = handler.getRows()
