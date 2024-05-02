@@ -285,6 +285,9 @@
         <div class="card-header">Request</div>
         <div class="card-body">
             <p class="card-text">
+                {#if appointment.staff_preference }
+                <i class="bi bi-person-fill pe-2"></i><b>Requested Staff:&nbsp;</b>{appointment.staff_preference.first_name} {appointment.staff_preference.last_name}<br />
+                {/if}
                 <i class="bi bi-calendar pe-2"></i><b>Requested For:&nbsp;</b>{TIME_PREFERENCE[
                     appointment.time_preference
                 ]} of {appointment.date_requested}<br />

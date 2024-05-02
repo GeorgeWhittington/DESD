@@ -29,6 +29,11 @@ def scheduler(appointment, user_override=None, date_override=None, time_override
     else:
         availableStaff = get_staff_working_on_date(dateRequested)
 
+        if appointment.staff_preference:
+            si = StaffInfo.objects.filter(user=appointment.staff_preference)
+            if si:
+                availableStaff.insert(0, si)
+    
     print("AVAILABLE STAFF",availableStaff)
     print("DATE Requested", dateRequested)
     for staff in availableStaff:
