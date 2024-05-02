@@ -62,9 +62,12 @@ class CustomUserAdmin(UserAdmin):
     inlines = [StaffInline, PatientInline]
     list_display = ["username", "email", "full_name", "user_type", "is_active", "is_staff", "employment_type_display", "patient_pay_type_display"]
     fieldsets = UserAdmin.fieldsets + (
-        ("Custom Fields", {
-            "fields": ("user_type",)
+        ("Additional Data", {
+            "fields": ("user_type", "date_of_birth", "phone_number")
         }),
+        ("Address", {
+            "fields": ("address_line_1", "address_line_2", "city", "postcode")
+        })
     )
 
     # Show different inlines based on user type, from: https://stackoverflow.com/a/46794201

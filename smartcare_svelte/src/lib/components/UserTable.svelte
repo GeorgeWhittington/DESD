@@ -1,6 +1,7 @@
 <script>
     export let userTypes;
     export let title;
+    export let filters = [];
 
     import { getContext, onMount } from "svelte";
     import { DataHandler } from "@vincjo/datatables";
@@ -50,6 +51,9 @@
     async function loadUsers() {
         error = "";
         let query_args = userTypes.map((userType) => `user_type=${userType}`);
+        for (const filter of filters) {
+            query_args.push(filter);
+        }
         let response = await apiGET(session, `/auth/user?${query_args.join("&")}`);
         if (response && response.ok) {
             users = await response.json();
@@ -119,8 +123,11 @@
 </script>
 
 <div class="card mt-3">
+    <div class="card-header">
+        {title}
+    </div>
     <div class="card-body">
-        <h2 class="card-title">{title}</h2>
+        <!-- <h2 class="card-title">{title}</h2> -->
         {#if error !== ""}
         <div class="alert alert-danger" role="alert">{error}</div>
         {/if}
