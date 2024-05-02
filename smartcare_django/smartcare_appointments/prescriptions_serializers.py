@@ -21,7 +21,7 @@ class PrescriptionsRequestSerializer(serializers.HyperlinkedModelSerializer):
     staff = UserSerializer(read_only=True)
     class Meta:
         model = PrescriptionRequest
-        fields = ['id', 'requested_time', 'approved_time', 'collected', 'staff', 'patient', 'prescription']
+        fields = ['id', 'requested_time', 'approved_time', 'collected', 'staff', 'patient', 'prescription', 'is_approved']
         extra_kwargs = {
             "staff": {
                 "required": False

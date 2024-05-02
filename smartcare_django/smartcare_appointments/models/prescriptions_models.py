@@ -15,8 +15,11 @@ class Prescription(models.Model):
 
 
 class PrescriptionRequest(models.Model):
-    prescription = models.ForeignKey(Prescription, null=True, on_delete=models.CASCADE)
+    prescription = models.ForeignKey(Prescription, null=True, on_delete=models.CASCADE, related_name="prescription_request")
     requested_time = models.DateTimeField(null=True, blank=True)
     approved_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.CASCADE)
     approved_time = models.DateTimeField(null=True, blank=True)
     collected = models.BooleanField(default=False) # will be changed by the API (external pharmacy site)
+
+    def is_approved(self):
+        return self.approved_by is not None and self.approved_time is not None

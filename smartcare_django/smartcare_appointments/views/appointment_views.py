@@ -52,7 +52,7 @@ class AppointmentView(mixins.CreateModelMixin, mixins.ListModelMixin, mixins.Ret
                 queryset = queryset.filter(stage__in=stage_ids)
 
         if 'today_only' in self.request.query_params:
-            today = datetime.now().date()
+            today = datetime.now(settings.CLINIC_TIME_ZONE).date()
             queryset = queryset.filter(assigned_start_time__date=today)
 
         return queryset
@@ -197,6 +197,29 @@ Regards, Smartcare.
             created_by=request.user,
             appointment=appointment,
             text=comment
+        )
+        comment.save()
+
+        return Response({"result" : "success"})
+
+    @action(detail=True, methods=['post'])
+    def unschedule(self, request, pk=None):
+        appointment = self.get_object()
+        requested_user = request.user
+
+        # TODO: reimplement this
+        # if appointment.staff != requested_user:
+        #    return Response({"result" : "error", "message" : "the logged in user does not own this appointment"})
+
+        appointment.stage = AppointmentStage.APPROVED
+        appointment.staff = None
+        appointment.actual_start_time = None
+        appointment.save()
+
+        comment = AppointmentComment.objects.create(
+            created_by=request.user,
+            appointment=appointment,
+            text="Appointment Unscheduled"
         )
         comment.save()
 

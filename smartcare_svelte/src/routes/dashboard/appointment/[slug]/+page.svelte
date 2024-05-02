@@ -21,7 +21,14 @@
     let staff = {};
     let comments = [];
 
+    // modals
+    let manualScheduleDate = new Date().toISOString().slice(0, 10);
+    
     onMount(async () => {
+        loadAppointmentData();
+    });
+
+    async function loadAppointmentData() {
         let response = await apiGET(session, `/appointments/${data.slug}/`);
         if (response && response.ok) {
             appointment = await response.json();
@@ -34,7 +41,7 @@
         } else {
             return "Server error, please try again later!";
         }
-    });
+    };
 
     async function approveAppointment() {
         let response = await apiPOST(session, `/appointments/${appointment.id}/approve/`, "");
@@ -98,7 +105,7 @@
 
         if (response && response.ok) {
             console.log(response.text())
-            location.reload();
+            loadAppointmentData();
         } else {
             return "Server error, please try again later!";
         }
@@ -138,10 +145,10 @@
         <div class="card-body">
             <p class="card-text">
                 <span class="badge" style="background-color: {APPOINTMENT_STAGE_COLOURS[appointment.stage]};">{APPOINTMENT_STAGE[appointment.stage]}</span> <br />
-                <i class="bi bi-calendar pe-2"></i><b>Created:&nbsp;</b>{new Date(appointment.date_created).toUTCString()} <br />
+                <i class="bi bi-calendar pe-2"></i><b>Created:&nbsp;</b>{new Date(appointment.date_created).toString()} <br />
 
                 {#if appointment.assigned_start_time}
-                    <i class="bi bi-calendar pe-2"></i><b>Scheduled For:&nbsp;</b>{new Date(appointment.assigned_start_time).toUTCString()} <br />
+                    <i class="bi bi-calendar pe-2"></i><b>Scheduled For:&nbsp;</b>{new Date(appointment.assigned_start_time).toString()} <br />
                 {/if}
             </p>
         </div>
@@ -199,17 +206,51 @@
 
                 <!-- Approved Stage -->
                 {#if appointment.stage === 1 }
-                <button type="submit" class="btn btn-sm btn-primary"
-                        >Manual Schedule</button
+                <button type="submit" class="btn btn-primary"
+                        >Automatically Schedule</button
                     >
+                    <br>
+                    <br>
+                <!-- Manual Schedule form -->
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Schedule Manually</h5>
+                        <form>
+                            <div class="mb-3">
+                              <label for="exampleInputEmail1" class="form-label">Date</label>
+                              <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
+                              <div id="emailHelp" class="form-text">We'll never share your email with anyone else.</div>
+                            </div>
+                            <div class="mb-3">
+                              <label for="exampleInputPassword1" class="form-label">Staff</label>
+                              <input type="password" class="form-control" id="exampleInputPassword1">
+                            </div>
+                            <div class="mb-3 form-check">
+                              <input type="checkbox" class="form-check-input" id="exampleCheck1">
+                              <label class="form-check-label" for="exampleCheck1">Check me out</label>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Schedule</button>
+                          </form>
+                    </div>
+                  </div>
+                
+
                 {/if}
                 
 
                 <!-- Begin Appointment -->
                 {#if appointment.stage === 2 && !appointment.actual_start_time && !appointment.actual_end_time}
-                <button type="submit" class="btn btn-primary" on:click={() => doAppointmentAction("begin")}
+                <button type="submit" class="btn btn-primary " on:click={() => doAppointmentAction("begin")}
                         >Start Appointment</button
                     >
+                
+                <button type="submit" class="btn btn-warning" on:click={() => doAppointmentAction("unschedule")}
+                    >Reschedule</button
+                >
+
+                <button type="submit" class="btn btn-danger float-end" on:click={() => doAppointmentAction("unschedule")}
+                    >Unschedule</button
+                >
                 {/if}
 
                 <!-- End Appointment -->
@@ -267,7 +308,7 @@
                         {c.created_by.last_name} ({c.created_by.id == appointment.patient.id ? 'Patient' : 'Staff'})</b
                     ><br />
                     <span class="text-muted small"
-                        >[{new Date(c.created_time).toUTCString()}]</span
+                        >[{new Date(c.created_time).toString()}]</span
                     >
                     <div>{c.text}</div>
                 </div>
@@ -292,3 +333,4 @@
         </div>
     </div>
 </div>
+  
