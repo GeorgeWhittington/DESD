@@ -48,7 +48,7 @@
 
         if (response && response.ok) {
             console.log(response.text())
-            location.reload();
+            loadAppointmentData();
         } else {
             return "Server error, please try again later!";
         }
@@ -59,7 +59,7 @@
 
         if (response && response.ok) {
             console.log(response.text())
-            location.reload();
+            loadAppointmentData();
         } else {
             return "Server error, please try again later!";
         }
@@ -71,7 +71,7 @@
         if (response && response.ok) {
             console.log(response.text())
             mid_appointment.set(true);
-            location.reload();
+            loadAppointmentData();
         } else {
             return "Server error, please try again later!";
         }
@@ -83,7 +83,7 @@
         if (response && response.ok) {
             console.log(response.text())
             mid_appointment.set(false);
-            location.reload();
+            loadAppointmentData();
         } else {
             return "Server error, please try again later!";
         }
@@ -94,7 +94,7 @@
 
         if (response && response.ok) {
             console.log(response.text())
-            location.reload();
+            loadAppointmentData();
         } else {
             return "Server error, please try again later!";
         }
@@ -123,7 +123,7 @@
 
         if (response && response.ok) {
             console.log(response.text())
-            location.reload();
+            loadAppointmentData();
         } else {
             return "Server error, please try again later!";
         }
