@@ -15,7 +15,7 @@
     session.subscribe(value => {
         token = value.token;
     });
-    // token = session.token
+    let patientList = []
 
     let prescription_requests = []
     const handler = new DataHandler(prescription_requests, { rowsPerPage: 50 })
@@ -54,12 +54,20 @@
         }
     }
 
-    onMount(() => {
+    onMount(async () => {
         loadPrescriptions();
+        let patientResponse = await apiGET(session, "/auth/user/patients/");
+        if (patientResponse && patientResponse.ok) {
+            let response_json = await patientResponse.json();
+            patientList = response_json;
+        }
+        console.log(patientList)
     })
 
+    let patient_changed = false;
+
     let prescriptionSchema = yup.object({
-        patient_id: yup.string().required("Please enter a Patient ID"),
+        patient_id: yup.string().required("Please select a payment method"),
         is_repeating: yup.string().required("Please enter a boolean value"),
         medicine: yup.string().required("Enter Medicine"),
         notes: yup.string().required("Enter Notes")
@@ -143,9 +151,23 @@
 <div class="d-flex flex-column justify-content-center align-items-center register-container">
     <form class="container" on:submit|preventDefault={createPrescription} novalidate>
         <div class="row mb-2 g-2">
+            <!-- <div class="form-floating">
+                <select
+                    class="form-select {patient_id_errors.length > 0 ? 'is-invalid' : ''}" id="prescription-patientid"
+                    aria-label="Select Patient"
+                    bind:value={patient_id}
+                    on:change|once={() => {patient_changed = true}}
+                >
+                    <option disabled={patient_changed} value="none">Please select a Patient</option>
+                    {#each patientList as patientChoice}
+                        <option value="{patientChoice}">{patientChoice.id}</option>
+                    {/each}
+                </select>
+                <label for="Patient">Select a Patient</label>
+            </div> -->
             <div class="col-sm">
                 <Field type="text" bind:value={patient_id} errors={patient_id_errors} id="prescription-patientid" label="Patient ID" />
-            </div>
+            </div> 
             <div class="col-sm">
                 <Field type="text" bind:value={is_repeating} errors={is_repeating_errors} id="prescription-isrepeating" label="Repeat Prescription" />
             </div>

@@ -11,7 +11,7 @@ from knox.views import LoginView as KnoxLoginView
 
 from smartcare_auth.rest_permissions import IsStaff, IsAdmin, IsOwnerOrReadOnly
 from smartcare_auth.models import StaffInfo, PasswordReset, UserType, EmploymentType, PayRate, PatientPayType
-from smartcare_auth.serializers import UserSerializer, StaffSerializer, ResetPasswordSerializer, PayRateSerializer, BasicUserSerializer
+from smartcare_auth.serializers import UserSerializer, BasicPatientSerializer, StaffSerializer, ResetPasswordSerializer, PayRateSerializer, BasicUserSerializer
 from smartcare_appointments.schedule_logic import update_working_days
 
 UserModel = get_user_model()
@@ -246,6 +246,12 @@ class UserView(mixins.CreateModelMixin, mixins.ListModelMixin, mixins.RetrieveMo
     def staff(self, request):
         staff_members = UserModel.objects.filter(user_type__in=[UserType.DOCTOR, UserType.NURSE], is_active=True).all()
         serializer = BasicUserSerializer(staff_members, many=True)
+        return Response(serializer.data)
+    
+    @action(detail=False)
+    def patients(self, request):
+        patients = UserModel.objects.filter(user_type__in=[UserType.PATIENT], is_active=True).all()
+        serializer = BasicPatientSerializer(patients, many=True)
         return Response(serializer.data)
 
 
