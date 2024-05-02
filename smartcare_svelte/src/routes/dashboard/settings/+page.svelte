@@ -13,6 +13,11 @@
     let error = "";
     let result = "";
     let new_password = "";
+    let settings_card;
+
+    function scrollToTop() {
+        settings_card.scrollIntoView();
+    }
 
     let password_schema = yup.object({
         password: yup.string().required("Please enter a password").password()
@@ -49,7 +54,7 @@
             await password_schema.validate({password: new_password});
         } catch (err) {
             error = err.message;
-            window.scrollTo(0, 0);
+            scrollToTop();
             return;
         }
 
@@ -59,12 +64,12 @@
 
         if (!response || response.status >= 500) {
             error = "Server error, please try again later!";
-            window.scrollTo(0, 0);
+            scrollToTop();
             return;
         } else if (response.ok) {
             result = "Password updated";
             new_password = "";
-            window.scrollTo(0, 0);
+            scrollToTop();
             return;
         }
 
@@ -74,7 +79,7 @@
         } catch {
             error = "Server error, please try again later!";
         }
-        window.scrollTo(0, 0);
+        scrollToTop();
     }
 
     async function updateUserData(data_key) {
@@ -85,13 +90,13 @@
         let response = await apiPATCH(session, `/auth/user/${$session.userId}/`, JSON.stringify(update));
         if (!response || response.status == 403 || response.status == 404 || response.status >= 500) {
             error = "Server error, please try again later!";
-            window.scrollTo(0, 0);
+            scrollToTop();
             return;
         } else if (response.ok) {
             let data_key_formatted = data_key.split("_").join(" ").toProperCase();
             result = `Updated ${data_key_formatted}`;
             loadUserData();
-            window.scrollTo(0, 0);
+            scrollToTop();
             return;
         }
 
@@ -101,7 +106,7 @@
         } catch {
             error = "Server error, please try again later!";
         }
-        window.scrollTo(0, 0);
+        scrollToTop();
     }
 
     onMount(() => {
@@ -109,7 +114,7 @@
     });
 </script>
 
-<div class="card">
+<div class="card" bind:this={settings_card}>
     <div class="card-body">
         <h5 class="card-title">Settings</h5>
 
