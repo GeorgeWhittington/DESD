@@ -3,7 +3,6 @@
     import * as yup from "yup";
     import Th from "$lib/components/Th.svelte";
     import ThFilter from "$lib/components/ThFilter.svelte";
-    import IdleDetection from "$lib/components/IdleDetection.svelte";
     import NeedsAuthorisation from "$lib/components/NeedsAuthorisation.svelte";
     import { getContext, onMount } from "svelte";
     import { API_ENDPOINT } from "$lib/constants";
@@ -18,17 +17,11 @@
     });
     let patientList = []
 
-    const handler = new DataHandler([], { rowsPerPage: 50 })
+    let prescription_requests = []
+    const handler = new DataHandler(prescription_requests, { rowsPerPage: 50 })
     const rows = handler.getRows()
     const selected = handler.getSelected()
     const isAllSelected = handler.isAllSelected()
-
-    let prescription_requests = []
-
-    async function autoRequest(newPerc = '') {
-        let response = await apiPOST(session, "/prescription-requests/create_request/", JSON.stringify({prescription_id : newPerc}));
-        console.log(response)
-    };
 
     async function loadPrescriptions() {
         let response = await apiGET(session, "/prescription-requests/");
@@ -151,7 +144,6 @@
 
 </script>
 
-<IdleDetection userType={$session.userType} session={session} />
 <NeedsAuthorisation userType={$session.userType} userTypesPermitted={[0, 1, 2, 3, 5]} />
 
 <h2>Create New Prescription</h2>
