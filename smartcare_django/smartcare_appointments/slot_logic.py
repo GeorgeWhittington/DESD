@@ -9,6 +9,16 @@ from smartcare_auth.models import StaffInfo
 from smartcare_appointments.models import Appointment, TimeOff, AppointmentStage
 
 def scheduler(appointment, user_override=None, date_override=None, time_override=None):
+    # try to do prefered staff first first
+    if not user_override and appointment.staff_preference:
+        res = False
+        si = StaffInfo.objects.filter(user=appointment.staff_preference).first()
+        if si:
+            res = scheduler(appointment, si, date_override, time_override)
+            if res:
+                return True
+
+        
     print("STARTED SCHEDULING")
     dateRequested = appointment.date_requested
 
@@ -28,11 +38,6 @@ def scheduler(appointment, user_override=None, date_override=None, time_override
         availableStaff = [user_override]
     else:
         availableStaff = get_staff_working_on_date(dateRequested)
-
-        if appointment.staff_preference:
-            si = StaffInfo.objects.filter(user=appointment.staff_preference)
-            if si:
-                availableStaff.insert(0, si)
     
     print("AVAILABLE STAFF",availableStaff)
     print("DATE Requested", dateRequested)
