@@ -76,7 +76,8 @@ def get_staff_working_on_date(date):
     availableStaff = StaffInfo.objects.filter(
         working_days__day=dateToDay
     ).exclude(
-        timeOff__id__in=conflicting_holidays
+        timeOff__id__in=conflicting_holidays,
+        user__is_active=False
     )
     print("AVAILABLE STAFF: ", availableStaff)
     return availableStaff

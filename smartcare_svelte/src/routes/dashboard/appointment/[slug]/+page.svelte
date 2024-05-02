@@ -92,7 +92,7 @@
     }
 
     async function doAppointmentAction(name) {
-        let response = await apiPOST($session, `/appointments/${appointment.id}/${name}/`, "");
+        let response = await apiPOST(session, `/appointments/${appointment.id}/${name}/`, "");
 
         if (response && response.ok) {
             console.log(response.text())
