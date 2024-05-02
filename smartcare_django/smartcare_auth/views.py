@@ -11,7 +11,7 @@ from knox.views import LoginView as KnoxLoginView
 
 from smartcare_auth.rest_permissions import IsStaff, IsAdmin, IsOwnerOrReadOnly
 from smartcare_auth.models import StaffInfo, PasswordReset, UserType, EmploymentType, PayRate, PatientPayType
-from smartcare_auth.serializers import UserSerializer, StaffSerializer, ResetPasswordSerializer, PayRateSerializer
+from smartcare_auth.serializers import UserSerializer, StaffSerializer, ResetPasswordSerializer, PayRateSerializer, BasicUserSerializer
 from smartcare_appointments.schedule_logic import update_working_days
 
 UserModel = get_user_model()
@@ -57,7 +57,7 @@ class UserView(mixins.CreateModelMixin, mixins.ListModelMixin, mixins.RetrieveMo
             return [permissions.AllowAny()]
         elif self.action in ["update", "partial_update"]:
             return [IsOwnerOrReadOnly()]
-        elif self.action == "me":
+        elif self.action in ["me", "staff"]:
             return [permissions.IsAuthenticated()]
         elif self.action in ["make_active", "make_inactive", "make_full_time", "make_part_time", "set_pay_rate"]:
             return [IsAdmin()]
@@ -230,6 +230,12 @@ class UserView(mixins.CreateModelMixin, mixins.ListModelMixin, mixins.RetrieveMo
     @action(detail=False, methods=["POST"])
     def make_private_patient(self, request):
         return self.set_patient_pay_type(request, PatientPayType.PRIVATE)
+
+    @action(detail=False)
+    def staff(self, request):
+        staff_members = UserModel.objects.filter(user_type__in=[UserType.DOCTOR, UserType.NURSE], is_active=True).all()
+        serializer = BasicUserSerializer(staff_members, many=True)
+        return Response(serializer.data)
 
 
 class StaffView(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):

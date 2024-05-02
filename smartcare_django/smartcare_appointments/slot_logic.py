@@ -74,7 +74,8 @@ def get_staff_working_on_date(date):
     print(f"conflicting holiday: {conflicting_holidays}")
 
     availableStaff = StaffInfo.objects.filter(
-        working_days__day=dateToDay
+        working_days__day=dateToDay,
+        user__is_active=True
     ).exclude(
         timeOff__id__in=conflicting_holidays
     )
@@ -120,8 +121,8 @@ def staff_get_available_slot(staff,date,timePreference,timeCheck):
                     return availableSlot
     else:
         return availableSlotNumbers[0] if availableSlotNumbers else False
-print("TIME",datetime.today().time().strftime('%H:%M:%S'))
-print() 
+
+
 # gets a staff member's appointments
 def staff_get_appointments(staff,date):
 
