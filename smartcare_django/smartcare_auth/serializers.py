@@ -17,6 +17,11 @@ class BasicUserSerializer(serializers.ModelSerializer):
         model = UserModel
         fields = ["id", "first_name", "last_name", "email"]
 
+class BasicPatientSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserModel
+        fields = ["id", "username"]
+
 
 class StaffSerializer(serializers.ModelSerializer):
     user = BasicUserSerializer(required=True)
