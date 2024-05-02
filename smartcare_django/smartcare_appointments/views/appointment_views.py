@@ -14,7 +14,7 @@ from smartcare_appointments.models import Appointment, AppointmentComment, Appoi
 from smartcare_appointments.serializers import AppointmentSerializer, AppointmentCommentSerializer
 from smartcare_finance.models import Invoice
 from smartcare_finance.views import load_pdf_html
-from smartcare_auth.models import PatientPayType
+from smartcare_auth.models import User, PatientPayType, StaffInfo
 
 UserModel = get_user_model()
 
@@ -62,6 +62,9 @@ class AppointmentView(mixins.CreateModelMixin, mixins.ListModelMixin, mixins.Ret
     def approve(self, request, pk=None):
         appointment = self.get_object()
 
+        if appointment.stage != AppointmentStage.REQUESTED:
+            return Response({"result" : False, "message": "cannot approve appointment on this stage"}, status=status.HTTP_400_BAD_REQUEST)
+        
         # update appointment stage
         appointment.stage = AppointmentStage.APPROVED
         appointment.save()
@@ -86,13 +89,24 @@ class AppointmentView(mixins.CreateModelMixin, mixins.ListModelMixin, mixins.Ret
             )
             comment.save()
 
-            return Response({"result" : True, "message": "appointment scheduled"})
+            return Response({"result" : True, "message": "Appointment scheduled"})
 
-        return Response({"result" : False, "message": "failed to automatically schedule appointment"})
+        return Response({"result" : False, "message": "Failed to automatically schedule appointment"})
 
     @action(detail=True, methods=['post'])
     def reject(self, request, pk=None):
         appointment = self.get_object()
+
+        appointment.stage = AppointmentStage.CANCELLED
+        appointment.save()
+
+        comment = AppointmentComment.objects.create(
+            created_by=request.user,
+            appointment=appointment,
+            text=f"Appointment rejected"
+        )
+        comment.save()
+        
         return Response({"result" : "success"})
 
     @action(detail=True, methods=['post'])
@@ -100,9 +114,8 @@ class AppointmentView(mixins.CreateModelMixin, mixins.ListModelMixin, mixins.Ret
         appointment = self.get_object()
         requested_user = request.user
 
-        # TODO: reimplement this
-        # if appointment.staff != requested_user:
-        #    return Response({"result" : "error", "message" : "the logged in user does not own this appointment"})
+        if appointment.staff != requested_user:
+            return Response({"result" : False, "message" : "Cannot begin appointment - the logged in user does not own this appointment"})
 
         appointment.actual_start_time = datetime.now(timezone.utc)
         appointment.save()
@@ -114,18 +127,16 @@ class AppointmentView(mixins.CreateModelMixin, mixins.ListModelMixin, mixins.Ret
         )
         comment.save()
 
-        print('Begin ', 'Appointment', appointment, ' user', requested_user)
-        return Response({"result" : "success"})
+        return Response({"result" : True, "message" : "Appointment Started"})
 
     @action(detail=True, methods=['post'])
     def end(self, request, pk=None):
         appointment = self.get_object()
         requested_user = request.user
 
-        # TODO: reimplement this
-        # if appointment.staff != requested_user:
-        #    return Response({"result" : "error", "message" : "the logged in user does not own this appointment"})
-
+        if appointment.staff != requested_user:
+            return Response({"result" : False, "message" : "Cannot end appointment - the logged in user does not own this appointment"})
+    
         appointment.actual_end_time = datetime.now(timezone.utc)
         appointment.stage = AppointmentStage.COMPLETED
         appointment.save()
@@ -170,7 +181,7 @@ Regards, Smartcare.
             email.attach_file(settings.INVOICE_FOLDER + filename, mimetype="application/pdf")
             email.send()
 
-        return Response({"result" : "success"})
+        return Response({"result" : True, "message" : "Appointment completed"})
 
     @action(detail=True, methods=['post'])
     def assign_to_current_user(self, request, pk=None):
@@ -189,10 +200,10 @@ Regards, Smartcare.
         comment = json.loads(request.body)['comment']
         
         if not comment:
-            return Response({"result" : "error", "message" : "cannot add empty comment"})
+            return Response({"result" : False, "message" : "Cannot add empty comment"})
 
         if self.request.user != appointment.patient and not self.request.user.is_clinic_staff():
-            return Response({"result" : "error", "message" : "cannot add comment to another appointment"})
+            return Response({"result" : False, "message" : "Cannot add comment to another appointment"})
 
         comment = AppointmentComment.objects.create(
             created_by=request.user,
@@ -201,7 +212,7 @@ Regards, Smartcare.
         )
         comment.save()
 
-        return Response({"result" : "success"})
+        return Response({"result" : True})
 
     @action(detail=True, methods=['post'])
     def unschedule(self, request, pk=None):
@@ -213,6 +224,7 @@ Regards, Smartcare.
         #    return Response({"result" : "error", "message" : "the logged in user does not own this appointment"})
 
         appointment.stage = AppointmentStage.APPROVED
+        appointment.assigned_start_time = None
         appointment.staff = None
         appointment.actual_start_time = None
         appointment.save()
@@ -224,6 +236,52 @@ Regards, Smartcare.
         )
         comment.save()
 
+        return Response({"result" : True, "message" : "Appointment Unscheduled"})
+    
+    @action(detail=True, methods=['post'])
+    def schedule_automatically(self, request, pk=None):
+        appointment = self.get_object()
+        result = scheduler(appointment)
+
+        if result:
+            comment = AppointmentComment.objects.create(
+                created_by=request.user,
+                appointment=appointment,
+                text=f"Appointment automatically scheduled at {datetime.strftime(appointment.assigned_start_time, '%d/%m/%y %H:%M')} with {appointment.staff.first_name} {appointment.staff.last_name}"
+            )
+            comment.save()
+
+            return Response({"result" : True, "message" : "Appointment automatically scheduled"})
+        else:
+            return Response({"result" : False, "message" : "Failed to automatically schedule appointment"})
+        
+    @action(detail=True, methods=['post'])
+    def schedule_manually(self, request, pk=None):
+        appointment = self.get_object()
+        requested_user = request.user
+
+        try:
+            time_preference_str = request.data.pop("time_preference")
+            date_requested_str = request.data.pop("date_requested")
+        except KeyError:
+            return Response({"result" : False, "message": "could not locate required data"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        print('Manual schedule', time_preference_str, date_requested_str)
+
+        date_requested = datetime.strptime(date_requested_str, '%Y-%m-%d').date()
+        time_preference = int(time_preference_str)
+        staff_preference = None
+
+        if 'staff_preference_id' in request.data:
+            staff_preference_id = int(request.data.pop("staff_preference_id"))
+            user = User.objects.filter(pk=staff_preference_id).first()
+            staff_preference = StaffInfo.objects.filter(user=user).first()
+
+
+        result = scheduler(appointment, user_override=staff_preference, date_override=date_requested, time_override=time_preference)
+
+        if not result:
+            return Response({"result" : False, "message" : "Failed to manually schedule appointment"})
         return Response({"result" : "success"})
 
 class AppointmentCommentView(mixins.CreateModelMixin, mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
