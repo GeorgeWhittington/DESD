@@ -1,6 +1,5 @@
 <script>
     import { getContext, onMount } from "svelte";
-    import IdleDetection from "$lib/components/IdleDetection.svelte";
     import NeedsAuthorisation from "$lib/components/NeedsAuthorisation.svelte";
     import AppointmentDashboard from "$lib/components/AppointmentDashboard.svelte";
     import PrescriptionTable from "$lib/components/PrescriptionTable.svelte";
@@ -11,7 +10,6 @@
     let userId = $session.userId;
 </script>
 
-<IdleDetection userType={$session.userType} session={session} />
 <NeedsAuthorisation userType={$session.userType} userTypesPermitted={[0, 1, 2, 3, 5]} />
 
 <h1> Dashboard </h1>

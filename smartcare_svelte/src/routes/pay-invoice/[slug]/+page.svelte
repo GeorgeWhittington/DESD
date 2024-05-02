@@ -4,7 +4,6 @@
     import { goto } from "$app/navigation";
     import NeedsAuthorisation from "$lib/components/NeedsAuthorisation.svelte";
     import GenerateTurnoverReportsCard from "$lib/components/GenerateTurnoverReportsCard.svelte";
-    import IdleDetection from "$lib/components/IdleDetection.svelte";
 
     export let data;
 
@@ -61,8 +60,6 @@
         loadIfPaid();
     })
 </script>
-
-<IdleDetection userType={$session.userType} session={session} />
 
 {#if [4, 5].includes($session.userType)}
 

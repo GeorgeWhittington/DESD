@@ -3,7 +3,6 @@
     import * as yup from "yup";
     import Th from "$lib/components/Th.svelte";
     import ThFilter from "$lib/components/ThFilter.svelte";
-    import IdleDetection from "$lib/components/IdleDetection.svelte";
     import NeedsAuthorisation from "$lib/components/NeedsAuthorisation.svelte";
     import { getContext, onMount } from "svelte";
     import { API_ENDPOINT } from "$lib/constants";
@@ -137,7 +136,6 @@
 
 </script>
 
-<IdleDetection userType={$session.userType} session={session} />
 <NeedsAuthorisation userType={$session.userType} userTypesPermitted={[0, 1, 2, 3, 5]} />
 
 <h2>Create New Prescription</h2>

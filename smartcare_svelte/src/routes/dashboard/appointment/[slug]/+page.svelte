@@ -7,10 +7,10 @@
         APPOINTMENT_STAGE,
         APPOINTMENT_STAGE_COLOURS
     } from "$lib/constants";
-    import IdleDetection from "$lib/components/IdleDetection.svelte";
     import NeedsAuthorisation from "$lib/components/NeedsAuthorisation.svelte";
     import { onMount, getContext } from "svelte";
     import { apiGET, apiPOST } from "$lib/apiFetch.js";
+    import { mid_appointment } from "$lib/constants.js";
 
     const session = getContext("session");
 
@@ -41,6 +41,63 @@
         } else {
             return "Server error, please try again later!";
         }
+    };
+
+    async function approveAppointment() {
+        let response = await apiPOST(session, `/appointments/${appointment.id}/approve/`, "");
+
+        if (response && response.ok) {
+            console.log(response.text())
+            loadAppointmentData();
+        } else {
+            return "Server error, please try again later!";
+        }
+    }
+
+    async function rejectAppointment() {
+        let response = await apiPOST(session, `/appointments/${appointment.id}/reject/`, "");
+
+        if (response && response.ok) {
+            console.log(response.text())
+            loadAppointmentData();
+        } else {
+            return "Server error, please try again later!";
+        }
+    }
+
+    async function beginAppointment() {
+        let response = await apiPOST(session, `/appointments/${appointment.id}/begin/`, "");
+
+        if (response && response.ok) {
+            console.log(response.text())
+            mid_appointment.set(true);
+            loadAppointmentData();
+        } else {
+            return "Server error, please try again later!";
+        }
+    }
+
+    async function endAppointment() {
+        let response = await apiPOST(session, `/appointments/${appointment.id}/end/`, "");
+
+        if (response && response.ok) {
+            console.log(response.text())
+            mid_appointment.set(false);
+            loadAppointmentData();
+        } else {
+            return "Server error, please try again later!";
+        }
+    }
+
+    async function assignToCurrentUser() {
+        let response = await apiPOST(session, `/appointments/${appointment.id}/assign_to_current_user/`, "");
+
+        if (response && response.ok) {
+            console.log(response.text())
+            loadAppointmentData();
+        } else {
+            return "Server error, please try again later!";
+        }
     }
 
     async function doAppointmentAction(name) {
@@ -66,7 +123,7 @@
 
         if (response && response.ok) {
             console.log(response.text())
-            location.reload();
+            loadAppointmentData();
         } else {
             return "Server error, please try again later!";
         }
@@ -77,7 +134,6 @@
     let isStaff = $session.userType == 2 || $session.userType == 3;
 </script>
 
-<IdleDetection userType={$session.userType} session={session} />
 <NeedsAuthorisation userType={$session.userType} userTypesPermitted={[0, 1, 2, 3, 5]} />
 
 <div>
