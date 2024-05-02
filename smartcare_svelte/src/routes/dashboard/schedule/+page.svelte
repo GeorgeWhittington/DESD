@@ -1,7 +1,7 @@
 <script>
     import { onMount } from 'svelte';
     import { goto } from "$app/navigation";
-    import { API_ENDPOINT,USER_ID} from "$lib/constants";
+    import {USER_TYPES} from "$lib/constants";
     import { getContext } from "svelte";
     import { apiGET, apiPOST } from "$lib/apiFetch.js";
     import FullCalendar from 'svelte-fullcalendar';
@@ -21,6 +21,7 @@
     let timeOffEvents = []
     let appointmentEvents = []
     let staffList = []
+    let staffTypes = [2,3]
 
     let options = reactiveOptions();
 
@@ -76,7 +77,6 @@
         let appointmentResponse = await apiGET(session, `/appointments?staff_id=${staffId}`);
         if (appointmentResponse && appointmentResponse.ok) {
             let appointmentData = await appointmentResponse.json();
-            console.log("TEST:",appointmentData)
             appointmentEvents = appointmentData
                 .map(item => ({
                     id: item.id,
@@ -98,7 +98,6 @@
         selectedStart = selectInfo.startStr
         selectedEnd = selectInfo.endStr
 
-        console.log("range1: ",selectedEnd-selectedStart)
 
         if (startDate >= twoWeeksFromToday){
             document.getElementById('bookTimeOffButton').disabled = false;
@@ -116,7 +115,7 @@
         document.getElementById('bookTimeOffButton').disabled = true;
         let confirmed = confirm(`Book the selected date/days off?`);
         if(confirmed){
-            console.log("range: ",selectedEnd-selectedStart)
+
             start_date = selectedStart
             end_date = selectedEnd
             requestTimeOff('Holiday')
@@ -132,7 +131,6 @@
 
     function handleEventClick(eventInfo){
         if (eventInfo.event.extendedProps.eventType === 'appointment') {
-            // window.open(`/dashboard/appointment/${eventInfo.event.id}`, "_blank");
             goto(`/dashboard/appointment/${eventInfo.event.id}`);
         }
     }
@@ -201,7 +199,7 @@
 
 
   
-
+{#if staffTypes.includes($session.userType)}
 <div class="container mt-4">
     <div class="row">
         <div class="col">
@@ -231,5 +229,7 @@
         </div>
     </div>
 </div>
+{/if}
+
     
 
