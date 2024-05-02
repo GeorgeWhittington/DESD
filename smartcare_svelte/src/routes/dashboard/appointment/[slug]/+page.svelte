@@ -11,6 +11,7 @@
     import { onMount, getContext } from "svelte";
     import { apiGET, apiPOST } from "$lib/apiFetch.js";
     import { mid_appointment } from "$lib/constants.js";
+    import { writable } from "svelte/store";
 
     const session = getContext("session");
 
@@ -20,12 +21,20 @@
     let patient = {};
     let staff = {};
     let comments = [];
+    let time_preference;
+    let date_requested = new Date().toISOString().slice(0, 10);
+    let alertText = "";
+    let alertType = "primary"
+
+    const staff_members = writable([{id: "any", text: "No Preference"}]);
+    let selected_staff_member = "any";
 
     // modals
     let manualScheduleDate = new Date().toISOString().slice(0, 10);
     
     onMount(async () => {
         loadAppointmentData();
+        loadStaffMembers();
     });
 
     async function loadAppointmentData() {
@@ -43,72 +52,56 @@
         }
     };
 
-    async function approveAppointment() {
-        let response = await apiPOST(session, `/appointments/${appointment.id}/approve/`, "");
+    async function loadStaffMembers() {
+        let response = await apiGET(session, "/auth/user/staff/");
 
         if (response && response.ok) {
-            console.log(response.text())
-            loadAppointmentData();
-        } else {
-            return "Server error, please try again later!";
+            try {
+                let response_json = await response.json();
+                for (const staff_member of response_json) {
+                    staff_members.update((value) => [
+                        ...value,
+                        {id: staff_member.id, text: `${staff_member.first_name} ${staff_member.last_name}`}
+                    ]);
+                }
+            } catch {
+            }
         }
-    }
-
-    async function rejectAppointment() {
-        let response = await apiPOST(session, `/appointments/${appointment.id}/reject/`, "");
-
-        if (response && response.ok) {
-            console.log(response.text())
-            loadAppointmentData();
-        } else {
-            return "Server error, please try again later!";
-        }
-    }
-
-    async function beginAppointment() {
-        let response = await apiPOST(session, `/appointments/${appointment.id}/begin/`, "");
-
-        if (response && response.ok) {
-            console.log(response.text())
-            mid_appointment.set(true);
-            loadAppointmentData();
-        } else {
-            return "Server error, please try again later!";
-        }
-    }
-
-    async function endAppointment() {
-        let response = await apiPOST(session, `/appointments/${appointment.id}/end/`, "");
-
-        if (response && response.ok) {
-            console.log(response.text())
-            mid_appointment.set(false);
-            loadAppointmentData();
-        } else {
-            return "Server error, please try again later!";
-        }
-    }
-
-    async function assignToCurrentUser() {
-        let response = await apiPOST(session, `/appointments/${appointment.id}/assign_to_current_user/`, "");
-
-        if (response && response.ok) {
-            console.log(response.text())
-            loadAppointmentData();
-        } else {
-            return "Server error, please try again later!";
-        }
+        // No need to notify user if staff list can't be fetched, the *any* option is still available
     }
 
     async function doAppointmentAction(name) {
         let response = await apiPOST(session, `/appointments/${appointment.id}/${name}/`, "");
 
+        let json = await response?.json();
+        alertText = json["message"];
+        alertType = json["result"] ? "primary" : "danger";
+
         if (response && response.ok) {
             console.log(response.text())
-            loadAppointmentData();
+            
         } else {
             return "Server error, please try again later!";
         }
+        loadAppointmentData();
+    }
+
+    async function appointmentScheduleManually() {
+        let data = {
+            time_preference: time_preference,
+            date_requested: date_requested
+        }
+        if (selected_staff_member != "any") {
+            data["staff_preference_id"] = selected_staff_member;
+        }
+
+        console.log(data);
+
+        let response = await apiPOST(session, `/appointments/${appointment.id}/schedule_manually/`, JSON.stringify(data));
+        let json = await response?.json();
+        alertText = json["message"];
+        alertType = json["result"] ? "primary" : "danger";
+        location.reload();
     }
 
     async function addAppointmentComment() {
@@ -122,11 +115,14 @@
         );
 
         if (response && response.ok) {
-            console.log(response.text())
+            alertText = response.json["message"];
             loadAppointmentData();
         } else {
+            alertText = "An error occured with your request";
+            alertType = "danger";
             return "Server error, please try again later!";
         }
+        
     }
 
     let txtNewComment = "";
@@ -138,6 +134,13 @@
 
 <div>
     <h2>View Appointment</h2>
+    <br>
+
+    {#if alertText.length > 0}
+    <div class="alert alert-{alertType}" role="alert">
+        {alertText}
+    </div>
+    {/if}
 
     <br />
 
@@ -193,7 +196,7 @@
     <br />
 
     <!-- Actions -->
-    {#if isStaff}
+    {#if isStaff && appointment.stage <= 2}
         <div class="card">
             <div class="card-header">Actions</div>
             <div class="card-body">
@@ -206,8 +209,8 @@
 
                 <!-- Approved Stage -->
                 {#if appointment.stage === 1 }
-                <button type="submit" class="btn btn-primary"
-                        >Automatically Schedule</button
+                <button type="submit" class="btn btn-primary" on:click={() => doAppointmentAction("schedule_automatically")}
+                        >Schedule Automatically</button
                     >
                     <br>
                     <br>
@@ -215,19 +218,33 @@
                 <div class="card">
                     <div class="card-body">
                         <h5 class="card-title">Schedule Manually</h5>
-                        <form>
+                        <form on:submit|preventDefault={appointmentScheduleManually}>
                             <div class="mb-3">
-                              <label for="exampleInputEmail1" class="form-label">Date</label>
-                              <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
-                              <div id="emailHelp" class="form-text">We'll never share your email with anyone else.</div>
+                                <label for="select-preferred-doctor" class="form-label">Staff Member</label>
+                                <select 
+                                    class="form-select" id="select-preferred-doctor" aria-label="Select preferred staff member"
+                                    bind:value={selected_staff_member}
+                                >
+                                {#each $staff_members as staff_member}
+                                    <option value="{staff_member.id}">{staff_member.text}</option>
+                                {/each}
+                                </select>
                             </div>
                             <div class="mb-3">
-                              <label for="exampleInputPassword1" class="form-label">Staff</label>
-                              <input type="password" class="form-control" id="exampleInputPassword1">
+                                <label for="txtDate" class="form-label">Date</label>
+                                <input type="date" id="txtDate" class="form-control" bind:value={date_requested}>
                             </div>
-                            <div class="mb-3 form-check">
-                              <input type="checkbox" class="form-check-input" id="exampleCheck1">
-                              <label class="form-check-label" for="exampleCheck1">Check me out</label>
+                            <div class="mb-3">
+                                <label for="selTimeSlot" class="form-label">Time Slot</label>
+                                <select
+                                    class="form-select"
+                                    id="selTimeSlot"
+                                    aria-label="Select time slot"
+                                    bind:value={time_preference}
+                                >
+                                    <option value="0" selected>Morning</option>
+                                    <option value="2">Afternoon</option>
+                                </select>
                             </div>
                             <button type="submit" class="btn btn-primary">Schedule</button>
                           </form>
@@ -243,10 +260,6 @@
                 <button type="submit" class="btn btn-primary " on:click={() => doAppointmentAction("begin")}
                         >Start Appointment</button
                     >
-                
-                <button type="submit" class="btn btn-warning" on:click={() => doAppointmentAction("unschedule")}
-                    >Reschedule</button
-                >
 
                 <button type="submit" class="btn btn-danger float-end" on:click={() => doAppointmentAction("unschedule")}
                     >Unschedule</button

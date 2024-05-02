@@ -8,21 +8,29 @@ from django.db.models import Q
 from smartcare_auth.models import StaffInfo
 from smartcare_appointments.models import Appointment, TimeOff, AppointmentStage
 
-def scheduler(appointment, user=None):
+def scheduler(appointment, user_override=None, date_override=None, time_override=None):
     print("STARTED SCHEDULING")
     dateRequested = appointment.date_requested
-    timeRequested = appointment.time_preference
-    #returns the staff available on the requested date
 
+    if date_override:
+        dateRequested = date_override
+
+    timeRequested = appointment.time_preference
+
+    if time_override:
+        timeRequested = time_override
+
+    
+    #returns the staff available on the requested date
     availableStaff = []
 
-    if user is not None:
-        availableStaff = [user]
+    if user_override is not None:
+        availableStaff = [user_override]
     else:
         availableStaff = get_staff_working_on_date(dateRequested)
 
     print("AVAILABLE STAFF",availableStaff)
-
+    print("DATE Requested", dateRequested)
     for staff in availableStaff:
         availableSlot = staff_get_available_slot(staff,dateRequested,timeRequested,True)
 
@@ -41,7 +49,7 @@ def schedule_appointment(staff, slot, appointment,dateRequested):
     try:
         slot_start_str = settings.SLOTS[slot]['start']
         slot_start_time = datetime.strptime(slot_start_str, '%H:%M:%S').time()
-        slot_start_datetime_local = datetime.combine(dateRequested, slot_start_time, settings.CLINIC_TIME_ZONE)
+        slot_start_datetime_local = datetime.combine(dateRequested, slot_start_time, ZoneInfo(settings.CLINIC_TIME_ZONE))
 
         appointment.slot_number = slot
         appointment.staff = staff.user
