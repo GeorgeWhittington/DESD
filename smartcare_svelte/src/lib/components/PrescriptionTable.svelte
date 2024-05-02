@@ -49,70 +49,76 @@
     })
 </script>
 
-<table class="table">
-    <thead class="table-light">
-        <tr>
-            <th class="selection">
-                {#if is_doctor}
-                <input
-                    type="checkbox"
-                    on:click={() => handler.selectAll({ selectBy: 'id' })}
-                    checked={$isAllSelected}
-                />
-                {/if}
-            </th>
-            <Th {handler} orderBy={(row) => row.patient.first_name}>First name</Th>
-            <Th {handler} orderBy={(row) => row.patient.last_name}>Last Name</Th>
-            <Th {handler} orderBy={(row) => row.medicine}>Medicine</Th>
-            <Th {handler} orderBy={(row) => row.notes}>Notes</Th>
-            <Th {handler} orderBy={(row) => row.is_repeating}>Repeating</Th>
-        </tr>
-        <tr>
-            <th class="selection" />
-            <ThFilter
-                {handler}
-                filterBy={(row) => row.patient.first_name}
-            />
-            <ThFilter {handler} filterBy={(row) => row.patient.last_name} />
-            <ThFilter {handler} filterBy={(row) => row.medicine} />
-            <ThFilter {handler} filterBy={(row) => row.notes} />
-            <ThFilter {handler} filterBy={(row) => row.is_repeating} />
-        </tr>
-    </thead>
-    <tbody>
-        {#each $rows as row}
-            <tr class:active={$selected.includes(row.id)}>
-                {#if row.is_repeating}
-                
-                    <td class="selection">
-                        <input
-                            type="checkbox"
-                            on:click={() => handler.select(row.id)}
-                            checked={$selected.includes(row.id)}
+<div class="card">
+    <div class="card-header">Prescriptions</div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead class="table-light">
+                    <tr>
+                        <th class="selection">
+                            {#if is_doctor}
+                            <input
+                                type="checkbox"
+                                on:click={() => handler.selectAll({ selectBy: 'id' })}
+                                checked={$isAllSelected}
+                            />
+                            {/if}
+                        </th>
+                        <Th {handler} orderBy={(row) => row.patient.first_name}>First name</Th>
+                        <Th {handler} orderBy={(row) => row.patient.last_name}>Last Name</Th>
+                        <Th {handler} orderBy={(row) => row.medicine}>Medicine</Th>
+                        <Th {handler} orderBy={(row) => row.notes}>Notes</Th>
+                        <Th {handler} orderBy={(row) => row.is_repeating}>Repeating</Th>
+                    </tr>
+                    <tr>
+                        <th class="selection" />
+                        <ThFilter
+                            {handler}
+                            filterBy={(row) => row.patient.first_name}
                         />
-                    </td>
-                {:else}
-                    <td class="empty"></td>
-                {/if}
-                <td>{row.patient.first_name}</td>
-                <td>{row.patient.last_name}</td>
-                <td>{row.medicine}</td>
-                <td>{row.notes}</td>
-                <td>{row.is_repeating}</td>
-            </tr>
-        {/each}
-    </tbody>
-</table>
-{#if !is_doctor}
-    {#if $selected.length > 0 }
-        <button class="btn btn-lg btn-primary float-end" on:click="{requestButtonClick}">Make Request</button>
-    {:else }
-        <button class="btn btn-lg btn-primary float-end" on:click="{requestButtonClick}" disabled>Make Request</button>
-    {/if}
-{:else if is_doctor}
-    {#if $selected.length > 0 }
-        <button class="btn btn-lg btn-primary float-end" on:click="{respondButtonClick}">Make Request</button>
-    {:else }
-        <button class="btn btn-lg btn-primary float-end" on:click="{respondButtonClick}" disabled>Make Request</button>
-    {/if}
-{/if}
+                        <ThFilter {handler} filterBy={(row) => row.patient.last_name} />
+                        <ThFilter {handler} filterBy={(row) => row.medicine} />
+                        <ThFilter {handler} filterBy={(row) => row.notes} />
+                        <ThFilter {handler} filterBy={(row) => row.is_repeating} />
+                    </tr>
+                </thead>
+                <tbody>
+                    {#each $rows as row}
+                        <tr class:active={$selected.includes(row.id)}>
+                            {#if row.is_repeating}
+                                <td class="selection">
+                                    <input
+                                        type="checkbox"
+                                        on:click={() => handler.select(row.id)}
+                                        checked={$selected.includes(row.id)}
+                                    />
+                                </td>
+                            {:else}
+                                <td class="empty"></td>
+                            {/if}
+                            <td>{row.patient.first_name}</td>
+                            <td>{row.patient.last_name}</td>
+                            <td>{row.medicine}</td>
+                            <td>{row.notes}</td>
+                            <td>{row.is_repeating}</td>
+                        </tr>
+                    {/each}
+                </tbody>
+            </table>
+        </div>
+        {#if !is_doctor}
+            {#if $selected.length > 0 }
+                <button class="btn btn-lg btn-primary float-end" on:click="{requestButtonClick}">Make Request</button>
+            {:else }
+                <button class="btn btn-lg btn-primary float-end" on:click="{requestButtonClick}" disabled>Make Request</button>
+            {/if}
+        {:else if is_doctor}
+            {#if $selected.length > 0 }
+                <button class="btn btn-lg btn-primary float-end" on:click="{respondButtonClick}">Make Request</button>
+            {:else }
+                <button class="btn btn-lg btn-primary float-end" on:click="{respondButtonClick}" disabled>Make Request</button>
+            {/if}
+        {/if}
+    </div>
+</div>
