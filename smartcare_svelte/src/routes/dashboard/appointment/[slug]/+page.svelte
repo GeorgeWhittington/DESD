@@ -4,7 +4,8 @@
         BLANK_SESSION,
         QUICK_SYMPTOMS,
         TIME_PREFERENCE,
-        APPOINTMENT_STAGE
+        APPOINTMENT_STAGE,
+        APPOINTMENT_STAGE_COLOURS
     } from "$lib/constants";
     import IdleDetection from "$lib/components/IdleDetection.svelte";
     import NeedsAuthorisation from "$lib/components/NeedsAuthorisation.svelte";
@@ -90,6 +91,17 @@
         }
     }
 
+    async function doAppointmentAction(name) {
+        let response = await apiPOST(session, `/appointments/${appointment.id}/${name}/`, "");
+
+        if (response && response.ok) {
+            console.log(response.text())
+            location.reload();
+        } else {
+            return "Server error, please try again later!";
+        }
+    }
+
     async function addAppointmentComment() {
         if (!txtNewComment || txtNewComment.length == 0) {
             return;
@@ -124,8 +136,12 @@
     <div class="card">
         <div class="card-body">
             <p class="card-text">
-                <b>Created:&nbsp;</b>{new Date(appointment.date_created).toUTCString()} <br />
-                <b>Stage:&nbsp;</b>{APPOINTMENT_STAGE[appointment.stage]}
+                <span class="badge" style="background-color: {APPOINTMENT_STAGE_COLOURS[appointment.stage]};">{APPOINTMENT_STAGE[appointment.stage]}</span> <br />
+                <i class="bi bi-calendar pe-2"></i><b>Created:&nbsp;</b>{new Date(appointment.date_created).toUTCString()} <br />
+
+                {#if appointment.assigned_start_time}
+                    <i class="bi bi-calendar pe-2"></i><b>Scheduled For:&nbsp;</b>{new Date(appointment.assigned_start_time).toUTCString()} <br />
+                {/if}
             </p>
         </div>
     </div>
@@ -136,7 +152,7 @@
         <div class="row">
             <div class="col">
                 <div class="card">
-                    <div class="card-header">Patient</div>
+                    <div class="card-header"><i class="bi bi-person-fill pe-2"></i>Patient</div>
                     <div class="card-body">
                         <p class="card-text">
                             <b>Name:&nbsp;</b>{patient.first_name}
@@ -149,7 +165,7 @@
 
             <div class="col">
                 <div class="card">
-                    <div class="card-header">Staff</div>
+                    <div class="card-header"><i class="bi bi-person-fill pe-2"></i>Staff</div>
                     <div class="card-body">
                         {#if !appointment.staff}
                         <p class="card-text">Not assigned to any staff.</p>
@@ -176,8 +192,8 @@
                 
                 <!-- Requested Stage -->
                 {#if appointment.stage === 0 }
-                <button type="submit" class="btn btn-primary" on:click={approveAppointment}>Approve</button>
-                <button type="submit" class="btn btn-danger" on:click={rejectAppointment}>Reject</button>
+                <button type="submit" class="btn btn-primary" on:click={() => doAppointmentAction("approve")}>Approve</button>
+                <button type="submit" class="btn btn-danger"  on:click={() => doAppointmentAction("reject")}>Reject</button>
                 {/if}
 
                 <!-- Approved Stage -->
@@ -190,14 +206,14 @@
 
                 <!-- Begin Appointment -->
                 {#if appointment.stage === 2 && !appointment.actual_start_time && !appointment.actual_end_time}
-                <button type="submit" class="btn btn-sm btn-primary" on:click={beginAppointment}
+                <button type="submit" class="btn btn-primary" on:click={() => doAppointmentAction("begin")}
                         >Start Appointment</button
                     >
                 {/if}
 
                 <!-- End Appointment -->
                 {#if appointment.actual_start_time && !appointment.actual_end_time}
-                <button type="submit" class="btn btn-sm btn-primary" on:click={endAppointment}
+                <button type="submit" class="btn btn-primary"  on:click={() => doAppointmentAction("end")}
                         >End Appointment</button
                     >
                 {/if}
@@ -214,10 +230,10 @@
         <div class="card-header">Request</div>
         <div class="card-body">
             <p class="card-text">
-                <b>Requested For:&nbsp;</b>{TIME_PREFERENCE[
+                <i class="bi bi-calendar pe-2"></i><b>Requested For:&nbsp;</b>{TIME_PREFERENCE[
                     appointment.time_preference
                 ]} of {appointment.date_requested}<br />
-                <b>Symptom Duration:&nbsp;</b>{appointment.symptom_duration} day(s)
+                <i class="bi bi-clock-fill pe-2"></i><b>Symptom Duration:&nbsp;</b>{appointment.symptom_duration} day(s)
             </p>
             <textarea class="form-control" rows="3" readonly="1"
                 >{appointment.symptoms}</textarea
