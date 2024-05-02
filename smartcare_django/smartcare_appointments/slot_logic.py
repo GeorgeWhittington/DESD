@@ -10,7 +10,7 @@ from smartcare_appointments.models import Appointment, TimeOff, AppointmentStage
 
 def scheduler(appointment, user_override=None, date_override=None, time_override=None):
     # try to do prefered staff first first
-    if appointment.staff_preference:
+    if not user_override and appointment.staff_preference:
         res = False
         si = StaffInfo.objects.filter(user=appointment.staff_preference).first()
         if si:
