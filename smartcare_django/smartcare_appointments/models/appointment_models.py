@@ -57,6 +57,9 @@ class Appointment(models.Model):
     # preferred time that the patient would like this appointment e.g morning / afternoon
     time_preference = models.IntegerField(choices=TimeSlot.choices(), null=False)
 
+    # preferred staff member for appointment, if null there is no preference
+    staff_preference = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.CASCADE, related_name="appointment_preferred_staff")
+
     # actual appointment slot
     slot_number = models.IntegerField(default=-1)
 

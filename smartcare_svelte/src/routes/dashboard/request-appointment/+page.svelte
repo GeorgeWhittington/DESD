@@ -1,13 +1,17 @@
 <script>
     import { API_ENDPOINT, BLANK_SESSION, QUICK_SYMPTOMS } from "$lib/constants";
-    import { getContext } from "svelte";
+    import { getContext, onMount } from "svelte";
     import QuickSymptomSelect from "$lib/components/QuickSymptomSelect.svelte";
     import IdleDetection from "$lib/components/IdleDetection.svelte";
     import NeedsAuthorisation from "$lib/components/NeedsAuthorisation.svelte";
-    import { apiPOST } from "$lib/apiFetch.js";
+    import { apiPOST, apiGET } from "$lib/apiFetch.js";
     import { goto } from '$app/navigation';
+    import { writable } from "svelte/store";
 
     const session = getContext("session");
+
+    const staff_members = writable([{id: "any", text: "No Preference"}]);
+    let selected_staff_member = "any";
 
     let symptoms = "";
     let symptomsElement;
@@ -27,10 +31,37 @@
         scrollToBottom(symptomsElement);
     }
 
-    export async function requestAppointment() {
-        let response = await apiPOST(session, "/appointments/", JSON.stringify({
-            symptoms: symptoms, time_preference: time_preference, symptom_duration: symptom_duration, date_requested: date_requested
-        }));
+    async function loadStaffMembers() {
+        let response = await apiGET(session, "/auth/user/staff/");
+
+        if (response && response.ok) {
+            try {
+                let response_json = await response.json();
+                for (const staff_member of response_json) {
+                    staff_members.update((value) => [
+                        ...value,
+                        {id: staff_member.id, text: `${staff_member.first_name} ${staff_member.last_name}`}
+                    ]);
+                }
+            } catch {
+            }
+        }
+        // No need to notify user if staff list can't be fetched, the *any* option is still available
+    }
+
+    async function requestAppointment() {
+        let data = {
+            symptoms: symptoms, time_preference: time_preference,
+            symptom_duration: symptom_duration,
+            date_requested: date_requested
+        }
+        if (selected_staff_member != "any") {
+            data["staff_preference_id"] = selected_staff_member;
+        }
+
+        console.log(data);
+
+        let response = await apiPOST(session, "/appointments/", JSON.stringify(data));
 
         if (response && response.ok) {
             let new_appointment = await response.json();
@@ -40,6 +71,10 @@
             return "Server error, please try again later!";
         }
     }
+
+    onMount(() => {
+        loadStaffMembers();
+    })
 </script>
 
 <IdleDetection userType={$session.userType} session={session} />
@@ -64,11 +99,24 @@
                 <select
                     class="form-select"
                     id="selTimeSlot"
-                    aria-label="Default select example"
+                    aria-label="Select time slot"
                     bind:value={time_preference}
                 >
                     <option value="0" selected>Morning</option>
                     <option value="2">Afternoon</option>
+                </select>
+            </div>
+
+            <!-- Preferred Staff Member -->
+            <div class="mb-3">
+                <label for="select-preferred-doctor" class="form-label">Preferred Staff Member</label>
+                <select 
+                    class="form-select" id="select-preferred-doctor" aria-label="Select preferred staff member"
+                    bind:value={selected_staff_member}
+                >
+                {#each $staff_members as staff_member}
+                    <option value="{staff_member.id}">{staff_member.text}</option>
+                {/each}
                 </select>
             </div>
         </div>

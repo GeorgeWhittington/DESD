@@ -56,13 +56,17 @@
     <div class="card-header">
         {title}  ({appointments.length})
     </div>
-    <div class="card-body d-flex flex-wrap justify-content-evenly">
-        {#if appointments.length === 0}
-        <span>No appointments to show</span>
-        {/if}
+    <div class="card-body">
+        <div class="container-fluid">
+            <div class="row row-cols-1 row-cols-sm-auto g-2">
+            {#if appointments.length === 0}
+                <span class="col">No appointments to show</span>
+            {/if}
 
-        {#each appointments as a, i }
-        <AppointmentCard appointment={a}></AppointmentCard>
-    {/each}
+            {#each appointments as a, i }
+                <AppointmentCard appointment={a} customClasses="col" ></AppointmentCard>
+            {/each}
+            </div>
+        </div>
     </div>
 </div>
