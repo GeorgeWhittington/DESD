@@ -17,6 +17,12 @@
     ];
     let user_type_changed = false;
 
+    let patient_pay_types = [
+        {id: "0", text: "Private"},
+        {id: "1", text: "NHS"}
+    ];
+    let patient_pay_type_changed = false;
+
     const today = new Date().toISOString().split("T")[0];
 
     let registrationSchema = yup.object({
@@ -33,7 +39,10 @@
         city: yup.string().required().max(30).min(1).matches(/^\D+$/, {message: "City/Town names cannot include digits"}),
         postcode: yup.string().required().max(7).matches(/^[0-9a-zA-Z]{5,7}$/, {message: "Please enter a valid postcode which is 5 to 7 characters long"})
     })
-    let patientRegistrationSchema = registrationSchema.pick(["first_name", "last_name", "email", "password", "password_confirm", "date_of_birth", "phone_number", "address_line_1", "address_line_2", "city", "postcode"]);
+    let patientRegistrationSchema = registrationSchema.omit(["user_type"]);
+    patientRegistrationSchema = patientRegistrationSchema.concat(yup.object({
+        patient_pay_type: yup.string().required("Please select a payment method").oneOf(patient_pay_types.map(ppt => ppt.id), "Please select a payment method")
+    }))
 
     let first_name = "";
     let last_name = "";
@@ -41,6 +50,7 @@
     let password = "";
     let password_confirm = "";
     let user_type = "";
+    let patient_pay_type = "";
     let date_of_birth = "";
     let phone_number = "";
     let address_line_1 = "";
@@ -56,6 +66,7 @@
     $: password_errors = errors.hasOwnProperty("password") ? errors["password"] : [];
     $: password_confirm_errors = errors.hasOwnProperty("password_confirm") ? errors["password_confirm"] : [];
     $: user_type_errors = errors.hasOwnProperty("user_type") ? errors["user_type"] : [];
+    $: patient_pay_type_errors = errors.hasOwnProperty("patient_pay_type") ? errors["patient_pay_type"] : [];
     $: date_of_birth_errors = errors.hasOwnProperty("date_of_birth") ? errors["date_of_birth"] : [];
     $: phone_number_errors = errors.hasOwnProperty("phone_number") ? errors["phone_number"] : [];
     $: address_line_1_errors = errors.hasOwnProperty("address_line_1") ? errors["address_line_1"] : [];
@@ -85,6 +96,7 @@
             if (data.slug == "staff") {
                 await registrationSchema.validate(regData, { abortEarly: false });
             } else {
+                regData["patient_pay_type"] = patient_pay_type;
                 await patientRegistrationSchema.validate(regData, { abortEarly: false });
             }
         } catch (outerErr) {
@@ -176,6 +188,25 @@
                         {/each}
                     </select>
                     <label for="register-user-type">User Type</label>
+                </div>
+            </div>
+        </div>
+        {:else if data.slug == "patient"}
+        <div class="row mb-2">
+            <div class="col">
+                <div class="form-floating">
+                    <select
+                        class="form-select {patient_pay_type_errors.length > 0 ? 'is-invalid' : ''}" id="register-patient-pay-type"
+                        aria-label="Select Payment Method"
+                        bind:value={patient_pay_type}
+                        on:change|once={() => {patient_pay_type_changed = true}}
+                    >
+                        <option disabled={patient_pay_type_changed} value="none">Please select a payment method</option>
+                        {#each patient_pay_types as pay_type}
+                            <option value="{pay_type.id}">{pay_type.text}</option>
+                        {/each}
+                    </select>
+                    <label for="register-patient-pay-type">Payment Method</label>
                 </div>
             </div>
         </div>
