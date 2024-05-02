@@ -21,7 +21,14 @@
     let staff = {};
     let comments = [];
 
+    // modals
+    let manualScheduleDate = new Date().toISOString().slice(0, 10);
+    
     onMount(async () => {
+        loadAppointmentData();
+    });
+
+    async function loadAppointmentData() {
         let response = await apiGET(session, `/appointments/${data.slug}/`);
         if (response && response.ok) {
             appointment = await response.json();
@@ -34,61 +41,6 @@
         } else {
             return "Server error, please try again later!";
         }
-    });
-
-    async function approveAppointment() {
-        let response = await apiPOST(session, `/appointments/${appointment.id}/approve/`, "");
-
-        if (response && response.ok) {
-            console.log(response.text())
-            location.reload();
-        } else {
-            return "Server error, please try again later!";
-        }
-    }
-
-    async function rejectAppointment() {
-        let response = await apiPOST(session, `/appointments/${appointment.id}/reject/`, "");
-
-        if (response && response.ok) {
-            console.log(response.text())
-            location.reload();
-        } else {
-            return "Server error, please try again later!";
-        }
-    }
-
-    async function beginAppointment() {
-        let response = await apiPOST(session, `/appointments/${appointment.id}/begin/`, "");
-
-        if (response && response.ok) {
-            console.log(response.text())
-            location.reload();
-        } else {
-            return "Server error, please try again later!";
-        }
-    }
-
-    async function endAppointment() {
-        let response = await apiPOST(session, `/appointments/${appointment.id}/end/`, "");
-
-        if (response && response.ok) {
-            console.log(response.text())
-            location.reload();
-        } else {
-            return "Server error, please try again later!";
-        }
-    }
-
-    async function assignToCurrentUser() {
-        let response = await apiPOST(session, `/appointments/${appointment.id}/assign_to_current_user/`, "");
-
-        if (response && response.ok) {
-            console.log(response.text())
-            location.reload();
-        } else {
-            return "Server error, please try again later!";
-        }
     }
 
     async function doAppointmentAction(name) {
@@ -96,7 +48,7 @@
 
         if (response && response.ok) {
             console.log(response.text())
-            location.reload();
+            loadAppointmentData();
         } else {
             return "Server error, please try again later!";
         }
@@ -198,17 +150,51 @@
 
                 <!-- Approved Stage -->
                 {#if appointment.stage === 1 }
-                <button type="submit" class="btn btn-sm btn-primary"
-                        >Manual Schedule</button
+                <button type="submit" class="btn btn-primary"
+                        >Automatically Schedule</button
                     >
+                    <br>
+                    <br>
+                <!-- Manual Schedule form -->
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Schedule Manually</h5>
+                        <form>
+                            <div class="mb-3">
+                              <label for="exampleInputEmail1" class="form-label">Date</label>
+                              <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
+                              <div id="emailHelp" class="form-text">We'll never share your email with anyone else.</div>
+                            </div>
+                            <div class="mb-3">
+                              <label for="exampleInputPassword1" class="form-label">Staff</label>
+                              <input type="password" class="form-control" id="exampleInputPassword1">
+                            </div>
+                            <div class="mb-3 form-check">
+                              <input type="checkbox" class="form-check-input" id="exampleCheck1">
+                              <label class="form-check-label" for="exampleCheck1">Check me out</label>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Schedule</button>
+                          </form>
+                    </div>
+                  </div>
+                
+
                 {/if}
                 
 
                 <!-- Begin Appointment -->
                 {#if appointment.stage === 2 && !appointment.actual_start_time && !appointment.actual_end_time}
-                <button type="submit" class="btn btn-primary" on:click={() => doAppointmentAction("begin")}
+                <button type="submit" class="btn btn-primary " on:click={() => doAppointmentAction("begin")}
                         >Start Appointment</button
                     >
+                
+                <button type="submit" class="btn btn-warning" on:click={() => doAppointmentAction("unschedule")}
+                    >Reschedule</button
+                >
+
+                <button type="submit" class="btn btn-danger float-end" on:click={() => doAppointmentAction("unschedule")}
+                    >Unschedule</button
+                >
                 {/if}
 
                 <!-- End Appointment -->
@@ -291,3 +277,4 @@
         </div>
     </div>
 </div>
+  
