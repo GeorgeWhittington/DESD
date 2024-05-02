@@ -223,3 +223,5 @@ APPOINTMENTSTAGES = {
 
 FULL_TIME_WORKING_DAYS = ['Tuesday', 'Wednesday', 'Thursday', 'Saturday', 'Sunday']
 PART_TIME_WORKING_DAYS = ['Monday', 'Friday']
+
+CLINIC_TIME_ZONE = "Europe/London"

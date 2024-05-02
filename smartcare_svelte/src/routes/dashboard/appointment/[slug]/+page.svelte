@@ -89,10 +89,10 @@
         <div class="card-body">
             <p class="card-text">
                 <span class="badge" style="background-color: {APPOINTMENT_STAGE_COLOURS[appointment.stage]};">{APPOINTMENT_STAGE[appointment.stage]}</span> <br />
-                <i class="bi bi-calendar pe-2"></i><b>Created:&nbsp;</b>{new Date(appointment.date_created).toUTCString()} <br />
+                <i class="bi bi-calendar pe-2"></i><b>Created:&nbsp;</b>{new Date(appointment.date_created).toString()} <br />
 
                 {#if appointment.assigned_start_time}
-                    <i class="bi bi-calendar pe-2"></i><b>Scheduled For:&nbsp;</b>{new Date(appointment.assigned_start_time).toUTCString()} <br />
+                    <i class="bi bi-calendar pe-2"></i><b>Scheduled For:&nbsp;</b>{new Date(appointment.assigned_start_time).toString()} <br />
                 {/if}
             </p>
         </div>
@@ -252,7 +252,7 @@
                         {c.created_by.last_name} ({c.created_by.id == appointment.patient.id ? 'Patient' : 'Staff'})</b
                     ><br />
                     <span class="text-muted small"
-                        >[{new Date(c.created_time).toUTCString()}]</span
+                        >[{new Date(c.created_time).toString()}]</span
                     >
                     <div>{c.text}</div>
                 </div>
