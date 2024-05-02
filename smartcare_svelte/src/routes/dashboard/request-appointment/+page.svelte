@@ -2,7 +2,6 @@
     import { API_ENDPOINT, BLANK_SESSION, QUICK_SYMPTOMS } from "$lib/constants";
     import { getContext, onMount } from "svelte";
     import QuickSymptomSelect from "$lib/components/QuickSymptomSelect.svelte";
-    import IdleDetection from "$lib/components/IdleDetection.svelte";
     import NeedsAuthorisation from "$lib/components/NeedsAuthorisation.svelte";
     import { apiPOST, apiGET } from "$lib/apiFetch.js";
     import { goto } from '$app/navigation';
@@ -77,7 +76,6 @@
     })
 </script>
 
-<IdleDetection userType={$session.userType} session={session} />
 <NeedsAuthorisation userType={$session.userType} userTypesPermitted={[5]} />
 
 <div>

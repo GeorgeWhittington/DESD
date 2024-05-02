@@ -7,6 +7,7 @@
     import { page } from '$app/stores';
     import { apiPOST } from "$lib/apiFetch.js";
     import { goto } from "$app/navigation";
+    import IdleDetection from "$lib/components/IdleDetection.svelte";
 
     // Try to fetch existing session from localstorage.
     const storedSession = browser ? JSON.parse(window.localStorage.getItem("session")) : BLANK_SESSION;
@@ -36,6 +37,8 @@
 
     onDestroy(unsubscribe);
 </script>
+
+<IdleDetection userType={$session.userType} session={session}  />
 
 {#if !$page.url.pathname.includes("dashboard")}
 <nav class="navbar navbar-expand-lg navbar-light bg-light">

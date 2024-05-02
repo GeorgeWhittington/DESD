@@ -1,3 +1,7 @@
+import { writable } from "svelte/store"
+
+export const mid_appointment = writable(false);
+
 export const API_ENDPOINT = "http://localhost:8000/api"
 export const MEDIA_ENDPOINT = "http://localhost:8000"
 

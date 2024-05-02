@@ -1,16 +1,14 @@
 <script>
-    // To control logout behaviour on sensitive pages
-    // (such as when a doctor is mid-appointment)
-    // set autoLogout to false and use the idle store or onIdle
-    // event from svelte-idle to write your own behaviour
-    export let autoLogout = true;
     export let userType;
     export let session;
 
     import { listen, idle } from "svelte-idle";
     import { apiPOST } from "$lib/apiFetch.js";
-    import { BLANK_SESSION } from "$lib/constants.js";
+    import { BLANK_SESSION, mid_appointment } from "$lib/constants.js";
     import { goto } from "$app/navigation";
+    import { page } from '$app/stores';
+
+    $: console.log($page.url.pathname);
 
     let timer = null;
     $: {
@@ -39,10 +37,22 @@
         }
     }
 
-    $: {
-        if (autoLogout && $idle && $session.token !== "") {
-            console.log(`User is idle! logging out ${JSON.stringify($session)}`);
-            logout();
+    function shouldLogout() {
+        // need to be idle and logged in to be logged out
+        if (!$idle || $session.token === "") {
+            return;
         }
+
+        // Check if on appointment page AND if a doctor is mid-appointment on it
+        if ($page.url.pathname.includes("/dashboard/appointment/") && $mid_appointment) {
+            return;
+        }
+
+        console.log(`User is idle! logging out ${JSON.stringify($session)}`);
+        logout();
+    }
+
+    $: {
+        shouldLogout();
     }
 </script>

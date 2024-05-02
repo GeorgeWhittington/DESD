@@ -1,7 +1,6 @@
 <script>
   import { onMount } from "svelte";
   import { bootstrapThemes } from "$lib/constants.js";
-  import { getContext } from "svelte";
   import { BLANK_SESSION } from "$lib/constants";
   import { apiPOST } from "$lib/apiFetch.js";
 

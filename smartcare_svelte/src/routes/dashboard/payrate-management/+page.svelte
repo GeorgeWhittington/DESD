@@ -3,7 +3,6 @@
     import { writable } from "svelte/store";
     import { apiGET, apiPATCH, apiPOST } from "$lib/apiFetch.js";
     import NeedsAuthorisation from "$lib/components/NeedsAuthorisation.svelte";
-    import IdleDetection from "$lib/components/IdleDetection.svelte";
     import Field from "$lib/components/Field.svelte";
 
     const session = getContext("session");
@@ -89,7 +88,6 @@
     })
 </script>
 
-<IdleDetection userType={$session.userType} session={session} />
 <NeedsAuthorisation userType={$session.userType} userTypesPermitted={[0, 1]} />
 
 <div class="card mt-3">

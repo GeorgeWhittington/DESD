@@ -7,10 +7,10 @@
         APPOINTMENT_STAGE,
         APPOINTMENT_STAGE_COLOURS
     } from "$lib/constants";
-    import IdleDetection from "$lib/components/IdleDetection.svelte";
     import NeedsAuthorisation from "$lib/components/NeedsAuthorisation.svelte";
     import { onMount, getContext } from "svelte";
     import { apiGET, apiPOST } from "$lib/apiFetch.js";
+    import { mid_appointment } from "$lib/constants.js";
 
     const session = getContext("session");
 
@@ -63,6 +63,7 @@
 
         if (response && response.ok) {
             console.log(response.text())
+            mid_appointment.set(true);
             location.reload();
         } else {
             return "Server error, please try again later!";
@@ -74,6 +75,7 @@
 
         if (response && response.ok) {
             console.log(response.text())
+            mid_appointment.set(false);
             location.reload();
         } else {
             return "Server error, please try again later!";
@@ -125,7 +127,6 @@
     let isStaff = $session.userType == 2 || $session.userType == 3;
 </script>
 
-<IdleDetection userType={$session.userType} session={session} />
 <NeedsAuthorisation userType={$session.userType} userTypesPermitted={[0, 1, 2, 3, 5]} />
 
 <div>
