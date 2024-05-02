@@ -18,12 +18,11 @@
     });
     // token = session.token
 
-    const handler = new DataHandler([], { rowsPerPage: 50 })
+    let prescription_requests = []
+    const handler = new DataHandler(prescription_requests, { rowsPerPage: 50 })
     const rows = handler.getRows()
     const selected = handler.getSelected()
     const isAllSelected = handler.isAllSelected()
-
-    let prescription_requests = []
 
     async function loadPrescriptions() {
         let response = await apiGET(session, "/prescription-requests/");
