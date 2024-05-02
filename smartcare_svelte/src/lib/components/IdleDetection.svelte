@@ -2,22 +2,20 @@
     export let userType;
     export let session;
 
-    import { listen, idle } from "svelte-idle";
+    import { listen, idle, onIdle } from "svelte-idle";
     import { apiPOST } from "$lib/apiFetch.js";
     import { BLANK_SESSION, mid_appointment } from "$lib/constants.js";
     import { goto } from "$app/navigation";
     import { page } from '$app/stores';
 
-    $: console.log($page.url.pathname);
-
     let timer = null;
     $: {
         if (userType <= 1) {
-            timer = 120_0000 // 20 mins
+            timer = 120_000 // 20 mins
         } else if (userType <= 4) {
-            timer = 60_0000 // 10 mins
+            timer = 60_000 // 10 mins
         } else if (userType == 5) {
-            timer = 30_0000 // 5 mins
+            timer = 30_000 // 5 mins
         }
     }
 
@@ -37,22 +35,17 @@
         }
     }
 
-    function shouldLogout() {
-        // need to be idle and logged in to be logged out
-        if (!$idle || $session.token === "") {
+    onIdle(() => {
+        // Not logged in
+        if ($session.token === "")
             return;
-        }
 
-        // Check if on appointment page AND if a doctor is mid-appointment on it
         if ($page.url.pathname.includes("/dashboard/appointment/") && $mid_appointment) {
+            console.log("User is idle, but they will not be logged out because they are conducting an appointment");
             return;
         }
 
         console.log(`User is idle! logging out ${JSON.stringify($session)}`);
         logout();
-    }
-
-    $: {
-        shouldLogout();
-    }
+    })
 </script>
