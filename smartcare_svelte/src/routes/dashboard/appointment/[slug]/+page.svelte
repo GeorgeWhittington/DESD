@@ -22,9 +22,13 @@
     let comments = [];
 
     // modals
-    let modalManualSchedule = false;
-
+    let manualScheduleDate = new Date().toISOString().slice(0, 10);
+    
     onMount(async () => {
+        loadAppointmentData();
+    });
+
+    async function loadAppointmentData() {
         let response = await apiGET(session, `/appointments/${data.slug}/`);
         if (response && response.ok) {
             appointment = await response.json();
@@ -37,73 +41,14 @@
         } else {
             return "Server error, please try again later!";
         }
-    });
-
-    async function approveAppointment() {
-        let response = await apiPOST(session, `/appointments/${appointment.id}/approve/`, "");
-
-        if (response && response.ok) {
-            console.log(response.text())
-            location.reload();
-        } else {
-            return "Server error, please try again later!";
-        }
-    }
-
-    async function rejectAppointment() {
-        let response = await apiPOST(session, `/appointments/${appointment.id}/reject/`, "");
-
-        if (response && response.ok) {
-            console.log(response.text())
-            location.reload();
-        } else {
-            return "Server error, please try again later!";
-        }
-    }
-
-    async function beginAppointment() {
-        let response = await apiPOST(session, `/appointments/${appointment.id}/begin/`, "");
-
-        if (response && response.ok) {
-            console.log(response.text())
-            location.reload();
-        } else {
-            return "Server error, please try again later!";
-        }
-    }
-
-    async function endAppointment() {
-        let response = await apiPOST(session, `/appointments/${appointment.id}/end/`, "");
-
-        if (response && response.ok) {
-            console.log(response.text())
-            location.reload();
-        } else {
-            return "Server error, please try again later!";
-        }
-    }
-
-    async function assignToCurrentUser() {
-        let response = await apiPOST(session, `/appointments/${appointment.id}/assign_to_current_user/`, "");
-
-        if (response && response.ok) {
-            console.log(response.text())
-            location.reload();
-        } else {
-            return "Server error, please try again later!";
-        }
-    }
-
-    async function showManualScheduleModal() {
-        modalManualSchedule = true;
     }
 
     async function doAppointmentAction(name) {
-        let response = await apiPOST($session, `/appointments/${appointment.id}/${name}/`, "");
+        let response = await apiPOST(session, `/appointments/${appointment.id}/${name}/`, "");
 
         if (response && response.ok) {
             console.log(response.text())
-            location.reload();
+            loadAppointmentData();
         } else {
             return "Server error, please try again later!";
         }
@@ -208,10 +153,32 @@
                 <button type="submit" class="btn btn-primary"
                         >Automatically Schedule</button
                     >
+                    <br>
+                    <br>
+                <!-- Manual Schedule form -->
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Schedule Manually</h5>
+                        <form>
+                            <div class="mb-3">
+                              <label for="exampleInputEmail1" class="form-label">Date</label>
+                              <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
+                              <div id="emailHelp" class="form-text">We'll never share your email with anyone else.</div>
+                            </div>
+                            <div class="mb-3">
+                              <label for="exampleInputPassword1" class="form-label">Staff</label>
+                              <input type="password" class="form-control" id="exampleInputPassword1">
+                            </div>
+                            <div class="mb-3 form-check">
+                              <input type="checkbox" class="form-check-input" id="exampleCheck1">
+                              <label class="form-check-label" for="exampleCheck1">Check me out</label>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Schedule</button>
+                          </form>
+                    </div>
+                  </div>
+                
 
-                <button type="submit" class="btn btn-primary" on:click={showManualScheduleModal}
-                        >Manual Schedule</button
-                    >
                 {/if}
                 
 
@@ -310,37 +277,4 @@
         </div>
     </div>
 </div>
-
-
-<!-- Modals -->
-{#if modalManualSchedule }
-<div class="modal" id="onload" tabindex="-1" role="dialog" style="display: block;">
-    <div class="modal-dialog">
-        <div class="modal-content">
-        <div class="modal-header">
-            <h5 class="modal-title">Manual Schedule</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-            <form>
-                <div class="mb-3">
-        
-                    <!-- Date -->
-        
-                    <div class="mb-3">
-                        <label for="txtDate" class="form-label">Date</label>
-                        <input type="date" id="txtDate" class="form-control" bind:value={date_requested}>
-                    </div>
-                    </div>
-            </form>
-        </div>
-        <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-            <button type="button" class="btn btn-primary">Save changes</button>
-        </div>
-        </div>
-    </div>
-</div>
-{/if}
-
   
