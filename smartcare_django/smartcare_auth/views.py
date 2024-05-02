@@ -11,7 +11,7 @@ from knox.views import LoginView as KnoxLoginView
 
 from smartcare_auth.rest_permissions import IsStaff, IsAdmin, IsOwnerOrReadOnly
 from smartcare_auth.models import StaffInfo, PasswordReset, UserType, EmploymentType, PayRate, PatientPayType
-from smartcare_auth.serializers import UserSerializer, StaffSerializer, ResetPasswordSerializer, PayRateSerializer
+from smartcare_auth.serializers import UserSerializer, StaffSerializer, ResetPasswordSerializer, PayRateSerializer, BasicUserSerializer
 from smartcare_appointments.schedule_logic import update_working_days
 
 UserModel = get_user_model()
@@ -41,7 +41,7 @@ class UserFilter(filters.FilterSet):
 
     class Meta:
         model = UserModel
-        fields = ["user_type"]
+        fields = ["user_type", "is_active"]
 
 
 class UserView(mixins.CreateModelMixin, mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.UpdateModelMixin, viewsets.GenericViewSet):
@@ -57,7 +57,7 @@ class UserView(mixins.CreateModelMixin, mixins.ListModelMixin, mixins.RetrieveMo
             return [permissions.AllowAny()]
         elif self.action in ["update", "partial_update"]:
             return [IsOwnerOrReadOnly()]
-        elif self.action == "me":
+        elif self.action in ["me", "staff", "update_password"]:
             return [permissions.IsAuthenticated()]
         elif self.action in ["make_active", "make_inactive", "make_full_time", "make_part_time", "set_pay_rate"]:
             return [IsAdmin()]
@@ -68,6 +68,17 @@ class UserView(mixins.CreateModelMixin, mixins.ListModelMixin, mixins.RetrieveMo
     def me(self, request):
         user = UserSerializer(request.user, context={"request": request})
         return Response(user.data)
+
+    @action(detail=False, methods=["POST"])
+    def update_password(self, request):
+        new_password = request.data.get("new_password")
+        if new_password is None:
+            return Response({"detail": "No new password provided"}, status=status.HTTP_400_BAD_REQUEST)
+
+        request.user.set_password(new_password)
+        request.user.save()
+
+        return Response({"detail": "Password updated"}, status=status.HTTP_200_OK)
 
     @staticmethod
     def verify_user_ids(user_ids):
@@ -230,6 +241,12 @@ class UserView(mixins.CreateModelMixin, mixins.ListModelMixin, mixins.RetrieveMo
     @action(detail=False, methods=["POST"])
     def make_private_patient(self, request):
         return self.set_patient_pay_type(request, PatientPayType.PRIVATE)
+
+    @action(detail=False)
+    def staff(self, request):
+        staff_members = UserModel.objects.filter(user_type__in=[UserType.DOCTOR, UserType.NURSE], is_active=True).all()
+        serializer = BasicUserSerializer(staff_members, many=True)
+        return Response(serializer.data)
 
 
 class StaffView(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):

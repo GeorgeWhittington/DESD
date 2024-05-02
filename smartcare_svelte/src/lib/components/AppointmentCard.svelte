@@ -5,6 +5,7 @@
     import { goto } from "$app/navigation";
     import { apiPOST } from "$lib/apiFetch.js";
     export let appointment;
+    export let customClasses = "";
 
     const session = getContext("session");
 
@@ -40,7 +41,8 @@
     }
 </style>
 
-<div class="card mb-3 appointment-card" style="width: 24rem;" >
+<div class="{customClasses} d-flex justify-content-center">
+<div class="card appointment-card" style="width: 20rem;" >
     <div class="card-body" on:click={cardClicked}>
       <span class="card-title"><b>{appointment.patient.first_name} {appointment.patient.last_name}</b><span class="badge float-end" style="background-color: {APPOINTMENT_STAGE_COLOURS[appointment.stage]};">{APPOINTMENT_STAGE[appointment.stage]}</span></span>
       
@@ -71,4 +73,5 @@
       <textarea class="form-control" style="resize:none; padding:4px; border: none;" readonly disabled
       rows="3">{appointment.symptoms}</textarea>
     </div>
+</div>
 </div>

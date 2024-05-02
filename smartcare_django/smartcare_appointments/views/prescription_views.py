@@ -7,8 +7,8 @@ from rest_framework.response import Response
 
 from smartcare_appointments.models import Prescription, PrescriptionRequest
 from smartcare_appointments.prescriptions_serializers import PrescriptionsSerializer, PrescriptionsRequestSerializer
-from smartcare_auth.rest_permissions import IsStaff, IsStaffOrExternal
-
+from smartcare_auth.rest_permissions import IsStaff, IsStaffOrExternal, IsAuthenticatedAndNotExternal, PrescriptionRequestIsOwnerOrStaffOrExternal
+from smartcare_auth.models import User
 
 class PrescriptionsView(mixins.ListModelMixin, mixins.CreateModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     queryset = Prescription.objects.all()
@@ -28,30 +28,46 @@ class PrescriptionsView(mixins.ListModelMixin, mixins.CreateModelMixin, mixins.R
         serializer = PrescriptionsSerializer(queryset, many=True, context={'request': request})
         return Response(serializer.data)
     
-    #To do: Make another action for archiving prescriptions
+    @action(detail=False, methods=['post'])
+    def create_prescription(self, request):
+        user = request.user
+        try:
+            patient_id = request.data.pop("patient_id")
+            medicine = request.data.pop("medicine")
+            notes = request.data.pop("notes")
+            is_repeating = request.data.pop("is_repeating")
+        except KeyError:
+            return Response({"result" : False, "message": "could not locate required data"}, status=status.HTTP_400_BAD_REQUEST)
+       
+        patient = User.objects.filter(pk__in=patient_id).first()
+
+        if not patient :
+            return Response({"result" : False, "message": "no valid patient ids provided"}, status=status.HTTP_400_BAD_REQUEST)
+
+        prescription = Prescription()
+        prescription.medicine = medicine
+        prescription.notes = notes
+        prescription.is_repeating = is_repeating
+        prescription.patient = patient
+        prescription.staff = user
+        prescription.save()
+
+        return Response({"result" : True, "message": f"success, prescription for {patient.username} was created"}, status=status.HTTP_200_OK)
+    
 
 
-
-    #To do: Make prescriptionsrequests view
-
-class PrescriptionRequestView(mixins.ListModelMixin, mixins.CreateModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
+class PrescriptionRequestView(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     queryset = PrescriptionRequest.objects.all()
     serializer_class = PrescriptionsRequestSerializer
 
-    '''
     def get_permissions(self):
-        if self.request.method == "POST":
+        if self.action == "create_request":
+            return [IsAuthenticatedAndNotExternal()]
+        elif self.action == "respond_request":
             return [IsStaff()]
-        elif self.action == "create_request":
-            return [permissions.IsAuthenticated()]
         else:
-            return [IsStaffOrExternal()]
-    '''
-    @action(detail=False)
-    def prescription_requests(self, request):
-        pass
+            return [PrescriptionRequestIsOwnerOrStaffOrExternal()]
     
-    #To do: @action(detail=False, methods=['post']) Make another action with repeat perscription serializer fo patients to create a new repeat prescription request
     @action(detail=False, methods=['post'])
     def create_request(self, request):
         user = request.user
@@ -69,7 +85,6 @@ class PrescriptionRequestView(mixins.ListModelMixin, mixins.CreateModelMixin, mi
             if not prescription:
                 return Response({"result" : False, "message": "failed to get prescription"})
 
-            print(prescription_id)
             
             prescription_request = PrescriptionRequest()
             prescription_request.prescription = prescription
@@ -78,31 +93,28 @@ class PrescriptionRequestView(mixins.ListModelMixin, mixins.CreateModelMixin, mi
         
         return Response({"result" : True, "message": "success"})
 
-    #To do: @action(detail=False, methods=['post']) Make another action for doctors to be able to accept or reject prescription requests
     @action(detail=False, methods=['post'])
     def respond_request(self, request):
         user = request.user
-        try:
-            prescription_id = request.data.pop("prescription_id")
-        except KeyError:
-            return Response({"result" : False, "message": "could not locate prescription"}, status=status.HTTP_400_BAD_REQUEST)
+        prescription_request_ids = request.data.get("prescription_request_ids")
+        is_approved = request.data.get("is_approved")
         
-        for i in prescription_id:
-            prescription = Prescription.objects.get(pk=i)
+        if prescription_request_ids is None or not isinstance(prescription_request_ids, list) or len(prescription_request_ids) == 0:
+            return Response({"result" : False, "message": "could not locate prescription_request_ids"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        if is_approved is None:
+            return Response({"result" : False, "message": "not approving or rejecting request, please set is_approved"}, status=status.HTTP_400_BAD_REQUEST)
 
-            if not user.is_clinic_staff():
-                return Response({"result" : False, "message": "only clinic staff can respond to prescription requests"})
-            
-            if not prescription:
-                return Response({"result" : False, "message": "failed to get prescription"})
-            
-            print(prescription_id)
-            
-            prescription_request = PrescriptionRequest()
+        prescription_requests = PrescriptionRequest.objects.filter(pk__in=prescription_request_ids).all()
+
+        if len(prescription_requests) == 0:
+            return Response({"result" : False, "message": "no valid prescription request ids provided"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        for prescription_request in prescription_requests:
             prescription_request.approved_by = user
             prescription_request.approved_time = datetime.now(timezone.utc)
-            
             prescription_request.save()
-            
+
+        return Response({"result" : True, "message": f"success, {len(prescription_requests)} were updated"}, status=status.HTTP_200_OK)
         
 

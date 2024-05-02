@@ -4,8 +4,9 @@ from django.core.mail import send_mail
 from django.db.models import Q
 from django.contrib.auth import get_user_model, tokens
 from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
 
-from smartcare_auth.models import StaffInfo, PayRate, UserType, PasswordReset, PatientInfo, PatientPayType
+from smartcare_auth.models import StaffInfo, PayRate, UserType, PasswordReset, PatientInfo, PatientPayType, EmploymentType
 from smartcare_appointments.schedule_serializers import WorkingDaySerializer, TimeOffSerializer
 
 UserModel = get_user_model()
@@ -14,7 +15,7 @@ UserModel = get_user_model()
 class BasicUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserModel
-        fields = ["id", "first_name", "last_name"]
+        fields = ["id", "first_name", "last_name", "email"]
 
 
 class StaffSerializer(serializers.ModelSerializer):
@@ -46,11 +47,19 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
     staff_info = StaffBasicSerializer(required=False)
     patient_info = PatientInfoSerializer(required=False)
 
+    patient_pay_type = serializers.IntegerField(write_only=True, required=False)
+
     def create(self, validated_data):
-        staff_info = validated_data.pop('staff_info', {})
         user_type = validated_data["user_type"]
         first_name = validated_data["first_name"]
         last_name = validated_data["last_name"]
+
+        patient_pay_type = None
+        if user_type == UserType.PATIENT:
+            patient_pay_type = validated_data.get("patient_pay_type")
+            print(patient_pay_type)
+            if not (patient_pay_type in [PatientPayType.NHS, PatientPayType.PRIVATE]):
+                raise ValidationError({"patient_pay_type_id": "Patient pay type is missing or unrecognised"})
 
         fullname = f"{first_name}{last_name}"
         username = fullname
@@ -90,19 +99,20 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
             else:
                 payrate = PayRate.objects.get(Q(title="nurse"))
 
-            StaffInfo(
+            staff_info = StaffInfo(
                 user=user,
-                employment_type=staff_info.get('employment_type') if staff_info else None,
                 payrate=payrate)
+            staff_info.save()
 
         if user_type == UserType.PATIENT:
-            PatientInfo(user=user, pay_type=PatientPayType.PRIVATE)
+            patient_info = PatientInfo(user=user, pay_type=patient_pay_type)
+            patient_info.save()
 
         return user
 
     class Meta:
         model = UserModel
-        fields = ["url", "id", "username", "first_name", "last_name", "email", "password", "user_type", "staff_info", "date_of_birth", "phone_number", "address_line_1", "address_line_2", "city", "postcode", "patient_info", "is_active"]
+        fields = ["url", "id", "username", "first_name", "last_name", "email", "password", "user_type", "staff_info", "date_of_birth", "phone_number", "address_line_1", "address_line_2", "city", "postcode", "patient_info", "is_active", "patient_pay_type"]
         # Username is constructed from first+last name programatically, no validation needed
         # is_active should *not* ever be editable via this route
         extra_kwargs = {
