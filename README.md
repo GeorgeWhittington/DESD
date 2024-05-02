@@ -2,7 +2,13 @@
 
 ## Install instructions
 
-Navigate to the root directory of the repository and run: `docker-compose up --build` 
+Navigate to the root directory of the repository and run:
+
+`cd smartcare-svelte`
+
+`npm install`
+
+`docker-compose up --build` 
 
 You can add the flag `-d` to daemonise the processes
 
