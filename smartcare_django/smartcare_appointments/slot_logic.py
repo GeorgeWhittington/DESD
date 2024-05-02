@@ -1,5 +1,5 @@
 from datetime import datetime
-
+from zoneinfo import ZoneInfo
 
 from django.conf import settings
 from datetime import datetime,date,timedelta
@@ -39,12 +39,14 @@ def scheduler(appointment, user=None):
 # schedule the appointment using the chosen staff and slot
 def schedule_appointment(staff, slot, appointment,dateRequested):
     try:
+        slot_start_str = settings.SLOTS[slot]['start']
+        slot_start_time = datetime.strptime(slot_start_str, '%H:%M:%S').time()
+        slot_start_datetime_local = datetime.combine(dateRequested, slot_start_time, settings.CLINIC_TIME_ZONE)
+
         appointment.slot_number = slot
-        slotStartTime = settings.SLOTS[slot]['start']
-        convertedSlotTime = datetime.strptime(slotStartTime, '%H:%M:%S').time()
         appointment.staff = staff.user
         appointment.stage = AppointmentStage.SCHEDULED
-        appointment.assigned_start_time = (datetime.combine(dateRequested,convertedSlotTime))
+        appointment.assigned_start_time = slot_start_datetime_local
         appointment.save()
         return True
     except Exception as e:
@@ -83,12 +85,10 @@ def get_staff_working_on_date(date):
     print("AVAILABLE STAFF: ", availableStaff)
     return availableStaff
 
-# get a staff's available slots 
 def staff_get_available_slot(staff,date,timePreference,timeCheck):
-    
     # gets the appointments a doctor already has for date
     appointmentSlotNumbers = staff_get_appointments(staff,date)
-    
+
     #stores available slots
     availableSlotNumbers = []
 
@@ -106,19 +106,16 @@ def staff_get_available_slot(staff,date,timePreference,timeCheck):
 
     if timePreference != 0:
         availableSlotNumbers = list(reversed(availableSlotNumbers))
-        
-    if timeCheck:
-        todaysDate = datetime.today().date()
 
-        if todaysDate == date:
-            currentTime = datetime.today().strftime('%H:%M:%S')
-            convertedTime = datetime.strptime(currentTime, '%H:%M:%S').time()
+    if timeCheck:
+        now = datetime.now(tz=ZoneInfo(settings.CLINIC_TIME_ZONE))
+
+        if now.date() == date:
+            convertedTime = datetime.strptime(now.strftime("%H:%M:%S"), '%H:%M:%S').time()
             for availableSlot in availableSlotNumbers:
                 slotStartTime = settings.SLOTS[availableSlot]['start']
                 convertedSlotTime = datetime.strptime(slotStartTime, '%H:%M:%S').time()
-                if convertedTime >= convertedSlotTime:
-                    False
-                else:
+                if convertedTime < convertedSlotTime:
                     return availableSlot
     else:
         return availableSlotNumbers[0] if availableSlotNumbers else False

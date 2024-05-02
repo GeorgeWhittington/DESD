@@ -52,7 +52,7 @@ class AppointmentView(mixins.CreateModelMixin, mixins.ListModelMixin, mixins.Ret
                 queryset = queryset.filter(stage__in=stage_ids)
 
         if 'today_only' in self.request.query_params:
-            today = datetime.now().date()
+            today = datetime.now(settings.CLINIC_TIME_ZONE).date()
             queryset = queryset.filter(assigned_start_time__date=today)
 
         return queryset
