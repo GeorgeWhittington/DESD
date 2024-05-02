@@ -4,6 +4,7 @@
     import NeedsAuthorisation from "$lib/components/NeedsAuthorisation.svelte";
     import AppointmentDashboard from "$lib/components/AppointmentDashboard.svelte";
     import PrescriptionTable from "$lib/components/PrescriptionTable.svelte";
+    import UserTable from "$lib/components/UserTable.svelte";
 
     const session = getContext("session");
     let doctorTypes = [0,1,2,3]
@@ -34,5 +35,9 @@
 <AppointmentDashboard title="Requires Manual Scheduling" stage_id=1></AppointmentDashboard>
 <br>
 <PrescriptionTable session={session} is_doctor={doctorTypes.includes($session.userType)} />
+
+{:else if [0, 1].includes($session.userType)}
+<!-- ADMIN DASHBOARD -->
+<UserTable userTypes={[2, 3]} title="Unactivated Staff Users" filters={["is_active=false"]} />
 
 {/if}

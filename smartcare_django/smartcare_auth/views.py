@@ -41,7 +41,7 @@ class UserFilter(filters.FilterSet):
 
     class Meta:
         model = UserModel
-        fields = ["user_type"]
+        fields = ["user_type", "is_active"]
 
 
 class UserView(mixins.CreateModelMixin, mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.UpdateModelMixin, viewsets.GenericViewSet):
